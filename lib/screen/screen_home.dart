@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:location/location.dart';
 import 'package:maplibre_gl/mapbox_gl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -52,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _goToMyPosition() async {
-    if (_myPosition != null) {
+    if (_myPosition != null && _mapController != null) {
       await _mapController!.animateCamera(
         CameraUpdate.newLatLngZoom(LatLng(_myPosition!.latitude!, _myPosition!.longitude!), 16),
       );
@@ -77,6 +78,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (state is LocationItemState) {
       _locationSubscription = state.subscription;
       _myPosition = state.data;
+      _goToMyPosition();
     }
   }
 
@@ -115,9 +117,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           drawer: const HomeDrawer(),
           extendBodyBehindAppBar: true,
           resizeToAvoidBottomInset: false,
-          body: HomeMap(onMapCreated: _onMapCreated, onStyleLoadedCallback: _goToMyPosition),
+          body: HomeMap(onMapCreated: _onMapCreated),
           appBar: HomeAppBar(onLeadingPressed: _onLeadingPressed),
-          floatingActionButton: HomeFloatingActionButton(onPressed: _goToMyPosition),
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.only(left: 32.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                HomeActiveOrderButton(onPressed: () => context.pushNamed(AuthScreen.name)),
+                HomeMyPositionButton(onPressed: _goToMyPosition),
+              ],
+            ),
+          ),
           bottomSheet: HomeBottomSheet(
             maxChildSize: 0.95,
             controller: _draggableScrollableController,
@@ -203,7 +214,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           },
                         );
                       },
-                      childCount: 5,
+                      childCount: 1,
                     ),
                   ),
                 ],

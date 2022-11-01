@@ -15,7 +15,14 @@ class DiscountScreen extends StatelessWidget {
       appBar: const DiscountAppBar(),
       floatingActionButton: FloatingActionButton(
         elevation: 0.8,
-        onPressed: () {},
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return const DiscountCreateModal();
+            },
+          );
+        },
         child: const Icon(CupertinoIcons.add),
       ),
       body: CustomScrollView(
@@ -29,11 +36,11 @@ class DiscountScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                     child: CustomListTile(
                       height: 80.0,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                       tileColor: context.theme.primaryColorDark,
                       textColor: context.theme.colorScheme.onPrimary,
                       iconColor: context.theme.colorScheme.onPrimary,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                       leading: const Padding(
                         padding: EdgeInsets.only(right: 8.0),
                         child: Icon(CupertinoIcons.tag),
@@ -54,6 +61,7 @@ class DiscountScreen extends StatelessWidget {
                           ],
                         ),
                       ),
+                      onTap: () {},
                     ),
                   );
                 },

@@ -17,6 +17,9 @@ class HomeAppBar extends DefaultAppBar {
   final ValueChanged<BuildContext>? onLeadingPressed;
 
   @override
+  Size get preferredSize => super.preferredSize * 1.2;
+
+  @override
   Widget build(BuildContext context) {
     final ThemeData theme = context.theme;
     return AppBar(
@@ -87,6 +90,7 @@ class HomeMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaplibreMap(
+      compassEnabled: false,
       onMapClick: onMapClick,
       myLocationEnabled: true,
       onMapCreated: onMapCreated,
@@ -172,8 +176,8 @@ class _HomeBottomSheetState extends State<HomeBottomSheet> {
   }
 }
 
-class HomeFloatingActionButton extends StatelessWidget {
-  const HomeFloatingActionButton({super.key, required this.onPressed});
+class HomeMyPositionButton extends StatelessWidget {
+  const HomeMyPositionButton({super.key, required this.onPressed});
 
   final VoidCallback? onPressed;
 
@@ -181,9 +185,27 @@ class HomeFloatingActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton.small(
       elevation: 0.8,
+      heroTag: 'location',
       onPressed: onPressed,
       backgroundColor: context.theme.colorScheme.onSurface,
       child: const Icon(CupertinoIcons.location),
+    );
+  }
+}
+
+class HomeActiveOrderButton extends StatelessWidget {
+  const HomeActiveOrderButton({super.key, required this.onPressed});
+
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton.small(
+      elevation: 0.8,
+      heroTag: 'cube_box',
+      onPressed: onPressed,
+      backgroundColor: context.theme.colorScheme.onSurface,
+      child: const Icon(CupertinoIcons.cube_box),
     );
   }
 }

@@ -15,7 +15,7 @@ class HomeDrawer extends StatelessWidget {
           slivers: [
             SliverToBoxAdapter(
               child: SizedBox(
-                height: 30.0,
+                height: 45.0,
                 child: CupertinoButton(
                   padding: const EdgeInsets.symmetric(horizontal: 12.0),
                   onPressed: () => Navigator.pop(context),
@@ -48,10 +48,11 @@ class HomeDrawer extends StatelessWidget {
                 onTap: () => context.pushNamed(DiscountScreen.name),
               ),
             ),
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: CustomListTile(
-                leading: Icon(CupertinoIcons.bag),
-                title: Text('Business'),
+                leading: const Icon(CupertinoIcons.bag),
+                title: const Text('Business'),
+                onTap: () => context.pushNamed(BusinessScreen.name),
               ),
             ),
             SliverToBoxAdapter(

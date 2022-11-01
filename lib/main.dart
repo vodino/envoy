@@ -49,6 +49,17 @@ class _MyAppState extends State<MyApp> {
               },
             ),
             GoRoute(
+              path: AuthScreen.path,
+              name: AuthScreen.name,
+              pageBuilder: (context, state) {
+                return const CupertinoPage(
+                  child: CustomKeepAlive(
+                    child: AuthScreen(),
+                  ),
+                );
+              },
+            ),
+            GoRoute(
               path: OrderRecordingScreen.path,
               name: OrderRecordingScreen.name,
               pageBuilder: (context, state) {
@@ -79,6 +90,17 @@ class _MyAppState extends State<MyApp> {
                 return const CupertinoPage(
                   child: CustomKeepAlive(
                     child: DiscountScreen(),
+                  ),
+                );
+              },
+            ),
+            GoRoute(
+              path: BusinessScreen.path,
+              name: BusinessScreen.name,
+              pageBuilder: (context, state) {
+                return const CupertinoPage(
+                  child: CustomKeepAlive(
+                    child: BusinessScreen(),
                   ),
                 );
               },

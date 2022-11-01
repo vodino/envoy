@@ -9,7 +9,7 @@ class HomeOrderAppBar extends DefaultAppBar {
   Widget build(BuildContext context) {
     return CupertinoNavigationBar(
       automaticallyImplyLeading: false,
-      middle: const Text('Commande'),
+      middle: const Text('Commander'),
       leading: CustomButton(
         onPressed: () => Navigator.pop(context),
         child: const Text(

@@ -24,7 +24,10 @@ class HelpFaqScreen extends StatelessWidget {
                 textColor: context.theme.colorScheme.onPrimary,
                 iconColor: context.theme.colorScheme.onPrimary,
                 leading: const CircleAvatar(child: Text('01')),
-                title: const Text('Comment commander un livreur ?'),
+                title: const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text('Comment commander un livreur ?'),
+                ),
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
@@ -32,7 +35,7 @@ class HelpFaqScreen extends StatelessWidget {
                       style: TextStyle(color: context.theme.colorScheme.onPrimary),
                       child: const Text('To order a rider input the required information in the fields provided an tap the lets go button to find the nearest ride for you'),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -47,7 +50,10 @@ class HelpFaqScreen extends StatelessWidget {
                 textColor: context.theme.colorScheme.onPrimary,
                 iconColor: context.theme.colorScheme.onPrimary,
                 leading: const CircleAvatar(child: Text('02')),
-                title: const Text('Comment commander un livreur ?'),
+                title: const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text('Comment commander un livreur ?'),
+                ),
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),

@@ -13,8 +13,10 @@ class OrderDeliveriedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CupertinoNavigationBar(),
+      appBar: const OrderDeliveriedAppBar(),
       body: BottomAppBar(
+        elevation: 0.0,
+        color: Colors.transparent,
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(
@@ -74,7 +76,7 @@ class OrderDeliveriedScreen extends StatelessWidget {
               hasScrollBody: false,
               fillOverscroll: true,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -83,7 +85,7 @@ class OrderDeliveriedScreen extends StatelessWidget {
                       child: const Text('Repeat Order'),
                       onPressed: () {},
                     ),
-                    const SizedBox(height: 8.0),
+                    const SizedBox(height: 6.0),
                     HomeFinderCanceller(
                       child: const Text('Save Order'),
                       onPressed: () {},

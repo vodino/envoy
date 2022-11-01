@@ -19,62 +19,67 @@ class OrderRecordingScreen extends StatelessWidget {
         child: Column(
           children: [
             Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    CustomButton(
-                      onPressed: () {},
-                      child: OrderRecordingTab(
-                        label: const Text('Active orders'),
-                        icon: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(CupertinoIcons.cube_box, size: 30.0),
-                            SizedBox(width: 8.0),
-                            Text('10', style: TextStyle(fontSize: 30.0)),
-                          ],
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      CustomButton(
+                        onPressed: () {},
+                        child: OrderRecordingTab(
+                          label: const Text('Active orders'),
+                          icon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(CupertinoIcons.cube_box, size: 30.0),
+                              SizedBox(width: 8.0),
+                              Text('10', style: TextStyle(fontSize: 30.0)),
+                            ],
+                          ),
+                          active: true,
                         ),
-                        active: true,
                       ),
-                    ),
-                    CustomButton(
-                      onPressed: () {},
-                      child: OrderRecordingTab(
-                        label: const Text('Active orders'),
-                        icon: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(CupertinoIcons.cube_box, size: 30.0),
-                            SizedBox(width: 8.0),
-                            Text('10', style: TextStyle(fontSize: 30.0)),
-                          ],
+                      CustomButton(
+                        onPressed: () {},
+                        child: OrderRecordingTab(
+                          label: const Text('Active orders'),
+                          icon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(CupertinoIcons.cube_box, size: 30.0),
+                              SizedBox(width: 8.0),
+                              Text('10', style: TextStyle(fontSize: 30.0)),
+                            ],
+                          ),
+                          active: false,
                         ),
-                        active: false,
                       ),
-                    ),
-                    CustomButton(
-                      onPressed: () {},
-                      child: OrderRecordingTab(
-                        label: const Text('Active orders'),
-                        icon: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(CupertinoIcons.cube_box, size: 30.0),
-                            SizedBox(width: 8.0),
-                            Text('10', style: TextStyle(fontSize: 30.0)),
-                          ],
+                      CustomButton(
+                        onPressed: () {},
+                        child: OrderRecordingTab(
+                          label: const Text('Active orders'),
+                          icon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(CupertinoIcons.cube_box, size: 30.0),
+                              SizedBox(width: 8.0),
+                              Text('10', style: TextStyle(fontSize: 30.0)),
+                            ],
+                          ),
+                          active: false,
                         ),
-                        active: false,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
             Expanded(
               child: BottomAppBar(
+                elevation: 0.0,
+                color: Colors.transparent,
                 child: CustomScrollView(
                   slivers: [
                     MultiSliver(
