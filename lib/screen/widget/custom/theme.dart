@@ -15,7 +15,9 @@ class Themes {
         primaryColorDark: secondaryColor,
         primaryColorLight: secondaryColor,
         fontFamily: FontFamily.sFProRounded,
+        canvasColor: CupertinoColors.white,
         dividerColor: CupertinoColors.systemFill,
+        scaffoldBackgroundColor: CupertinoColors.white,
         colorScheme: const ColorScheme.light(
           primary: primaryColor,
         ),
@@ -30,7 +32,6 @@ class Themes {
           isCollapsed: true,
           border: UnderlineInputBorder(borderSide: BorderSide.none),
         ),
-        
         bottomSheetTheme: BottomSheetThemeData(
           clipBehavior: Clip.antiAlias,
           backgroundColor: CupertinoColors.white,
@@ -40,9 +41,10 @@ class Themes {
           ),
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          foregroundColor: CupertinoColors.systemGrey,
+          foregroundColor: CupertinoColors.systemGrey4,
           backgroundColor: CupertinoColors.black,
         ),
+        cupertinoOverrideTheme: const NoDefaultCupertinoThemeData(barBackgroundColor: CupertinoColors.white),
         dividerTheme: const DividerThemeData(space: 0.8, thickness: 0.8),
       );
 

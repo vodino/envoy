@@ -86,7 +86,7 @@ class OrderDeliveriedScreen extends StatelessWidget {
                       onPressed: () {},
                     ),
                     const SizedBox(height: 6.0),
-                    HomeFinderCanceller(
+                    CustomOutlineButton(
                       child: const Text('Save Order'),
                       onPressed: () {},
                     ),

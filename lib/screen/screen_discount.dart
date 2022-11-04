@@ -32,37 +32,10 @@ class DiscountScreen extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                    child: CustomListTile(
-                      height: 80.0,
-                      tileColor: context.theme.primaryColorDark,
-                      textColor: context.theme.colorScheme.onPrimary,
-                      iconColor: context.theme.colorScheme.onPrimary,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                      leading: const Padding(
-                        padding: EdgeInsets.only(right: 8.0),
-                        child: Icon(CupertinoIcons.tag),
-                      ),
-                      title: Text(
-                        '50% Reductions',
-                        style: context.cupertinoTheme.textTheme.navTitleTextStyle.copyWith(
-                          color: context.theme.colorScheme.onPrimary,
-                        ),
-                      ),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.only(top: 12.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            Text('02 livraisons'),
-                            Text('Expire 03 jours'),
-                          ],
-                        ),
-                      ),
-                      onTap: () {},
-                    ),
+                  return DiscountListTile(
+                    title: '50% de réduction',
+                    dateTime: DateTime.now(),
+                    deliveries: 3,
                   );
                 },
                 childCount: 3,

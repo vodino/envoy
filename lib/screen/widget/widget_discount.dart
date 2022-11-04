@@ -14,6 +14,58 @@ class DiscountAppBar extends DefaultAppBar {
   }
 }
 
+class DiscountListTile extends StatelessWidget {
+  const DiscountListTile({
+    super.key,
+    this.onTap,
+    required this.title,
+    required this.dateTime,
+    required this.deliveries,
+  });
+
+  final String title;
+  final int deliveries;
+  final DateTime dateTime;
+
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+      child: CustomListTile(
+        height: 80.0,
+        tileColor: context.theme.primaryColorDark,
+        textColor: context.theme.colorScheme.onPrimary,
+        iconColor: context.theme.colorScheme.onPrimary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        leading: const Padding(
+          padding: EdgeInsets.only(right: 8.0),
+          child: Icon(CupertinoIcons.tag),
+        ),
+        title: Text(
+          title,
+          style: context.cupertinoTheme.textTheme.navTitleTextStyle.copyWith(
+            color: context.theme.colorScheme.onPrimary,
+          ),
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 12.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('${deliveries.toString().padLeft(2, "0")} livraison(s)'),
+              Text('Expire ${dateTime.day} jour(s)'),
+            ],
+          ),
+        ),
+        onTap: () {},
+      ),
+    );
+  }
+}
+
 class DiscountCreateModal extends StatelessWidget {
   const DiscountCreateModal({super.key});
 

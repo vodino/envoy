@@ -11,6 +11,8 @@ class HomeDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       child: BottomAppBar(
+        elevation: 0.0,
+        color: Colors.transparent,
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(
@@ -36,7 +38,7 @@ class HomeDrawer extends StatelessWidget {
             SliverToBoxAdapter(
               child: CustomListTile(
                 leading: const Icon(CupertinoIcons.cube_box),
-                title: const Text('My Orders'),
+                title: const Text('Commandes'),
                 onTap: () => context.pushNamed(OrderRecordingScreen.name),
               ),
             ),
@@ -44,7 +46,7 @@ class HomeDrawer extends StatelessWidget {
             SliverToBoxAdapter(
               child: CustomListTile(
                 leading: const Icon(CupertinoIcons.tag),
-                title: const Text('Discounts'),
+                title: const Text('Réductions'),
                 onTap: () => context.pushNamed(DiscountScreen.name),
               ),
             ),
@@ -58,7 +60,7 @@ class HomeDrawer extends StatelessWidget {
             SliverToBoxAdapter(
               child: CustomListTile(
                 leading: const Icon(CupertinoIcons.info_circle),
-                title: const Text('Help/Faq'),
+                title: const Text('Aide/Faq'),
                 onTap: () => context.pushNamed(HelpFaqScreen.name),
               ),
             ),
@@ -69,6 +71,8 @@ class HomeDrawer extends StatelessWidget {
               ),
             ),
             SliverFillRemaining(
+              hasScrollBody: false,
+              fillOverscroll: true,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -77,7 +81,7 @@ class HomeDrawer extends StatelessWidget {
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
                     onTap: () => context.pushNamed(SettingsScreen.name),
                     leading: const Icon(CupertinoIcons.gear),
-                    title: const Text('Settings'),
+                    title: const Text('Paramètres'),
                     height: 55.0,
                   ),
                 ],

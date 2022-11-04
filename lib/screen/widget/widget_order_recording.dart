@@ -9,7 +9,7 @@ class OrderRecordingAppBar extends DefaultAppBar {
   @override
   Widget build(BuildContext context) {
     return const CupertinoNavigationBar(
-      middle: Text('Mes commandes'),
+      middle: Text('Commandes'),
     );
   }
 }

@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 import '_screen.dart';
 
@@ -7,30 +8,56 @@ class HomeFinderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: context.mediaQuery.padding.bottom),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const HomeFinderAppBar(),
-          const Expanded(
-            child: HomeFinderLoader(child: Icon(CupertinoIcons.car_detailed, size: 28.0)),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: HomeFinderCanceller(
-              child: Text(
-                'Annuler',
-                style: context.cupertinoTheme.textTheme.actionTextStyle.copyWith(
-                  color: CupertinoColors.destructiveRed,
+    return DraggableScrollableSheet(
+      maxChildSize: 1.0,
+      minChildSize: 1.0,
+      initialChildSize: 1.0,
+      builder: (context, scrollController) {
+        return SafeArea(
+          child: CustomScrollView(
+            controller: scrollController,
+            slivers: [
+              SliverFillRemaining(
+                hasScrollBody: false,
+                fillOverscroll: true,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const HomeFinderAppBar(),
+                    Expanded(
+                      child: HomeFinderLoader(
+                        child: Center(
+                          child: Lottie.asset(
+                            Assets.images.motorbike,
+                            alignment: Alignment.center,
+                            fit: BoxFit.cover,
+                            animate: false,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                      child: CustomOutlineButton(
+                        child: const Text('Annuler'),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (context) {
+                              return const HomeDeliveryScreen();
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              onPressed: () {},
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

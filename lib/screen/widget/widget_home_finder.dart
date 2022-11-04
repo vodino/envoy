@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
 import '_widget.dart';
 
@@ -26,46 +26,24 @@ class HomeFinderLoader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Positioned.fill(
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
+        const Positioned.fill(
+          child: Padding(
+            padding: EdgeInsets.all(32.0),
             child: Center(
-              child: SizedBox.fromSize(
-                size: const Size.fromRadius(60.0),
-                child: const CircularProgressIndicator(strokeWidth: 2.0),
+              child: LoadingIndicator(
+                colors: [CupertinoColors.systemFill],
+                indicatorType: Indicator.ballRotateChase,
               ),
             ),
           ),
         ),
-        Positioned.fill(child: child),
+        Positioned.fill(
+          child: Padding(
+            padding: const EdgeInsets.all(52.0),
+            child: child,
+          ),
+        ),
       ],
-    );
-  }
-}
-
-class HomeFinderCanceller extends StatelessWidget {
-  const HomeFinderCanceller({
-    super.key,
-    this.onPressed,
-    required this.child,
-  });
-
-  final Widget child;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton(
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 12.0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-        side: const BorderSide(color: CupertinoColors.systemGrey, width: 0.8),
-      ),
-      child: DefaultTextStyle(
-        style: context.cupertinoTheme.textTheme.actionTextStyle,
-        child: child,
-      ),
     );
   }
 }

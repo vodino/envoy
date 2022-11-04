@@ -19,40 +19,31 @@ class BusinessScreen extends StatelessWidget {
         child: CustomScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           slivers: [
-            const SliverToBoxAdapter(child: SizedBox(height: 12.0)),
+            const SliverToBoxAdapter(child: SizedBox(height: 8.0)),
             const SliverToBoxAdapter(
-              child: CustomListTile(
-                height: 35.0,
-                title: Text('Contact'),
-              ),
+              child: CustomListTile(height: 30.0, title: Text('Contact')),
             ),
             const SliverToBoxAdapter(
               child: CustomTextField(
                 hintText: 'Email ou Numéro de téléphone',
               ),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 16.0)),
+            const SliverToBoxAdapter(child: SizedBox(height: 8.0)),
             const SliverToBoxAdapter(
-              child: CustomListTile(
-                height: 35.0,
-                title: Text('Requête'),
-              ),
+              child: CustomListTile(height: 30.0, title: Text('Requête')),
             ),
             const SliverToBoxAdapter(
               child: CustomTextField(
                 hintText: 'Selectionner un business',
               ),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 16.0)),
+            const SliverToBoxAdapter(child: SizedBox(height: 8.0)),
             const SliverToBoxAdapter(
-              child: CustomListTile(
-                height: 35.0,
-                title: Text('Message'),
-              ),
+              child: CustomListTile(height: 30.0, title: Text('Message')),
             ),
             const SliverToBoxAdapter(
               child: CustomTextField(
-                hintText: 'Taper ici',
+                hintText: 'Ecrire...',
                 maxLines: 5,
                 minLines: 5,
               ),
@@ -61,7 +52,7 @@ class BusinessScreen extends StatelessWidget {
               hasScrollBody: false,
               fillOverscroll: true,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.stretch,

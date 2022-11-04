@@ -13,7 +13,7 @@ dependencies:
   cupertino_icons:
   flutter:
     sdk: flutter
-  
+
   # Assets
   flutter_localizations:
     sdk: flutter
@@ -22,10 +22,12 @@ dependencies:
 
   # Widgets
   modal_bottom_sheet:
-  sliding_up_panel:
+  flutter_rating_bar:
+  loading_indicator:
   auto_size_text:
+  flutter_svg:
   equatable:
-  sheet:
+  lottie:
 
   # Location and Geocoding
   location:
@@ -33,6 +35,10 @@ dependencies:
       git:
         url: https://github.com/m0nac0/flutter-maplibre-gl.git
         ref: main
+  
+  # Service
+  firebase_auth:
+  firebase_core:
   
 dev_dependencies:
   flutter_test:
@@ -44,11 +50,15 @@ dev_dependencies:
 flutter_gen:
   output: lib/screen/widget/custom/
 
+  integrations:
+    flutter_svg: true
+
 flutter:
   uses-material-design: true
   generate: true
   assets:
     - assets/files/
+    - assets/images/
 
   fonts:
     - family: SF-Pro-Rounded

@@ -58,6 +58,19 @@ class _MyAppState extends State<MyApp> {
                   ),
                 );
               },
+              routes: [
+                GoRoute(
+                  path: AuthVerificationScreen.path,
+                  name: AuthVerificationScreen.name,
+                  pageBuilder: (context, state) {
+                    return const CupertinoPage(
+                      child: CustomKeepAlive(
+                        child: AuthVerificationScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
             GoRoute(
               path: OrderRecordingScreen.path,
@@ -77,6 +90,17 @@ class _MyAppState extends State<MyApp> {
                     return const CupertinoPage(
                       child: CustomKeepAlive(
                         child: OrderDeliveriedScreen(),
+                      ),
+                    );
+                  },
+                ),
+                GoRoute(
+                  path: OrderFeedbackScreen.path,
+                  name: OrderFeedbackScreen.name,
+                  pageBuilder: (context, state) {
+                    return const CupertinoPage(
+                      child: CustomKeepAlive(
+                        child: OrderFeedbackScreen(),
                       ),
                     );
                   },

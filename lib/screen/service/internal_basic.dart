@@ -24,6 +24,7 @@ class DevelopmentService extends Service {
   @override
   Future<void> _initialize() async {
     RepositoryService.development();
+    await FirebaseService.development();
   }
 }
 
@@ -33,5 +34,6 @@ class ProductionService extends Service {
   @override
   Future<void> _initialize() async {
     RepositoryService.production();
+    await FirebaseService.production();
   }
 }

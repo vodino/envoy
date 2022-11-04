@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late final TextEditingController _deliveryTextController;
 
   /// BottomSheet
+  late double _minChildSize;
+  late double _maxChildSize;
   late final DraggableScrollableController _draggableScrollableController;
 
   void _jumpUp() {
@@ -94,6 +97,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     /// BottomSheet
     _draggableScrollableController = DraggableScrollableController();
+    final double shortesSide = window.physicalGeometry.width;
+    final double longestSide = window.physicalGeometry.height;
+    _minChildSize = (window.padding.bottom + (shortesSide * 0.42).clamp(300, 450)) / longestSide;
+    _maxChildSize = (longestSide - window.padding.top - 24.0) / longestSide;
 
     /// LocationService
     _locationService = LocationService.instance();
@@ -117,7 +124,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           drawer: const HomeDrawer(),
           extendBodyBehindAppBar: true,
           resizeToAvoidBottomInset: false,
-          body: HomeMap(onMapCreated: _onMapCreated),
+          body: FractionallySizedBox(
+            heightFactor: 1.05 - _minChildSize,
+            child: HomeMap(onMapCreated: _onMapCreated),
+          ),
           appBar: HomeAppBar(onLeadingPressed: _onLeadingPressed),
           floatingActionButton: Padding(
             padding: const EdgeInsets.only(left: 32.0),
@@ -129,9 +139,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ],
             ),
           ),
-          bottomSheet: HomeBottomSheet(
-            maxChildSize: 0.95,
+          bottomSheet: DraggableScrollableSheet(
+            snap: true,
+            expand: false,
+            minChildSize: _minChildSize,
+            maxChildSize: _maxChildSize,
+            initialChildSize: _minChildSize,
             controller: _draggableScrollableController,
+            snapSizes: [_minChildSize, _maxChildSize],
             builder: (context, scrollController) {
               return CustomScrollView(
                 controller: scrollController,
@@ -139,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 slivers: [
                   const SliverPinnedHeader(child: CustomBar()),
                   SliverPinnedHeader(
-                    child: HomeBoxShadow(
+                    child: CustomBoxShadow(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -214,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           },
                         );
                       },
-                      childCount: 1,
+                      childCount: 5,
                     ),
                   ),
                 ],

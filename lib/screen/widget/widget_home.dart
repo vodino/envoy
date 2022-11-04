@@ -104,29 +104,6 @@ class HomeMap extends StatelessWidget {
   }
 }
 
-class HomeBoxShadow extends StatelessWidget {
-  const HomeBoxShadow({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = context.theme;
-    return Material(
-      child: Container(
-        clipBehavior: Clip.antiAlias,
-        margin: const EdgeInsets.all(12.0),
-        decoration: BoxDecoration(
-          boxShadow: const [BoxShadow(spreadRadius: -14.0, blurRadius: 16.0)],
-          borderRadius: BorderRadius.circular(12.0),
-          color: theme.colorScheme.surface,
-        ),
-        child: child,
-      ),
-    );
-  }
-}
-
 class HomeBottomSheet extends StatefulWidget {
   const HomeBottomSheet({
     super.key,

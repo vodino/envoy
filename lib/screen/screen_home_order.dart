@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '_screen.dart';
@@ -39,7 +40,7 @@ class HomeOrderScreen extends StatelessWidget {
               sliver: SliverGrid(
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 100.0,
-                  childAspectRatio: 1.2,
+                  childAspectRatio: 1.1,
                   crossAxisSpacing: 8.0,
                   mainAxisSpacing: 8.0,
                 ),
@@ -47,8 +48,41 @@ class HomeOrderScreen extends StatelessWidget {
                   (context, index) {
                     return Material(
                       shape: RoundedRectangleBorder(
-                        side: const BorderSide(color: CupertinoColors.systemFill),
+                        side: const BorderSide(color: CupertinoColors.activeOrange, width: 2.0),
                         borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: ClipRect(
+                              child: Transform.scale(
+                                scale: 1.2,
+                                child: Lottie.asset(
+                                  Assets.images.motorbike,
+                                  alignment: Alignment.center,
+                                  fit: BoxFit.fill,
+                                  animate: true,
+                                ),
+                              ),
+                            ),
+                          ),
+                          CustomListTile(
+                            height: 40.0,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
+                            title: const Text('À Moto', style: TextStyle(fontSize: 8.0)),
+                            subtitle: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                '5000 F',
+                                style: context.cupertinoTheme.textTheme.navTitleTextStyle.copyWith(
+                                  letterSpacing: -2.0,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     );
                   },
@@ -62,52 +96,22 @@ class HomeOrderScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                    decoration: ShapeDecoration(
-                      color: CupertinoColors.systemFill,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-                    ),
-                    child: const TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Numéro de chargement',
-                        hintText: 'Tapez le numéro du client à appeler',
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                      ),
-                    ),
+                  const CustomTextField(
+                    hintText: 'Numéro de chargement',
+                    readOnly: true,
                   ),
                   const SizedBox(height: 12.0),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                    decoration: ShapeDecoration(
-                      color: CupertinoColors.systemFill,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-                    ),
-                    child: const TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Numéro de livraison',
-                        hintText: 'Tapez le numéro du client à appeler',
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                      ),
-                    ),
+                  const CustomTextField(
+                    hintText: 'Numéro de livraison',
+                    readOnly: true,
                   ),
                   const SizedBox(height: 12.0),
-                  Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                      decoration: ShapeDecoration(
-                        color: CupertinoColors.systemFill,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-                      ),
-                      child: const TextField(
-                        expands: true,
-                        maxLines: null,
-                        minLines: null,
-                        decoration: InputDecoration(
-                          hintText: 'Description',
-                          contentPadding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                        ),
-                      ),
+                  const Expanded(
+                    child:  CustomTextField(
+                      hintText: 'Description',
+                      maxLines: null,
+                      minLines: null,
+                      expands: true,
                     ),
                   ),
                   CustomListTile(
