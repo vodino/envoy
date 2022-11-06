@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/mapbox_gl.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '_widget.dart';
 
@@ -273,6 +274,76 @@ class HomeFloatingActionButton extends StatelessWidget {
       heroTag: UniqueKey(),
       elevation: 0.8,
       child: child,
+    );
+  }
+}
+
+class HomeSearchShimmer extends StatelessWidget {
+  const HomeSearchShimmer({super.key});
+
+  Widget _tile() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 12.0,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: CupertinoColors.white,
+              borderRadius: BorderRadius.circular(30.0),
+            ),
+          ),
+          const SizedBox(height: 4.0),
+          FractionallySizedBox(
+            widthFactor: 0.8,
+            alignment: Alignment.centerLeft,
+            child: Container(
+              height: 12.0,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: CupertinoColors.white,
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      foregroundDecoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: List.generate(6, (index) {
+            return Colors.white.withOpacity(index * 0.2);
+          }),
+        ),
+      ),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey.shade300,
+        highlightColor: Colors.grey.shade100,
+        child: ListView.separated(
+          itemCount: 8,
+          shrinkWrap: true,
+          separatorBuilder: (context, index) {
+            return const Divider(
+              indent: 45.0,
+              height: 24.0,
+              thickness: 0.8,
+              color: CupertinoColors.systemGrey4,
+            );
+          },
+          itemBuilder: (context, index) {
+            return _tile();
+          },
+        ),
+      ),
     );
   }
 }

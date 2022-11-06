@@ -1,7 +1,7 @@
 import 'dart:ui';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart';
 
 import '_service.dart';
 
@@ -36,8 +36,8 @@ class GetCountries extends CountryEvent {
   Future<void> _execute(CountryService service) async {
     service.value = const PendingCountryState();
     try {
-      final response = await get(Uri.parse(url));
-      final data = compute(CountrySchema.fromListJson, response.body);
+      final response = await Dio().getUri<String>(Uri.parse(url));
+      final data = compute(CountrySchema.fromListJson, response.data!);
       data.then(
         (data) async {
           final countryCode = window.locale.countryCode;

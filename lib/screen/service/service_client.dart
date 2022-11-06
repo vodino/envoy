@@ -1,7 +1,7 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart';
 
 import '_service.dart';
 
@@ -43,17 +43,17 @@ class LoginClient extends ClientEvent {
     service.value = const PendingClientState();
     try {
       final body = {'phone_number': phoneNumber, 'firebase_token': token};
-      final response = await post(
+      final response = await Dio().postUri<String>(
         Uri.parse(url),
-        body: jsonEncode(body),
-        headers: {
+        data: jsonEncode(body),
+        options: Options(headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-        },
+        }),
       );
       switch (response.statusCode) {
         case 200:
-          final data = await compute(ClientSchema.fromJson, response.body);
+          final data = await compute(ClientSchema.fromJson, response.data!);
           service.value = ClientItemState(data: data);
           break;
         case 404:
@@ -95,17 +95,17 @@ class RegisterClient extends ClientEvent {
     service.value = const PendingClientState();
     try {
       final body = {'phone_number': phoneNumber, 'firebase_token': token, 'full_name': fullName};
-      final response = await post(
+      final response = await Dio().postUri<String>(
         Uri.parse(url),
-        body: jsonEncode(body),
-        headers: {
+        data: jsonEncode(body),
+        options: Options(headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-        },
+        }),
       );
       switch (response.statusCode) {
         case 200:
-          final data = await compute(ClientSchema.fromJson, response.body);
+          final data = await compute(ClientSchema.fromJson, response.data!);
           service.value = ClientItemState(data: data);
           break;
         case 404:
@@ -116,7 +116,7 @@ class RegisterClient extends ClientEvent {
           break;
         default:
           service.value = FailureClientState(
-            message: response.body,
+            message: response.data!,
             event: this,
           );
       }

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart';
 
 import '_service.dart';
 
@@ -38,27 +38,32 @@ class GetGeocoding extends PlaceEvent {
 
   String get url => '${RepositoryService.httpURL}/v1/api/location';
 
+  static CancelToken? _cancelToken;
+
   @override
   Future<void> _execute(PlaceService service) async {
     service.value = const PendingPlaceState();
     try {
       final body = {'location_name': query, 'long': long, 'lat': lat};
-      final response = await post(
+      _cancelToken?.cancel();
+      _cancelToken = CancelToken();
+      final response = await Dio().postUri<String>(
         Uri.parse(url),
-        body: jsonEncode(body),
-        headers: {
+        data: jsonEncode(body),
+        cancelToken: _cancelToken,
+        options: Options(headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-        },
+        }),
       );
       switch (response.statusCode) {
         case 200:
-          final data = await compute(PlaceSchema.fromRawJsonList, response.body);
+          final data = await compute(PlaceSchema.fromRawJsonList, response.data!);
           service.value = PlaceItemListState(data: data);
           break;
         default:
           service.value = FailurePlaceState(
-            message: response.body,
+            message: response.data!,
             event: this,
           );
       }

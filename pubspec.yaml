@@ -27,6 +27,7 @@ dependencies:
   loading_indicator:
   auto_size_text:
   flutter_svg:
+  shimmer:
   badges:
   lottie:
   pinput:
@@ -41,7 +42,7 @@ dependencies:
   # Service
   firebase_auth:
   firebase_core:
-  http:
+  dio:
 
 dev_dependencies:
   flutter_test:

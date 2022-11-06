@@ -31,7 +31,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void _listenDeliveryTextController() {
     final String query = _deliveryTextController.text;
     if (query.isNotEmpty) {
-      print(query);
       _getDeliveryGeocoding(query, latLng: _myPosition!.position);
     }
   }
@@ -112,9 +111,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   StreamSubscription? _locationSubscription;
   UserLocation? _myPosition;
 
-  LatLng? _pickupPosition;
-  LatLng? _deliveryPosition;
-
   void _listenLocationState(BuildContext context, LocationState state) {
     if (state is UserLocationItemState) {
       _locationSubscription = state.subscription;
@@ -126,9 +122,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   /// PlaceService
   late final PlaceService _deliveryPlaceService;
   late final PlaceService _pickupPlaceService;
-
-  late List<PlaceSchema> _deliveryPlaces;
-  late List<PlaceSchema> _pickupPlaces;
 
   void _getDeliveryGeocoding(
     String query, {
@@ -143,11 +136,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _listenDeliveryState(BuildContext context, PlaceState state) {
-    if (state is PlaceItemListState) {
-      _deliveryPlaces = state.data;
-    }
-  }
+  void _listenDeliveryState(BuildContext context, PlaceState state) {}
 
   @override
   void initState() {
@@ -178,8 +167,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     /// PlaceService
     _deliveryPlaceService = PlaceService();
     _pickupPlaceService = PlaceService();
-    _deliveryPlaces = [];
-    _pickupPlaces = [];
   }
 
   @override
@@ -303,38 +290,48 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             listener: _listenDeliveryState,
                             valueListenable: _deliveryPlaceService,
                             builder: (context, state, child) {
-                              return SliverList(
-                                delegate: SliverChildBuilderDelegate(
-                                  (context, index) {
-                                    if (index.isEven) {
-                                      index ~/= 2;
-                                      final item = _deliveryPlaces[index];
-                                      return CustomListTile(
-                                        leading: const Icon(CupertinoIcons.location_solid, size: 18.0),
-                                        subtitle: const Text('37 km'),
-                                        title: Text(item.title!),
-                                        onTap: () async {
-                                          final isOk = await showCupertinoModalBottomSheet<bool>(
-                                            context: context,
-                                            builder: (context) {
-                                              return const HomeOrderScreen();
-                                            },
-                                          );
-                                          if (isOk != null) {
-                                            _jumpDown();
-                                            showModalBottomSheet(
+                              List<PlaceSchema> deliveryPlaces = [];
+                              if (state is PlaceItemListState) {
+                                deliveryPlaces = state.data;
+                              }
+                              return SliverVisibility(
+                                visible: state is PlaceItemListState,
+                                replacementSliver: const SliverFillRemaining(
+                                  child: HomeSearchShimmer(),
+                                ),
+                                sliver: SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                    (context, index) {
+                                      if (index.isEven) {
+                                        index ~/= 2;
+                                        final item = deliveryPlaces[index];
+                                        return CustomListTile(
+                                          leading: const Icon(CupertinoIcons.location_solid, size: 18.0),
+                                          subtitle: const Text('37 km'),
+                                          title: Text(item.title!),
+                                          onTap: () async {
+                                            final isOk = await showCupertinoModalBottomSheet<bool>(
                                               context: context,
                                               builder: (context) {
-                                                return const HomeFinderScreen();
+                                                return const HomeOrderScreen();
                                               },
                                             );
-                                          }
-                                        },
-                                      );
-                                    }
-                                    return const Divider(indent: 40.0);
-                                  },
-                                  childCount: max(0, _deliveryPlaces.length * 2 - 1),
+                                            if (isOk != null) {
+                                              _jumpDown();
+                                              showModalBottomSheet(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const HomeFinderScreen();
+                                                },
+                                              );
+                                            }
+                                          },
+                                        );
+                                      }
+                                      return const Divider(indent: 40.0);
+                                    },
+                                    childCount: max(0, deliveryPlaces.length * 2 - 1),
+                                  ),
                                 ),
                               );
                             },

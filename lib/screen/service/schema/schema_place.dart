@@ -139,7 +139,8 @@ class PlaceSchema extends Equatable {
   }
 
   static List<PlaceSchema> fromRawJsonList(String value) {
-    final result = _PlaceResult.fromJson(value);
+    final Map<String, dynamic> data = jsonDecode(value)['data'];
+    final result = _PlaceResult.fromMap(data);
     return List.of(
       (result.features!.map((e) {
         final properties = e.properties;

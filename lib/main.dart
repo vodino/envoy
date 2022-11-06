@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'screen/_screen.dart';
@@ -15,6 +15,7 @@ class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
+  
   State<MyApp> createState() => _MyAppState();
 }
 

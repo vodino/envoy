@@ -90,7 +90,7 @@ class CustomBoxShadow extends StatelessWidget {
     final ThemeData theme = context.theme;
     return Container(
       clipBehavior: Clip.antiAlias,
-      margin: const EdgeInsets.all(12.0),
+      margin: const EdgeInsets.symmetric(horizontal: 12.0),
       decoration: BoxDecoration(
         boxShadow: const [BoxShadow(spreadRadius: -14.0, blurRadius: 16.0)],
         border: Border.all(color: CupertinoColors.systemFill),
