@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '_screen.dart';
@@ -15,20 +16,110 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
+  /// Input
+  late final TextEditingController _phoneTextController;
+  late final ValueNotifier<String?> _errorController;
+  late final ValueNotifier<bool> _privacyController;
+  late final FocusNode _phoneFocusNode;
+  CountrySchema? _currentCountry;
+
+  void _listenError(BuildContext context, String? data) {
+    if (data != null) HapticFeedback.vibrate();
+  }
+
+  String get _phoneNumber {
+    final String dialCode = _currentCountry!.dialCode;
+    final String phoneNumber = _phoneTextController.text.trimSpace();
+    return '$dialCode $phoneNumber';
+  }
+
   /// AuthService
   late final AuthService _authService;
 
+  void _verifyPhoneNumber() {
+    if (_phoneTextController.text.trim().isEmpty) {
+      _errorController.value = 'Numéro de téléphone est requis.';
+      return;
+    }
+    if (_currentCountry == null) {
+      _errorController.value = 'Indicatif est requis.';
+      return;
+    }
+    if (!_privacyController.value) {
+      _errorController.value = "Veuillez accepter les conditions d'utilistaion.";
+      return;
+    }
+    _authService.handle(
+      VerifyPhoneNumberAuthEvent(
+        phoneNumber: _phoneNumber,
+      ),
+    );
+  }
+
   void _listenAuthService(BuildContext context, AuthState state) {
     if (state is SmsCodeSentState) {
-    } else if (state is FailureAuthState) {}
+      context.pushNamed(
+        AuthVerificationScreen.name,
+        extra: {
+          'verification_id': state.verificationId,
+          'phone_number': state.phoneNumber,
+          'resend_token': state.resendToken,
+          'timeout': state.timeout,
+        },
+      );
+    } else if (state is PendingAuthState) {
+      _phoneFocusNode.unfocus();
+      _errorController.value = null;
+    } else if (state is FailureAuthState) {
+      _phoneFocusNode.unfocus();
+      _errorController.value = state.message;
+    }
+  }
+
+  /// CountryService
+  late final CountryService _countryService;
+
+  void _getCountries() {
+    _countryService.handle(const GetCountries());
+  }
+
+  void _goToAuthCountry({
+    required List<CountrySchema> items,
+    CountrySchema? currentItem,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return AuthCountryScreen(
+          currentItem: currentItem,
+          items: items,
+        );
+      },
+    );
+  }
+
+  void _listenCountryService(BuildContext context, CountryState state) {
+    if (state is PendingCountryState) {
+      _errorController.value = null;
+    }
   }
 
   @override
   void initState() {
     super.initState();
 
+    /// Input
+    _phoneFocusNode = FocusNode();
+    _errorController = ValueNotifier(null);
+    _privacyController = ValueNotifier(false);
+    _phoneTextController = TextEditingController();
+
     /// AuthService
     _authService = AuthService.instance();
+
+    /// CountryService
+    _countryService = CountryService.instance();
+    if (_countryService.value is! CountryItemListState) _getCountries();
   }
 
   @override
@@ -41,96 +132,109 @@ class _AuthScreenState extends State<AuthScreen> {
         child: CustomScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           slivers: [
-            SliverToBoxAdapter(
-              child: AspectRatio(
-                aspectRatio: 4.5,
-                child: Center(child: Assets.images.envoyIcon.svg()),
-              ),
-            ),
+            const SliverToBoxAdapter(child: AuthEnvoyIcon()),
+            const SliverToBoxAdapter(child: SizedBox(height: 8.0)),
+            const SliverToBoxAdapter(child: AuthTitle()),
             const SliverToBoxAdapter(child: SizedBox(height: 12.0)),
             SliverToBoxAdapter(
-              child: Center(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: IntrinsicWidth(
-                    child: CustomListTile(
-                      title: Text(
-                        'Saisissez les informations du compte',
-                        style: context.cupertinoTheme.textTheme.navTitleTextStyle,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SliverToBoxAdapter(
-              child: CustomListTile(height: 30.0, title: Text('Nom complet')),
-            ),
-            const SliverToBoxAdapter(
-              child: CustomTextField(
-                hintText: 'nom complet',
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 12.0)),
-            SliverToBoxAdapter(
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 100.0,
-                    child: Column(
-                      children: [
-                        const CustomListTile(height: 30.0, title: Text('Indicatif')),
-                        CustomTextField(
-                          readOnly: true,
-                          label: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text('${CustomString.toFlag('ci')} +225'),
+              child: ValueListenableConsumer<CountryState>(
+                valueListenable: _countryService,
+                listener: _listenCountryService,
+                builder: (context, state, child) {
+                  VoidCallback? onPressed = _getCountries;
+                  if (state is PendingCountryState) {
+                    onPressed = null;
+                  } else if (state is CountryItemListState) {
+                    _currentCountry = state.currentCountry;
+                    onPressed = () => _goToAuthCountry(items: state.data, currentItem: state.currentCountry);
+                  }
+                  return Row(
+                    children: [
+                      AuthDialCodeInput(
+                        onPressed: onPressed,
+                        child: Visibility(
+                          visible: onPressed != null,
+                          replacement: SizedBox.fromSize(
+                            size: const Size.fromRadius(13.0),
+                            child: const CustomLoading(),
                           ),
-                          textAlign: TextAlign.center,
+                          child: Visibility(
+                            visible: _currentCountry != null,
+                            replacement: const Icon(CupertinoIcons.refresh),
+                            child: Builder(
+                              builder: (context) {
+                                return Text(
+                                  '${CustomString.toFlag(_currentCountry!.code)} '
+                                  '${_currentCountry!.dialCode}',
+                                );
+                              },
+                            ),
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      children: const [
-                        CustomListTile(height: 30.0, title: Text('Numéro de téléphone')),
-                        CustomTextField(
-                          hintText: 'numéro de téléphone',
+                      ),
+                      Expanded(
+                        child: AuthPhoneTextField(
+                          enabled: onPressed != null,
+                          focusNode: _phoneFocusNode,
+                          controller: _phoneTextController,
                         ),
-                      ],
-                    ),
-                  ),
-                ],
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 12.0)),
+            const SliverToBoxAdapter(child: SizedBox(height: 24.0)),
             SliverToBoxAdapter(
-              child: CheckboxListTile(
-                value: true,
-                onChanged: (value) {},
-                activeColor: CupertinoColors.activeGreen,
-                controlAffinity: ListTileControlAffinity.leading,
-                subtitle: const Text(
-                  "En continuant, vous acceptez les conditions d'utilisation et consentez aux informations personnelles conformes aux Politiques de confidentialité",
-                  overflow: TextOverflow.visible,
-                  softWrap: true,
-                ),
+              child: ValueListenableBuilder<bool>(
+                valueListenable: _privacyController,
+                builder: (context, value, child) {
+                  return AuthPrivacyInput(
+                    value: value,
+                    onChanged: (value) {
+                      if (value != null) _privacyController.value = value;
+                    },
+                  );
+                },
               ),
             ),
             SliverFillRemaining(
               hasScrollBody: false,
               fillOverscroll: true,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12.0),
-                alignment: Alignment.bottomCenter,
-                child: FloatingActionButton(
-                  onPressed: () {
-                    context.pushNamed(AuthVerificationScreen.name);
-                  },
-                  backgroundColor: context.theme.primaryColorDark,
-                  child: const Icon(CupertinoIcons.arrow_right),
-                ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ValueListenableConsumer<String?>(
+                    listener: _listenError,
+                    valueListenable: _errorController,
+                    builder: (context, data, child) {
+                      return Visibility(
+                        visible: data != null,
+                        child: Builder(
+                          builder: (context) {
+                            return AuthErrorText(data!);
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  ValueListenableConsumer<AuthState>(
+                    valueListenable: _authService,
+                    listener: _listenAuthService,
+                    builder: (context, state, _) {
+                      VoidCallback? onPressed = _verifyPhoneNumber;
+                      if (state is PendingAuthState) onPressed = null;
+                      return AuthSubmitButton(
+                        onPressed: onPressed,
+                        child: Visibility(
+                          visible: onPressed != null,
+                          replacement: const CustomLoading(),
+                          child: const Icon(CupertinoIcons.arrow_right),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ],

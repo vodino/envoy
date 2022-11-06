@@ -17,6 +17,7 @@ dependencies:
   # Assets
   flutter_localizations:
     sdk: flutter
+  equatable:
   go_router:
   intl:
 
@@ -26,8 +27,9 @@ dependencies:
   loading_indicator:
   auto_size_text:
   flutter_svg:
-  equatable:
+  badges:
   lottie:
+  pinput:
 
   # Location and Geocoding
   location:
@@ -39,7 +41,8 @@ dependencies:
   # Service
   firebase_auth:
   firebase_core:
-  
+  http:
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

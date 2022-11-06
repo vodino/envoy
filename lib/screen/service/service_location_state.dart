@@ -1,8 +1,7 @@
-
-
 import 'dart:async';
 
 import 'package:location/location.dart';
+import 'package:maplibre_gl/mapbox_gl.dart';
 
 import '_service.dart';
 
@@ -34,6 +33,15 @@ class LocationItemState extends LocationState {
   });
   final StreamSubscription? subscription;
   final LocationData data;
+}
+
+class UserLocationItemState extends LocationState {
+  const UserLocationItemState({
+    required this.data,
+    this.subscription,
+  });
+  final StreamSubscription? subscription;
+  final UserLocation data;
 }
 
 class LocationItemListState extends LocationState {

@@ -7,8 +7,8 @@ import '_screen.dart';
 class OrderDeliveriedScreen extends StatelessWidget {
   const OrderDeliveriedScreen({super.key});
 
-  static const String path = 'order/deliveried';
-  static const String name = 'order/deliveried';
+  static const String path = 'orde_deliveried';
+  static const String name = 'deliveried';
 
   @override
   Widget build(BuildContext context) {
@@ -83,11 +83,6 @@ class OrderDeliveriedScreen extends StatelessWidget {
                   children: [
                     CupertinoButton.filled(
                       child: const Text('Repeat Order'),
-                      onPressed: () {},
-                    ),
-                    const SizedBox(height: 6.0),
-                    CustomOutlineButton(
-                      child: const Text('Save Order'),
                       onPressed: () {},
                     ),
                   ],

@@ -1,7 +1,7 @@
 class RepositoryService {
   const RepositoryService._();
 
-  static final _rootURL = Uri(host: 'localhost', port: 8080, path: 'graphql');
+  static final _rootURL = Uri(scheme: 'https', host: 'envoy.silamashop.com');
 
   static String? _wsURL;
   static String get wsURL => _wsURL!;

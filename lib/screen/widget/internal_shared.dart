@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
 import '_widget.dart';
 
@@ -15,9 +16,11 @@ class CustomTextField extends StatelessWidget {
     this.controller,
     this.enabled,
     this.label,
+    this.keyboardType,
     this.expands = false,
     this.readOnly = false,
     this.alignLabelWithHint,
+    this.autofocus = false,
     this.textAlign = TextAlign.start,
   });
 
@@ -29,14 +32,15 @@ class CustomTextField extends StatelessWidget {
   final bool expands;
   final bool? enabled;
   final bool readOnly;
+  final bool autofocus;
 
   final Widget? label;
   final bool? alignLabelWithHint;
 
-
   final TextEditingController? controller;
   final FocusNode? focusNode;
   final TextAlign textAlign;
+  final TextInputType? keyboardType;
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +51,8 @@ class CustomTextField extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
       ),
       child: TextFormField(
+        autofocus: autofocus,
+        keyboardType: keyboardType,
         textAlign: textAlign,
         enabled: enabled,
         readOnly: readOnly,
@@ -70,24 +76,28 @@ class CustomTextField extends StatelessWidget {
 }
 
 class CustomBoxShadow extends StatelessWidget {
-  const CustomBoxShadow({super.key, required this.child});
+  const CustomBoxShadow({
+    super.key,
+    required this.child,
+    this.color,
+  });
 
   final Widget child;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = context.theme;
-    return Material(
-      child: Container(
-        clipBehavior: Clip.antiAlias,
-        margin: const EdgeInsets.all(12.0),
-        decoration: BoxDecoration(
-          boxShadow: const [BoxShadow(spreadRadius: -14.0, blurRadius: 16.0)],
-          borderRadius: BorderRadius.circular(12.0),
-          color: theme.colorScheme.surface,
-        ),
-        child: child,
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      margin: const EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        boxShadow: const [BoxShadow(spreadRadius: -14.0, blurRadius: 16.0)],
+        border: Border.all(color: CupertinoColors.systemFill),
+        borderRadius: BorderRadius.circular(12.0),
+        color: color ?? theme.colorScheme.surface,
       ),
+      child: child,
     );
   }
 }
@@ -115,6 +125,18 @@ class CustomOutlineButton extends StatelessWidget {
         style: context.cupertinoTheme.textTheme.actionTextStyle,
         child: child,
       ),
+    );
+  }
+}
+
+class CustomLoading extends StatelessWidget {
+  const CustomLoading({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const LoadingIndicator(
+      colors: [CupertinoColors.systemGrey],
+      indicatorType: Indicator.ballClipRotateMultiple,
     );
   }
 }

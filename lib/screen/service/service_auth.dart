@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import '_service.dart';
 
 class AuthService extends ValueNotifier<AuthState> {
-  AuthService(AuthState value) : super(value);
+  AuthService([AuthState value = const InitAuthState()]) : super(value);
 
   static AuthService? _instance;
 
@@ -38,6 +38,7 @@ class VerifyPhoneNumberAuthEvent extends AuthEvent {
 
   final String phoneNumber;
   final int? resendToken;
+
   final Duration timeout;
 
   @override
@@ -114,6 +115,7 @@ class SignInAuthEvent extends AuthEvent {
 
 class SignOutAuthEvent extends AuthEvent {
   const SignOutAuthEvent();
+
   @override
   Future<void> _execute(AuthService service) async {
     service.value = const PendingAuthState();

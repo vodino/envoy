@@ -49,6 +49,8 @@ PODS:
   - MapLibreAnnotationExtension (0.0.1-beta.2):
     - MapLibre (~> 5.12.0)
   - PromisesObjC (2.1.1)
+  - smart_auth (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
@@ -58,6 +60,7 @@ DEPENDENCIES:
   - MapLibre
   - maplibre_gl (from `.symlinks/plugins/maplibre_gl/ios`)
   - MapLibreAnnotationExtension
+  - smart_auth (from `.symlinks/plugins/smart_auth/ios`)
 
 SPEC REPOS:
   https://github.com/m0nac0/flutter-maplibre-podspecs.git:
@@ -83,6 +86,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/location/ios"
   maplibre_gl:
     :path: ".symlinks/plugins/maplibre_gl/ios"
+  smart_auth:
+    :path: ".symlinks/plugins/smart_auth/ios"
 
 SPEC CHECKSUMS:
   Firebase: 1b810f3d0c0532e27a48f1961f8c0400a668a2cf
@@ -99,6 +104,7 @@ SPEC CHECKSUMS:
   maplibre_gl: 2a0ce99f40b3a133b0e8b40b5ef37e0562165399
   MapLibreAnnotationExtension: bc7f1041206218d7d24ba0908e3145cd54b86664
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
+  smart_auth: 4bedbc118723912d0e45a07e8ab34039c19e04f2
 
 PODFILE CHECKSUM: da9b8f15ef8fd6bb463f3d01ceaa74d98a94b73f
 

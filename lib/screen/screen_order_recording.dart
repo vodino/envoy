@@ -7,8 +7,8 @@ import '_screen.dart';
 class OrderRecordingScreen extends StatelessWidget {
   const OrderRecordingScreen({super.key});
 
-  static const String path = 'order/recording';
-  static const String name = 'order/recording';
+  static const String name = 'order_recording';
+  static const String path = 'recording';
 
   @override
   Widget build(BuildContext context) {

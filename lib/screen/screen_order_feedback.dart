@@ -7,8 +7,8 @@ import '_screen.dart';
 class OrderFeedbackScreen extends StatelessWidget {
   const OrderFeedbackScreen({super.key});
 
-  static const String path = 'order/feedback';
   static const String name = 'order_feedback';
+  static const String path = 'feedback';
 
   @override
   Widget build(BuildContext context) {
