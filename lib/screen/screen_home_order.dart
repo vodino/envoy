@@ -120,7 +120,7 @@ class HomeOrderScreen extends StatelessWidget {
                   ),
                   CustomListTile(
                     leading: CupertinoSwitch(value: true, onChanged: (value) {}),
-                    title: const Text('Paiement à la livraison'),
+                    title: const Text('Paiement par le livreur'),
                   ),
                   const SizedBox(height: 8.0),
                   Container(

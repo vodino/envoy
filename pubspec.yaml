@@ -28,6 +28,7 @@ dependencies:
   loading_indicator:
   auto_size_text:
   flutter_svg:
+  animations:
   shimmer:
   badges:
   lottie:

@@ -35,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _openHomeSearch() {
     showBottomSheet(
       context: _context,
+      enableDrag: false,
       builder: (context) {
         return const HomeSearchScreen();
       },

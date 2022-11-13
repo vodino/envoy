@@ -4,6 +4,30 @@ import 'package:loading_indicator/loading_indicator.dart';
 
 import '_widget.dart';
 
+class CustomBar extends StatelessWidget {
+  const CustomBar({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6.0),
+        child: FractionallySizedBox(
+          widthFactor: 0.15,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20.0),
+            child: const Divider(
+              color: CupertinoColors.systemFill,
+              thickness: 5.0,
+              height: 5.0,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class CustomTextField extends StatelessWidget {
   const CustomTextField({
     super.key,
@@ -97,7 +121,10 @@ class CustomBoxShadow extends StatelessWidget {
         borderRadius: BorderRadius.circular(12.0),
         color: color ?? theme.colorScheme.surface,
       ),
-      child: child,
+      child: Material(
+        color: color ?? theme.colorScheme.surface,
+        child: child,
+      ),
     );
   }
 }

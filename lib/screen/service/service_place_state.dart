@@ -21,6 +21,13 @@ class FailurePlaceState extends PlaceState {
   final String message;
 }
 
+class CancelFailurePlaceState extends FailurePlaceState {
+  const CancelFailurePlaceState({
+    required super.message,
+    super.event,
+  });
+}
+
 class PlaceItemState extends PlaceState {
   const PlaceItemState({
     required this.data,

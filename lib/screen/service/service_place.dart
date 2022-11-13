@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -42,36 +43,103 @@ class GetGeocoding extends PlaceEvent {
 
   @override
   Future<void> _execute(PlaceService service) async {
-    service.value = const PendingPlaceState();
-    try {
-      final body = {'location_name': query, 'long': long, 'lat': lat};
-      _cancelToken?.cancel();
-      _cancelToken = CancelToken();
-      final response = await Dio().postUri<String>(
-        Uri.parse(url),
-        data: jsonEncode(body),
-        cancelToken: _cancelToken,
-        options: Options(headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        }),
-      );
-      switch (response.statusCode) {
-        case 200:
-          final data = await compute(PlaceSchema.fromRawJsonList, response.data!);
-          service.value = PlaceItemListState(data: data);
-          break;
-        default:
-          service.value = FailurePlaceState(
-            message: response.data!,
+    scheduleMicrotask(() async {
+      service.value = const PendingPlaceState();
+      try {
+        final body = {'location_name': query, 'long': long, 'lat': lat};
+        _cancelToken?.cancel();
+        _cancelToken = CancelToken();
+        final response = await Dio().postUri<String>(
+          Uri.parse(url),
+          data: jsonEncode(body),
+          cancelToken: _cancelToken,
+          options: Options(headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          }),
+        );
+        switch (response.statusCode) {
+          case 200:
+            final data = await compute(PlaceSchema.fromRawJsonList, response.data!);
+            service.value = PlaceItemListState(data: data);
+            break;
+          default:
+            service.value = FailurePlaceState(
+              message: response.data!,
+              event: this,
+            );
+        }
+      } catch (error) {
+        if (error is DioError && error.type == DioErrorType.cancel) {
+          service.value = CancelFailurePlaceState(
+            message: error.toString(),
             event: this,
           );
+        } else {
+          service.value = FailurePlaceState(
+            message: error.toString(),
+            event: this,
+          );
+        }
       }
-    } catch (error) {
-      service.value = FailurePlaceState(
-        message: error.toString(),
-        event: this,
-      );
-    }
+    });
+  }
+}
+
+class GetReverseGeocoding extends PlaceEvent {
+  const GetReverseGeocoding({
+    required this.long,
+    required this.lat,
+  });
+
+  final double long;
+  final double lat;
+
+  String get url => '${RepositoryService.httpURL}/v1/api/reverse';
+
+  static CancelToken? _cancelToken;
+
+  @override
+  Future<void> _execute(PlaceService service) async {
+    scheduleMicrotask(() async {
+      service.value = const PendingPlaceState();
+      try {
+        final body = {'long': long, 'lat': lat};
+        _cancelToken?.cancel();
+        _cancelToken = CancelToken();
+        final response = await Dio().postUri<String>(
+          Uri.parse(url),
+          data: jsonEncode(body),
+          cancelToken: _cancelToken,
+          options: Options(headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          }),
+        );
+        switch (response.statusCode) {
+          case 200:
+            final data = await compute(PlaceSchema.fromRawJsonList, response.data!);
+            service.value = PlaceItemListState(data: data);
+            break;
+          default:
+            service.value = FailurePlaceState(
+              message: response.data!,
+              event: this,
+            );
+        }
+      } catch (error) {
+        if (error is DioError && error.type == DioErrorType.cancel) {
+          service.value = CancelFailurePlaceState(
+            message: error.toString(),
+            event: this,
+          );
+        } else {
+          service.value = FailurePlaceState(
+            message: error.toString(),
+            event: this,
+          );
+        }
+      }
+    });
   }
 }

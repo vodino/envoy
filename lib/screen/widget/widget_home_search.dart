@@ -1,74 +1,8 @@
-import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/mapbox_gl.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '_widget.dart';
-
-class HomeAppBar extends DefaultAppBar {
-  const HomeAppBar({
-    super.key,
-    this.onLeadingPressed,
-  });
-
-  final ValueChanged<BuildContext>? onLeadingPressed;
-
-  @override
-  Size get preferredSize => super.preferredSize * 1.2;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = context.theme;
-    return AppBar(
-      elevation: 0.0,
-      backgroundColor: Colors.transparent,
-      leading: Center(
-        child: Container(
-          decoration: BoxDecoration(
-            boxShadow: const [BoxShadow(spreadRadius: -12.0, blurRadius: 20.0)],
-            borderRadius: BorderRadius.circular(8.0),
-            color: theme.colorScheme.surface,
-          ),
-          child: CustomButton(
-            minSize: 40.0,
-            padding: EdgeInsets.zero,
-            backgroundColor: context.theme.colorScheme.surface,
-            onPressed: () => Scaffold.of(context).openDrawer(),
-            child: Icon(Icons.sort_rounded, color: context.theme.colorScheme.onSurface),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class CustomBar extends StatelessWidget {
-  const CustomBar({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6.0),
-        child: FractionallySizedBox(
-          widthFactor: 0.15,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20.0),
-            child: const Divider(
-              color: CupertinoColors.systemFill,
-              thickness: 5.0,
-              height: 5.0,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class HomeSearchFields extends StatelessWidget {
   const HomeSearchFields({
@@ -92,6 +26,15 @@ class HomeSearchFields extends StatelessWidget {
 
   final VoidCallback? onTap;
 
+  void _onSwichPressed() {
+    if (pickupTextController != null && deliveryTextController != null) {
+      final deliveryText = deliveryTextController!.text;
+      final pickupText = pickupTextController!.text;
+      deliveryTextController!.text = pickupText;
+      pickupTextController!.text = deliveryText;
+    }
+  }
+
   Widget _mapButton({
     required VoidCallback? onPressed,
   }) {
@@ -106,42 +49,53 @@ class HomeSearchFields extends StatelessWidget {
   Widget build(BuildContext context) {
     const contentPadding = EdgeInsets.only(right: 40.0, top: 8.0, bottom: 8.0);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Stack(
         children: [
           Positioned(
             child: CustomBoxShadow(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    onTap: onTap,
-                    focusNode: pickupFocusNode,
-                    controller: pickupTextController,
-                    keyboardType: TextInputType.name,
-                    textInputAction: TextInputAction.search,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(CupertinoIcons.search, color: CupertinoColors.activeBlue),
-                      suffix: _mapButton(onPressed: pickupMapPressed),
-                      contentPadding: contentPadding,
-                      hintText: 'Point de départ',
+              child: SizedBox(
+                height: 120.0,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: TextField(
+                          onTap: onTap,
+                          focusNode: pickupFocusNode,
+                          controller: pickupTextController,
+                          keyboardType: TextInputType.name,
+                          textInputAction: TextInputAction.search,
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(CupertinoIcons.search, color: CupertinoColors.activeBlue),
+                            suffix: _mapButton(onPressed: pickupMapPressed),
+                            contentPadding: contentPadding,
+                            hintText: 'Point de départ',
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                  const Divider(indent: 45.0, height: 16.0),
-                  TextField(
-                    onTap: onTap,
-                    focusNode: deliveryFocusNode,
-                    keyboardType: TextInputType.name,
-                    controller: deliveryTextController,
-                    textInputAction: TextInputAction.search,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(CupertinoIcons.search, color: CupertinoColors.activeOrange),
-                      suffix: _mapButton(onPressed: deliveryMapPressed),
-                      contentPadding: contentPadding,
-                      hintText: "Où livrer ?",
+                    const Divider(indent: 45.0),
+                    Expanded(
+                      child: Center(
+                        child: TextField(
+                          onTap: onTap,
+                          focusNode: deliveryFocusNode,
+                          keyboardType: TextInputType.name,
+                          controller: deliveryTextController,
+                          textInputAction: TextInputAction.search,
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(CupertinoIcons.search, color: CupertinoColors.activeOrange),
+                            suffix: _mapButton(onPressed: deliveryMapPressed),
+                            contentPadding: contentPadding,
+                            hintText: "Où livrer ?",
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -151,7 +105,7 @@ class HomeSearchFields extends StatelessWidget {
             bottom: 0.0,
             child: Center(
               child: CustomButton(
-                onPressed: () {},
+                onPressed: _onSwichPressed,
                 child: const Icon(
                   CupertinoIcons.arrow_up_arrow_down_circle_fill,
                   size: 35.0,
@@ -166,144 +120,49 @@ class HomeSearchFields extends StatelessWidget {
   }
 }
 
-class HomeMap extends StatelessWidget {
-  const HomeMap({
-    super.key,
-    this.onMapClick,
-    this.onCameraIdle,
-    this.onMapCreated,
-    this.onMapLongClick,
-    this.initialCameraPosition,
-    this.onUserLocationUpdated,
-    this.onStyleLoadedCallback,
-  });
-
-  final VoidCallback? onCameraIdle;
-  final OnMapClickCallback? onMapClick;
-  final MapCreatedCallback? onMapCreated;
-  final OnMapClickCallback? onMapLongClick;
-  final VoidCallback? onStyleLoadedCallback;
-  final CameraPosition? initialCameraPosition;
-  final OnUserLocationUpdated? onUserLocationUpdated;
-
-  @override
-  Widget build(BuildContext context) {
-    return MaplibreMap(
-      compassEnabled: false,
-      onMapClick: onMapClick,
-      myLocationEnabled: true,
-      onMapCreated: onMapCreated,
-      trackCameraPosition: true,
-      onCameraIdle: onCameraIdle,
-      onMapLongClick: onMapLongClick,
-      onUserLocationUpdated: onUserLocationUpdated,
-      onStyleLoadedCallback: onStyleLoadedCallback ?? () {},
-      gestureRecognizers: {Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer())},
-      initialCameraPosition: initialCameraPosition ?? const CameraPosition(target: LatLng(0.0, 0.0)),
-      styleString: 'https://api.maptiler.com/maps/57a3fe25-6f58-47b5-863f-ffd1be0122eb/style.json?key=ohdDnBihXL3Yk2cDRMfO',
-    );
-  }
-}
-
-class HomeBottomSheet extends StatefulWidget {
-  const HomeBottomSheet({
-    super.key,
-    this.controller,
-    this.maxChildSize,
-    this.minChildSize,
-    required this.builder,
-  });
-
-  final double? minChildSize;
-  final double? maxChildSize;
-  final ScrollableWidgetBuilder builder;
-  final DraggableScrollableController? controller;
-
-  @override
-  State<HomeBottomSheet> createState() => _HomeBottomSheetState();
-}
-
-class _HomeBottomSheetState extends State<HomeBottomSheet> {
-  /// Size
-  late double _minChildSize;
-  late double _maxChildSize;
-
-  @override
-  void initState() {
-    super.initState();
-
-    /// Size
-    final double shortesSide = window.physicalGeometry.width;
-    final double longestSide = window.physicalGeometry.height;
-    _minChildSize = widget.minChildSize ?? (window.padding.bottom + (shortesSide * 0.42).clamp(300, 450)) / longestSide;
-    _maxChildSize = (longestSide - window.padding.top - 24.0) / longestSide;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      snap: true,
-      expand: false,
-      builder: widget.builder,
-      minChildSize: _minChildSize,
-      maxChildSize: _maxChildSize,
-      controller: widget.controller,
-      initialChildSize: _minChildSize,
-      snapSizes: [_minChildSize, _maxChildSize],
-    );
-  }
-}
-
-class HomeFloatingActionButton extends StatelessWidget {
-  const HomeFloatingActionButton({
-    super.key,
-    required this.onPressed,
-    required this.child,
-  });
-
-  final VoidCallback? onPressed;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton.small(
-      backgroundColor: context.theme.colorScheme.onSurface,
-      onPressed: onPressed,
-      heroTag: UniqueKey(),
-      elevation: 0.8,
-      child: child,
-    );
-  }
-}
-
 class HomeSearchShimmer extends StatelessWidget {
   const HomeSearchShimmer({super.key});
 
   Widget _tile() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
           Container(
-            height: 12.0,
-            width: double.infinity,
+            width: 20.0,
+            height: 30.0,
             decoration: BoxDecoration(
               color: CupertinoColors.white,
-              borderRadius: BorderRadius.circular(30.0),
+              borderRadius: BorderRadius.circular(8.0),
             ),
           ),
-          const SizedBox(height: 4.0),
-          FractionallySizedBox(
-            widthFactor: 0.8,
-            alignment: Alignment.centerLeft,
-            child: Container(
-              height: 12.0,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: CupertinoColors.white,
-                borderRadius: BorderRadius.circular(30.0),
-              ),
+          const SizedBox(width: 8.0),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 12.0,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.white,
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                ),
+                const SizedBox(height: 4.0),
+                FractionallySizedBox(
+                  widthFactor: 0.8,
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    height: 12.0,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: CupertinoColors.white,
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -340,6 +199,51 @@ class HomeSearchShimmer extends StatelessWidget {
           itemBuilder: (context, index) {
             return _tile();
           },
+        ),
+      ),
+    );
+  }
+}
+
+class HomeSearchFieldButtons extends StatelessWidget {
+  const HomeSearchFieldButtons({
+    super.key,
+    this.onPickupPressed,
+    this.onDeliveryPressed,
+    required this.pickupWidget,
+    required this.deliveryWidget,
+  });
+
+  final Widget pickupWidget;
+  final Widget deliveryWidget;
+  final VoidCallback? onPickupPressed;
+  final VoidCallback? onDeliveryPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: CustomBoxShadow(
+        child: Column(
+          children: [
+            CustomButton(
+              onPressed: onPickupPressed,
+              child: CustomListTile(
+                height: 60.0,
+                title: pickupWidget,
+                leading: const Icon(CupertinoIcons.circle, size: 16.0, color: CupertinoColors.activeBlue),
+              ),
+            ),
+            const Divider(indent: 40.0),
+            CustomButton(
+              onPressed: onDeliveryPressed,
+              child: CustomListTile(
+                height: 60.0,
+                title: deliveryWidget,
+                leading: const Icon(CupertinoIcons.circle, size: 16.0, color: CupertinoColors.activeOrange),
+              ),
+            ),
+          ],
         ),
       ),
     );
