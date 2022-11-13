@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -670,6 +671,179 @@ class _ShakeWidgetState extends State<ShakeWidget> with TickerProviderStateMixin
           offset: Offset(sineValue * widget.shakeOffset, 0),
           // 5. use the child widget
           child: child,
+        );
+      },
+    );
+  }
+}
+
+class AfterLayout extends StatefulWidget {
+  const AfterLayout({
+    super.key,
+    this.listener,
+    required this.child,
+  });
+
+  final ValueChanged<BuildContext>? listener;
+  final Widget child;
+
+  @override
+  State<AfterLayout> createState() => _AfterLayoutState();
+}
+
+class _AfterLayoutState extends State<AfterLayout> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.endOfFrame.then((value) {
+      if (mounted) widget.listener?.call(context);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
+}
+
+class CustomBottomSheetController extends ValueNotifier<bool> {
+  CustomBottomSheetController({bool expanded = false}) : super(expanded);
+
+  void open() => value = true;
+  void close() => value = false;
+}
+
+class CustomBottomSheetNotification extends Notification {
+  const CustomBottomSheetNotification(this.expanded);
+  final bool expanded;
+}
+
+class CustomBottomSheet extends StatefulWidget {
+  const CustomBottomSheet({
+    super.key,
+    this.header,
+    this.controller,
+    this.initialChildSize = 0.5,
+    this.minChildSize = 0.25,
+    this.maxChildSize = 1.0,
+    this.child,
+  });
+
+  final Widget? child;
+  final Widget? header;
+  final double maxChildSize;
+  final double initialChildSize;
+  final double minChildSize;
+  final CustomBottomSheetController? controller;
+
+  @override
+  State<CustomBottomSheet> createState() => _CustomBottomSheetState();
+}
+
+class _CustomBottomSheetState extends State<CustomBottomSheet> {
+  late StreamController<double> _sizeController;
+  late CustomBottomSheetController _controller;
+  AxisDirection? _direction;
+  late double _maxSize;
+  late double _minSize;
+  late double _size;
+
+  void _jumpUp() {
+    _sizeController.add(_maxSize);
+    _direction = AxisDirection.up;
+    const CustomBottomSheetNotification(true).dispatch(context);
+  }
+
+  void _jumpDown() {
+    _sizeController.add(_minSize);
+    _direction = AxisDirection.down;
+    const CustomBottomSheetNotification(false).dispatch(context);
+  }
+
+  void _listenSizeController(double size) {
+    _size = size;
+  }
+
+  void _listenCustomBottomSheetController() {
+    if (_controller.value) {
+      _jumpUp();
+    } else {
+      _jumpDown();
+    }
+  }
+
+  void _starts() {
+    _sizeController = StreamController.broadcast();
+    _sizeController.stream.forEach(_listenSizeController);
+    _controller = widget.controller ?? CustomBottomSheetController();
+    _controller.addListener(_listenCustomBottomSheetController);
+  }
+
+  void _stops() {
+    _controller.close();
+    _sizeController.close();
+  }
+
+  void _onVerticalDragUpdate(DragUpdateDetails details) {
+    final double dy = details.delta.dy;
+    _direction = dy <= 0 ? AxisDirection.up : AxisDirection.down;
+    _sizeController.add((-dy + _size).clamp(_minSize, _maxSize));
+  }
+
+  void _onVerticalDragEnd(DragEndDetails details) {
+    if (details.primaryVelocity != null && details.primaryVelocity! > 0.0) _controller.value = (_direction == AxisDirection.up) ? true : false;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _starts();
+  }
+
+  @override
+  void didUpdateWidget(covariant CustomBottomSheet oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.controller != oldWidget.controller) {
+      _stops();
+      _starts();
+    }
+  }
+
+  @override
+  void dispose() {
+    _stops();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        _maxSize = widget.maxChildSize * constraints.biggest.height;
+        _minSize = widget.minChildSize * constraints.biggest.height;
+        _size = widget.initialChildSize * constraints.biggest.height;
+        return GestureDetector(
+          onVerticalDragUpdate: _onVerticalDragUpdate,
+          onVerticalDragEnd: _onVerticalDragEnd,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (widget.header != null) widget.header!,
+              StreamBuilder<double>(
+                initialData: _size,
+                stream: _sizeController.stream,
+                builder: (context, snapshot) {
+                  return AnimatedContainer(
+                    curve: Curves.easeOut,
+                    height: snapshot.data,
+                    duration: const Duration(milliseconds: 100),
+                    child: widget.child,
+                  );
+                },
+              ),
+            ],
+          ),
         );
       },
     );

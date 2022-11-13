@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 import 'package:location/location.dart';
@@ -42,7 +41,6 @@ class GetLocation extends LocationEvent {
       final location = Location();
       if (subscription) {
         location.changeSettings(distanceFilter: distanceFilter);
-
         StreamSubscription? subscription;
         subscription = location.onLocationChanged.listen((data) {
           service.value = LocationItemState(subscription: subscription, data: data);
@@ -52,7 +50,6 @@ class GetLocation extends LocationEvent {
         service.value = LocationItemState(data: data);
       }
     } catch (error) {
-      log(error.toString());
       service.value = FailureLocationState(
         message: error.toString(),
         event: this,

@@ -14,9 +14,8 @@ class ClientService extends ValueNotifier<ClientState> {
     return _instance ??= ClientService(state);
   }
 
-  void handle(ClientEvent event) => event._execute(this);
+  Future<void> handle(ClientEvent event) => event._execute(this);
 
-  Future<void> handleSync(ClientEvent event) => event._execute(this);
 
   void onState(ValueChanged<ClientState> callBack) => callBack(value);
 }
@@ -120,6 +119,73 @@ class RegisterClient extends ClientEvent {
             event: this,
           );
       }
+    } catch (error) {
+      service.value = FailureClientState(
+        message: error.toString(),
+        event: this,
+      );
+    }
+  }
+}
+
+class GetClient extends ClientEvent {
+  const GetClient();
+
+  @override
+  Future<void> _execute(ClientService service) async {
+    service.value = const PendingClientState();
+    try {
+      final value = HiveService.settingsBox.get('current_client');
+      if (value != null) {
+        final data = ClientSchema.fromJson(value);
+        service.value = ClientItemState(data: data);
+      } else {
+        service.value = const NoClientItemState();
+      }
+    } catch (error) {
+      service.value = FailureClientState(
+        message: error.toString(),
+        event: this,
+      );
+    }
+  }
+}
+
+class PutClient extends ClientEvent {
+  const PutClient({
+    required this.client,
+  });
+
+  final ClientSchema client;
+
+  @override
+  Future<void> _execute(ClientService service) async {
+    service.value = const PendingClientState();
+    try {
+      await HiveService.settingsBox.put('current_client', client.toJson());
+      service.value = ClientItemState(data: client);
+    } catch (error) {
+      service.value = FailureClientState(
+        message: error.toString(),
+        event: this,
+      );
+    }
+  }
+}
+
+class DeleteClient extends ClientEvent {
+  const DeleteClient({
+    required this.client,
+  });
+
+  final ClientSchema client;
+
+  @override
+  Future<void> _execute(ClientService service) async {
+    service.value = const PendingClientState();
+    try {
+      await HiveService.settingsBox.delete('current_client');
+      service.value = ClientItemState(data: client);
     } catch (error) {
       service.value = FailureClientState(
         message: error.toString(),

@@ -31,12 +31,12 @@ class ClientItemState extends ClientState {
 
 class NoClientItemState extends ClientState {
   const NoClientItemState({
-    required this.phoneNumber,
-    required this.token,
+    this.phoneNumber,
+    this.token,
   });
 
-  final String phoneNumber;
-  final String token;
+  final String? phoneNumber;
+  final String? token;
 }
 
 class ClientItemListState extends ClientState {

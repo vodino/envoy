@@ -25,6 +25,7 @@ class DevelopmentService extends Service {
   Future<void> _initialize() async {
     RepositoryService.development();
     await FirebaseService.development();
+    await HiveService.developement();
   }
 }
 
@@ -35,5 +36,6 @@ class ProductionService extends Service {
   Future<void> _initialize() async {
     RepositoryService.production();
     await FirebaseService.production();
+    await HiveService.production();
   }
 }

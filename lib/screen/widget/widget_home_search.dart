@@ -37,7 +37,7 @@ class HomeAppBar extends DefaultAppBar {
             minSize: 40.0,
             padding: EdgeInsets.zero,
             backgroundColor: context.theme.colorScheme.surface,
-            onPressed: onLeadingPressed != null ? () => onLeadingPressed?.call(context) : null,
+            onPressed: () => Scaffold.of(context).openDrawer(),
             child: Icon(Icons.sort_rounded, color: context.theme.colorScheme.onSurface),
           ),
         ),
@@ -96,74 +96,72 @@ class HomeSearchFields extends StatelessWidget {
     required VoidCallback? onPressed,
   }) {
     return CustomButton(
+      onPressed: onPressed,
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: const Icon(
-        CupertinoIcons.map,
-        color: CupertinoColors.systemGrey,
-        size: 20.0,
-      ),
-      onPressed: () {},
+      child: const Icon(CupertinoIcons.map, color: CupertinoColors.systemGrey, size: 20.0),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     const contentPadding = EdgeInsets.only(right: 40.0, top: 8.0, bottom: 8.0);
-    return Stack(
-      children: [
-        Positioned(
-          child: CustomBoxShadow(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextField(
-                  onTap: onTap,
-                  focusNode: pickupFocusNode,
-                  controller: pickupTextController,
-                  keyboardType: TextInputType.name,
-                  textInputAction: TextInputAction.search,
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(CupertinoIcons.search, color: CupertinoColors.activeBlue),
-                    suffix: _mapButton(onPressed: pickupMapPressed),
-                    contentPadding: contentPadding,
-                    hintText: 'Point de départ',
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Stack(
+        children: [
+          Positioned(
+            child: CustomBoxShadow(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    onTap: onTap,
+                    focusNode: pickupFocusNode,
+                    controller: pickupTextController,
+                    keyboardType: TextInputType.name,
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(CupertinoIcons.search, color: CupertinoColors.activeBlue),
+                      suffix: _mapButton(onPressed: pickupMapPressed),
+                      contentPadding: contentPadding,
+                      hintText: 'Point de départ',
+                    ),
                   ),
-                ),
-                const Divider(indent: 45.0, height: 16.0),
-                TextField(
-                  onTap: onTap,
-                  focusNode: deliveryFocusNode,
-                  keyboardType: TextInputType.name,
-                  controller: deliveryTextController,
-                  textInputAction: TextInputAction.search,
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(CupertinoIcons.search, color: CupertinoColors.activeOrange),
-                    suffix: _mapButton(onPressed: deliveryMapPressed),
-                    contentPadding: contentPadding,
-                    hintText: "Où livrer ?",
+                  const Divider(indent: 45.0, height: 16.0),
+                  TextField(
+                    onTap: onTap,
+                    focusNode: deliveryFocusNode,
+                    keyboardType: TextInputType.name,
+                    controller: deliveryTextController,
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(CupertinoIcons.search, color: CupertinoColors.activeOrange),
+                      suffix: _mapButton(onPressed: deliveryMapPressed),
+                      contentPadding: contentPadding,
+                      hintText: "Où livrer ?",
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        Positioned(
-          top: 0.0,
-          right: 18.0,
-          bottom: 0.0,
-          child: Center(
-            child: CustomButton(
-              onPressed: () {},
-              child: const Icon(
-                CupertinoIcons.arrow_up_arrow_down_circle_fill,
-                size: 35.0,
-                color: CupertinoColors.systemGrey,
+                ],
               ),
             ),
           ),
-        ),
-      ],
+          Positioned(
+            top: 0.0,
+            right: 18.0,
+            bottom: 0.0,
+            child: Center(
+              child: CustomButton(
+                onPressed: () {},
+                child: const Icon(
+                  CupertinoIcons.arrow_up_arrow_down_circle_fill,
+                  size: 35.0,
+                  color: CupertinoColors.systemGrey,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -86,8 +86,8 @@ class _AuthScreenState extends State<AuthScreen> {
   void _goToAuthCountry({
     required List<CountrySchema> items,
     CountrySchema? currentItem,
-  }) {
-    showModalBottomSheet(
+  }) async {
+    final country = await showModalBottomSheet<CountrySchema>(
       context: context,
       builder: (context) {
         return AuthCountryScreen(
@@ -96,6 +96,12 @@ class _AuthScreenState extends State<AuthScreen> {
         );
       },
     );
+    if (country != null) {
+      _countryService.value = CountryItemListState(
+        currentCountry: country,
+        data: items,
+      );
+    }
   }
 
   void _listenCountryService(BuildContext context, CountryState state) {

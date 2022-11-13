@@ -6,7 +6,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=2.18.2 <3.0.0'
+  sdk: '>=2.18.4 <3.0.0'
 
 dependencies:
   
@@ -22,6 +22,7 @@ dependencies:
   intl:
 
   # Widgets
+  solid_bottom_sheet:
   modal_bottom_sheet:
   flutter_rating_bar:
   loading_indicator:
@@ -31,6 +32,7 @@ dependencies:
   badges:
   lottie:
   pinput:
+  sheet:
 
   # Location and Geocoding
   location:
@@ -42,6 +44,8 @@ dependencies:
   # Service
   firebase_auth:
   firebase_core:
+  hive_flutter:
+  hive:
   dio:
 
 dev_dependencies:
