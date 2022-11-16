@@ -9,6 +9,7 @@ class HomeDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return Drawer(
       child: BottomAppBar(
         elevation: 0.0,
@@ -31,14 +32,14 @@ class HomeDrawer extends StatelessWidget {
             SliverToBoxAdapter(
               child: CustomListTile(
                 leading: const Icon(CupertinoIcons.person),
-                title: const Text('Profil'),
+                title: Text(localizations.profile.capitalize()),
                 onTap: () => context.pushNamed(AccountScreen.name),
               ),
             ),
             SliverToBoxAdapter(
               child: CustomListTile(
                 leading: const Icon(CupertinoIcons.cube_box),
-                title: const Text('Commandes'),
+                title: Text(localizations.orders.capitalize()),
                 onTap: () => context.pushNamed(OrderRecordingScreen.name),
               ),
             ),
@@ -46,28 +47,28 @@ class HomeDrawer extends StatelessWidget {
             SliverToBoxAdapter(
               child: CustomListTile(
                 leading: const Icon(CupertinoIcons.tag),
-                title: const Text('Réductions'),
+                title: Text(localizations.discounts.capitalize()),
                 onTap: () => context.pushNamed(DiscountScreen.name),
               ),
             ),
             SliverToBoxAdapter(
               child: CustomListTile(
                 leading: const Icon(CupertinoIcons.bag),
-                title: const Text('Business'),
+                title: Text(localizations.business.capitalize()),
                 onTap: () => context.pushNamed(BusinessScreen.name),
               ),
             ),
             SliverToBoxAdapter(
               child: CustomListTile(
                 leading: const Icon(CupertinoIcons.info_circle),
-                title: const Text('Aide/Faq'),
+                title: Text(localizations.faq.capitalize()),
                 onTap: () => context.pushNamed(HelpFaqScreen.name),
               ),
             ),
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: CustomListTile(
-                leading: Icon(CupertinoIcons.info_circle),
-                title: Text('Support'),
+                leading: const Icon(CupertinoIcons.heart),
+                title: Text(localizations.support.capitalize()),
               ),
             ),
             SliverFillRemaining(
@@ -80,8 +81,8 @@ class HomeDrawer extends StatelessWidget {
                   CustomListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
                     onTap: () => context.pushNamed(SettingsScreen.name),
+                    title: Text(localizations.settings.capitalize()),
                     leading: const Icon(CupertinoIcons.gear),
-                    title: const Text('Paramètres'),
                     height: 55.0,
                   ),
                 ],

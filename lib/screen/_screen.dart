@@ -21,4 +21,5 @@ export 'screen_home.dart';
 export 'screen_order_deliveried.dart';
 export 'screen_order_feedback.dart';
 export 'screen_order_recording.dart';
+export 'screen_settings_language.dart';
 export 'screen_settings.dart';

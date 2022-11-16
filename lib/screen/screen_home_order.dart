@@ -253,7 +253,7 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                   Navigator.pop(context, true);
                 },
               ),
-            )
+            ),
           ],
         ),
       ),

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '_screen.dart';
 
@@ -77,6 +78,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
           children: [
             Expanded(
               child: CustomScrollView(
+                controller: ModalScrollController.of(context),
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 slivers: [
                   SliverPinnedHeader(
                     child: ContactsSearchTextField(

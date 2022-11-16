@@ -24,4 +24,5 @@ export 'widget_home.dart';
 export 'widget_order_deliveried.dart';
 export 'widget_order_feedback.dart';
 export 'widget_order_recording.dart';
+export 'widget_settings_language.dart';
 export 'widget_settings.dart';
