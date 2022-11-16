@@ -6,13 +6,18 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '_screen.dart';
 
-class HomeSearchOrderScreen extends StatelessWidget {
-  const HomeSearchOrderScreen({super.key});
+class HomeOrderSearchScreen extends StatefulWidget {
+  const HomeOrderSearchScreen({super.key});
 
+  @override
+  State<HomeOrderSearchScreen> createState() => _HomeOrderSearchScreenState();
+}
+
+class _HomeOrderSearchScreenState extends State<HomeOrderSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const HomeSearchOrderAppBar(),
+      appBar: const HomeOrderSearchAppBar(),
       body: BottomAppBar(
         elevation: 0.0,
         color: Colors.transparent,
@@ -20,24 +25,20 @@ class HomeSearchOrderScreen extends StatelessWidget {
           controller: ModalScrollController.of(context),
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           slivers: [
+            const SliverPinnedHeader(
+              child: HomeOrderSearchTextField(),
+            ),
+            const SliverPinnedHeader(child: Divider()),
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   if (index.isEven) {
                     index ~/= 2;
                     return CustomListTile(
+                      leading: const Icon(CupertinoIcons.cube_box_fill, color: CupertinoColors.systemGrey2),
                       subtitle: const Text('Sanduich avec saucisson, Café sans sucre'),
-                      leading: const Icon(CupertinoIcons.cube_box),
                       title: const Text("Dejeuner de Mr Allou"),
-                      onTap: () {
-                        showCupertinoModalBottomSheet<bool>(
-                          bounce: false,
-                          context: context,
-                          builder: (context) {
-                            return const HomeOrderScreen();
-                          },
-                        );
-                      },
+                      onTap: () {},
                     );
                   }
                   return const Divider(indent: 48.0);

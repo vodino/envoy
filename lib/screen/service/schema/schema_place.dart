@@ -5,29 +5,12 @@ import 'package:equatable/equatable.dart';
 part 'schema_placeraw.dart';
 
 enum PlaceCategory {
-  source,
-  destination;
+  source('source'),
+  destination('destination');
 
-  static PlaceCategory fromString(String value) {
-    switch (value) {
-      case 'source':
-        return source;
-      case 'destination':
-        return destination;
-      default:
-        throw ('$value is not a type of PlaceCategory');
-    }
-  }
+  const PlaceCategory(this.value);
 
-  @override
-  String toString() {
-    switch (this) {
-      case source:
-        return 'source';
-      default:
-        return 'destination';
-    }
-  }
+  final String value;
 }
 
 enum PlaceType {
@@ -139,8 +122,7 @@ class PlaceSchema extends Equatable {
   }
 
   static List<PlaceSchema> fromRawJsonList(String value) {
-    final Map<String, dynamic> data = jsonDecode(value)['data'];
-    final result = _PlaceResult.fromMap(data);
+    final result = _PlaceResult.fromJson(value);
     return List.of(
       (result.features!.map((e) {
         final properties = e.properties;

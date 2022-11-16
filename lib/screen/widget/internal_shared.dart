@@ -33,6 +33,7 @@ class CustomTextField extends StatelessWidget {
     super.key,
     this.hintText,
     this.labelText,
+    this.prefixIcon,
     this.maxLines = 1,
     this.minLines,
     this.focusNode,
@@ -40,6 +41,7 @@ class CustomTextField extends StatelessWidget {
     this.controller,
     this.enabled,
     this.label,
+    this.onTap,
     this.keyboardType,
     this.expands = false,
     this.readOnly = false,
@@ -59,7 +61,10 @@ class CustomTextField extends StatelessWidget {
   final bool autofocus;
 
   final Widget? label;
+  final Widget? prefixIcon;
   final bool? alignLabelWithHint;
+
+  final VoidCallback? onTap;
 
   final TextEditingController? controller;
   final FocusNode? focusNode;
@@ -75,6 +80,7 @@ class CustomTextField extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
       ),
       child: TextFormField(
+        onTap: onTap,
         autofocus: autofocus,
         keyboardType: keyboardType,
         textAlign: textAlign,
@@ -88,11 +94,18 @@ class CustomTextField extends StatelessWidget {
         initialValue: initalValue,
         decoration: InputDecoration(
           label: label,
+          isDense: true,
+          isCollapsed: true,
           hintText: hintText,
           labelText: labelText,
+          prefixIcon: prefixIcon,
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: kMinInteractiveDimension - 6.0,
+            minHeight: kMinInteractiveDimension,
+          ),
           alignLabelWithHint: alignLabelWithHint,
           hintStyle: const TextStyle(color: CupertinoColors.tertiaryLabel),
-          contentPadding: const EdgeInsets.all(12.0),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 14.0),
         ),
       ),
     );

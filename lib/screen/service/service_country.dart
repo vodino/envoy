@@ -14,9 +14,7 @@ class CountryService extends ValueNotifier<CountryState> {
     return _instance ??= CountryService(value);
   }
 
-  void handle(CountryEvent event) => event._execute(this);
-
-  Future<void> handleSync(CountryEvent event) => event._execute(this);
+  Future<void> handle(CountryEvent event) => event._execute(this);
 
   void onState(ValueChanged<CountryState> callBack) => callBack(value);
 }

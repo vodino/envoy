@@ -7,22 +7,30 @@ import '_widget.dart';
 class HomeSearchFields extends StatelessWidget {
   const HomeSearchFields({
     super.key,
+    this.deliveryAutoFocus = false,
     this.deliveryTextController,
+    this.onDeliveryChanged,
     this.deliveryFocusNode,
-    this.deliveryMapPressed,
+    this.onDeliveryMapPressed,
+    this.pickupAutoFocus = false,
     this.pickupTextController,
-    this.pickupMapPressed,
+    this.onPickupChanged,
+    this.onPickupMapPressed,
     this.pickupFocusNode,
     this.onTap,
   });
 
   final TextEditingController? pickupTextController;
-  final VoidCallback? pickupMapPressed;
+  final ValueChanged<String>? onPickupChanged;
+  final VoidCallback? onPickupMapPressed;
   final FocusNode? pickupFocusNode;
+  final bool pickupAutoFocus;
 
   final TextEditingController? deliveryTextController;
-  final VoidCallback? deliveryMapPressed;
+  final ValueChanged<String>? onDeliveryChanged;
+  final VoidCallback? onDeliveryMapPressed;
   final FocusNode? deliveryFocusNode;
+  final bool deliveryAutoFocus;
 
   final VoidCallback? onTap;
 
@@ -38,81 +46,125 @@ class HomeSearchFields extends StatelessWidget {
   Widget _mapButton({
     required VoidCallback? onPressed,
   }) {
-    return CustomButton(
-      onPressed: onPressed,
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: const Icon(CupertinoIcons.map, color: CupertinoColors.systemGrey, size: 20.0),
+    return Row(
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.0),
+          child: VerticalDivider(),
+        ),
+        CupertinoButton(
+          onPressed: onPressed,
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: const Icon(CupertinoIcons.map, color: CupertinoColors.systemGrey, size: 20.0),
+        ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    const contentPadding = EdgeInsets.only(right: 40.0, top: 8.0, bottom: 8.0);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
-      child: Stack(
+    final localizations = context.localizations;
+    const suffixInsets = EdgeInsetsDirectional.fromSTEB(8.0, 0, 12.0, 0.5);
+    const prefixInsets = EdgeInsetsDirectional.fromSTEB(12.0, 0, 8.0, 0.5);
+    return Material(
+      child: Column(
         children: [
-          Positioned(
-            child: CustomBoxShadow(
-              child: SizedBox(
-                height: 120.0,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Expanded(
-                      child: Center(
-                        child: TextField(
-                          onTap: onTap,
-                          focusNode: pickupFocusNode,
-                          controller: pickupTextController,
-                          keyboardType: TextInputType.name,
-                          textInputAction: TextInputAction.search,
-                          decoration: InputDecoration(
-                            prefixIcon: const Icon(CupertinoIcons.search, color: CupertinoColors.activeBlue),
-                            suffix: _mapButton(onPressed: pickupMapPressed),
-                            contentPadding: contentPadding,
-                            hintText: 'Point de départ',
+          const CustomBar(),
+          const SizedBox(height: 16.0),
+          Stack(
+            children: [
+              Positioned(
+                child: CustomBoxShadow(
+                  child: SizedBox(
+                    height: 120.0,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: CupertinoSearchTextField(
+                                  onTap: onTap,
+                                  autofocus: pickupAutoFocus,
+                                  focusNode: pickupFocusNode,
+                                  onChanged: onPickupChanged,
+                                  prefixInsets: prefixInsets,
+                                  suffixInsets: suffixInsets,
+                                  borderRadius: BorderRadius.zero,
+                                  controller: pickupTextController,
+                                  backgroundColor: Colors.transparent,
+                                  suffixMode: OverlayVisibilityMode.editing,
+                                  suffixIcon: const Icon(CupertinoIcons.clear),
+                                  prefixIcon: const Icon(CupertinoIcons.search, color: CupertinoColors.activeBlue),
+                                ),
+                              ),
+                              ChangeNotifierBuilder<FocusNode>(
+                                notifier: pickupFocusNode!,
+                                builder: (context, focusNode, child) {
+                                  return Visibility(
+                                    visible: focusNode.hasFocus,
+                                    child: _mapButton(onPressed: onDeliveryMapPressed),
+                                  );
+                                },
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ),
-                    const Divider(indent: 45.0),
-                    Expanded(
-                      child: Center(
-                        child: TextField(
-                          onTap: onTap,
-                          focusNode: deliveryFocusNode,
-                          keyboardType: TextInputType.name,
-                          controller: deliveryTextController,
-                          textInputAction: TextInputAction.search,
-                          decoration: InputDecoration(
-                            prefixIcon: const Icon(CupertinoIcons.search, color: CupertinoColors.activeOrange),
-                            suffix: _mapButton(onPressed: deliveryMapPressed),
-                            contentPadding: contentPadding,
-                            hintText: "Où livrer ?",
+                        const Divider(indent: 45.0),
+                        Expanded(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                child: CupertinoSearchTextField(
+                                  onTap: onTap,
+                                  suffixInsets: suffixInsets,
+                                  prefixInsets: prefixInsets,
+                                  autofocus: deliveryAutoFocus,
+                                  focusNode: deliveryFocusNode,
+                                  onChanged: onDeliveryChanged,
+                                  borderRadius: BorderRadius.zero,
+                                  controller: deliveryTextController,
+                                  backgroundColor: Colors.transparent,
+                                  suffixIcon: const Icon(CupertinoIcons.clear),
+                                  placeholder: localizations.wheretodelivery.capitalize(),
+                                  prefixIcon: const Icon(CupertinoIcons.search, color: CupertinoColors.activeOrange),
+                                ),
+                              ),
+                              ChangeNotifierBuilder<FocusNode>(
+                                notifier: deliveryFocusNode!,
+                                builder: (context, focusNode, child) {
+                                  return Visibility(
+                                    visible: focusNode.hasFocus,
+                                    child: _mapButton(onPressed: onDeliveryMapPressed),
+                                  );
+                                },
+                              ),
+                            ],
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
-          Positioned(
-            top: 0.0,
-            right: 18.0,
-            bottom: 0.0,
-            child: Center(
-              child: CustomButton(
-                onPressed: _onSwichPressed,
-                child: const Icon(
-                  CupertinoIcons.arrow_up_arrow_down_circle_fill,
-                  size: 35.0,
-                  color: CupertinoColors.systemGrey,
+              Positioned(
+                top: 0.0,
+                left: 0.0,
+                right: 0.0,
+                bottom: 0.0,
+                child: Center(
+                  child: CustomButton(
+                    onPressed: _onSwichPressed,
+                    child: const Icon(
+                      CupertinoIcons.arrow_up_arrow_down_circle_fill,
+                      color: CupertinoColors.systemGrey,
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ],
       ),
@@ -210,17 +262,17 @@ class HomeSearchFieldButtons extends StatelessWidget {
     super.key,
     this.onPickupPressed,
     this.onDeliveryPressed,
-    required this.pickupWidget,
-    required this.deliveryWidget,
+    this.pickupWidget,
+    this.deliveryWidget,
   });
-
-  final Widget pickupWidget;
-  final Widget deliveryWidget;
+  final Widget? pickupWidget;
+  final Widget? deliveryWidget;
   final VoidCallback? onPickupPressed;
   final VoidCallback? onDeliveryPressed;
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: CustomBoxShadow(
@@ -231,6 +283,7 @@ class HomeSearchFieldButtons extends StatelessWidget {
               child: CustomListTile(
                 height: 60.0,
                 title: pickupWidget,
+                subtitle: pickupWidget == null ? const Text('Point de ramassage') : null,
                 leading: const Icon(CupertinoIcons.circle, size: 16.0, color: CupertinoColors.activeBlue),
               ),
             ),
@@ -240,6 +293,7 @@ class HomeSearchFieldButtons extends StatelessWidget {
               child: CustomListTile(
                 height: 60.0,
                 title: deliveryWidget,
+                subtitle: deliveryWidget == null ? Text(localizations.wheretodelivery.capitalize()) : null,
                 leading: const Icon(CupertinoIcons.circle, size: 16.0, color: CupertinoColors.activeOrange),
               ),
             ),

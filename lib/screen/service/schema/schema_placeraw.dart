@@ -22,9 +22,9 @@ class _PlaceResult {
     };
   }
 
-  // static _PlaceResult fromJson(String value) {
-  //   return _PlaceResult.fromMap(jsonDecode(value));
-  // }
+  static _PlaceResult fromJson(String value) {
+    return _PlaceResult.fromMap(jsonDecode(value));
+  }
 
   String toJson() {
     return jsonEncode(toMap());

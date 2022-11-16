@@ -65,8 +65,11 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_myPosition != null && _mapController != null && _myPositionFocus.value) {
       final position = _myPosition!.position;
       _mapController!.animateCamera(
-        CameraUpdate.newCameraPosition(CameraPosition(target: position, zoom: 16.0)),
-        duration: const Duration(seconds: 1),
+        CameraUpdate.newCameraPosition(CameraPosition(
+          bearing: _myPosition!.bearing!,
+          target: position,
+          zoom: 16.0,
+        )),
       );
     }
   }

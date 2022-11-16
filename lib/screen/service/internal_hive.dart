@@ -7,13 +7,13 @@ class HiveService {
 
   static Future<void> developement() async {
     await Hive.initFlutter();
-    const collection = 'news_developement';
+    const collection = '/developement';
     await _openAllBox(collection);
   }
 
   static Future<void> production() async {
     await Hive.initFlutter();
-    const collection = 'news_production';
+    const collection = '/production';
     await _openAllBox(collection);
   }
 

@@ -30,6 +30,7 @@ class CustomListTile extends StatelessWidget {
     this.autofocus = false,
     this.tileColor,
     this.selectedTileColor,
+    this.horizontalTitleGap,
     this.height,
   }) : super(key: key);
 
@@ -40,6 +41,7 @@ class CustomListTile extends StatelessWidget {
   final TextStyle? style;
 
   final double? height;
+  final double? horizontalTitleGap;
 
   final VoidCallback? onLongPress;
   final VoidCallback? onTap;
@@ -110,7 +112,7 @@ class CustomListTile extends StatelessWidget {
               children: <Widget>[
                 if (leading != null)
                   Padding(
-                    padding: const EdgeInsetsDirectional.only(end: 8.0),
+                    padding: EdgeInsetsDirectional.only(end: horizontalTitleGap ?? 8.0),
                     child: leading,
                   ),
                 if (title != null && subtitle != null)
@@ -148,7 +150,7 @@ class CustomListTile extends StatelessWidget {
                       style: style ??
                           theme.textTheme.titleMedium!.copyWith(
                             fontWeight: theme.textTheme.subtitle1!.fontWeight,
-                            color: _textColor(theme),
+                            color: _textColor(theme) ?? (subtitle != null ? theme.textTheme.caption!.color : null),
                           ),
                       softWrap: false,
                       overflow: TextOverflow.ellipsis,

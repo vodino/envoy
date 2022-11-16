@@ -16,7 +16,6 @@ class ClientService extends ValueNotifier<ClientState> {
 
   Future<void> handle(ClientEvent event) => event._execute(this);
 
-
   void onState(ValueChanged<ClientState> callBack) => callBack(value);
 }
 

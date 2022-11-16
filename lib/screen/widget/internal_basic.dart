@@ -28,8 +28,7 @@ class ValueListenableListener<T> extends StatefulWidget {
   State<StatefulWidget> createState() => _ValueListenableListenerState<T>();
 }
 
-class _ValueListenableListenerState<T>
-    extends State<ValueListenableListener<T>> {
+class _ValueListenableListenerState<T> extends State<ValueListenableListener<T>> {
   @override
   void initState() {
     super.initState();
@@ -92,6 +91,136 @@ class ValueListenableConsumer<T> extends StatelessWidget {
   }
 }
 
+class ChangeNotifierListener<T extends ChangeNotifier> extends StatefulWidget {
+  const ChangeNotifierListener({
+    Key? key,
+    required this.notifier,
+    required this.listener,
+    this.initiated = false,
+    required this.child,
+  }) : super(key: key);
+
+  final ValueWidgetListener<T> listener;
+  final bool initiated;
+  final Widget child;
+  final T notifier;
+
+  @override
+  State<StatefulWidget> createState() => _ChangeNotifierListenerState<T>();
+}
+
+class _ChangeNotifierListenerState<T extends ChangeNotifier> extends State<ChangeNotifierListener<T>> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initiated) _valueChanged();
+    widget.notifier.addListener(_valueChanged);
+  }
+
+  @override
+  void didUpdateWidget(ChangeNotifierListener<T> oldWidget) {
+    if (oldWidget.notifier != widget.notifier) {
+      oldWidget.notifier.removeListener(_valueChanged);
+      widget.notifier.addListener(_valueChanged);
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    widget.notifier.removeListener(_valueChanged);
+    super.dispose();
+  }
+
+  void _valueChanged() {
+    widget.listener(context, widget.notifier);
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
+class ChangeNotifierBuilder<T extends ChangeNotifier> extends StatefulWidget {
+  const ChangeNotifierBuilder({
+    Key? key,
+    required this.notifier,
+    required this.builder,
+    this.initiated = false,
+    this.child,
+  }) : super(key: key);
+
+  final ValueWidgetBuilder<T> builder;
+  final bool initiated;
+  final Widget? child;
+  final T notifier;
+
+  @override
+  State<StatefulWidget> createState() => _ChangeNotifierBuilderState<T>();
+}
+
+class _ChangeNotifierBuilderState<T extends ChangeNotifier> extends State<ChangeNotifierBuilder<T>> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initiated) _valueChanged();
+    widget.notifier.addListener(_valueChanged);
+  }
+
+  @override
+  void didUpdateWidget(ChangeNotifierBuilder<T> oldWidget) {
+    if (oldWidget.notifier != widget.notifier) {
+      oldWidget.notifier.removeListener(_valueChanged);
+      widget.notifier.addListener(_valueChanged);
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    widget.notifier.removeListener(_valueChanged);
+    super.dispose();
+  }
+
+  void _valueChanged() {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context, widget.notifier, widget.child);
+}
+
+class ChangeNotifierConsumer<T extends ChangeNotifier> extends StatelessWidget {
+  const ChangeNotifierConsumer({
+    Key? key,
+    required this.notifier,
+    this.initiated = false,
+    required this.listener,
+    required this.builder,
+    this.child,
+  }) : super(key: key);
+
+  final ValueWidgetListener<T> listener;
+  final ValueWidgetBuilder<T> builder;
+  final bool initiated;
+  final T notifier;
+
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierListener(
+      notifier: notifier,
+      listener: listener,
+      initiated: initiated,
+      child: ChangeNotifierBuilder(
+        notifier: notifier,
+        builder: builder,
+        child: child,
+      ),
+    );
+  }
+}
+
 class PlatformWidget extends StatelessWidget {
   const PlatformWidget({
     Key? key,
@@ -133,8 +262,7 @@ class PlatformWidget extends StatelessWidget {
   }
 }
 
-abstract class DefaultAppBar extends StatelessWidget
-    implements ObstructingPreferredSizeWidget {
+abstract class DefaultAppBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
   const DefaultAppBar({Key? key}) : super(key: key);
 
   @override
@@ -200,8 +328,7 @@ class AdaptativeWidget extends StatelessWidget {
         } else if (width >= 1008) {
           return largeBuilder?.call(context) ?? builder(context, BoxSize.large);
         } else if (width > 640) {
-          return mediumBuilder?.call(context) ??
-              builder(context, BoxSize.medium);
+          return mediumBuilder?.call(context) ?? builder(context, BoxSize.medium);
         }
         return builder(context, BoxSize.small);
       },
@@ -262,8 +389,7 @@ class CustomKeepAlive extends StatefulWidget {
   State<CustomKeepAlive> createState() => _CustomKeepAliveState();
 }
 
-class _CustomKeepAliveState extends State<CustomKeepAlive>
-    with AutomaticKeepAliveClientMixin {
+class _CustomKeepAliveState extends State<CustomKeepAlive> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -322,8 +448,7 @@ class _CounterBuilderState extends State<CounterBuilder> {
   @override
   void didUpdateWidget(covariant CounterBuilder oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.duration != widget.duration ||
-        oldWidget.timeout != widget.timeout) {
+    if (oldWidget.duration != widget.duration || oldWidget.timeout != widget.timeout) {
       _restartTimer();
     }
   }

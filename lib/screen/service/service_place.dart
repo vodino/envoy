@@ -1,7 +1,8 @@
-import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'dart:ui';
+import 'dart:async';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import '_service.dart';
@@ -26,120 +27,123 @@ abstract class PlaceEvent {
   Future<void> _execute(PlaceService service);
 }
 
-class GetGeocoding extends PlaceEvent {
-  const GetGeocoding({
-    required this.query,
-    required this.long,
-    required this.lat,
+class FetchPlaces extends PlaceEvent {
+  const FetchPlaces({
+    this.type = PlaceType.geocoding,
+    this.locationBiasScale,
+    this.queryStringFilter,
+    this.distanceSort,
+    this.boundingBox,
+    this.longitude,
+    this.latitude,
+    this.osmTags,
+    this.layers,
+    this.radius,
+    this.limit,
+    this.query,
+    this.debug,
+    this.zoom,
   });
 
-  final String query;
-  final double long;
-  final double lat;
+  /// Expected format is minLon,minLat,maxLon,maxLat.
+  final List<double>? boundingBox;
 
-  String get url => '${RepositoryService.httpURL}/v1/api/location';
+  /// Expected values are house , street, locality, district, city, county,
+  /// state, country
+  final List<String>? layers;
 
-  static CancelToken? _cancelToken;
+  final List<String>? queryStringFilter;
+  final double? locationBiasScale;
+  final List<String>? osmTags;
+  final bool? distanceSort;
+  final double? longitude;
+  final double? latitude;
+  final double? radius;
+  final String? query;
+  final bool? debug;
+  final int? limit;
+  final int? zoom;
 
-  @override
-  Future<void> _execute(PlaceService service) async {
-    scheduleMicrotask(() async {
-      service.value = const PendingPlaceState();
-      try {
-        final body = {'location_name': query, 'long': long, 'lat': lat};
-        _cancelToken?.cancel();
-        _cancelToken = CancelToken();
-        final response = await Dio().postUri<String>(
-          Uri.parse(url),
-          data: jsonEncode(body),
-          cancelToken: _cancelToken,
-          options: Options(headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          }),
-        );
-        switch (response.statusCode) {
-          case 200:
-            final data = await compute(PlaceSchema.fromRawJsonList, response.data!);
-            service.value = PlaceItemListState(data: data);
-            break;
-          default:
-            service.value = FailurePlaceState(
-              message: response.data!,
-              event: this,
-            );
-        }
-      } catch (error) {
-        if (error is DioError && error.type == DioErrorType.cancel) {
-          service.value = CancelFailurePlaceState(
-            message: error.toString(),
-            event: this,
-          );
-        } else {
-          service.value = FailurePlaceState(
-            message: error.toString(),
-            event: this,
-          );
-        }
-      }
-    });
+  /// Expected params for [PlaceType.reverseGeocoding] are [query_string_filter,
+  /// limit, distance_sort, lon, lang, radius, lat, layer, debug]
+  /// Expected params for [PlaceType.geocoding] are [q, debug, bbox, lat, layer,
+  ///  limit, osm_tag, lon, zoom, lang, location_bias_scale]
+  final PlaceType type;
+
+  String get _url => 'https://photon.komoot.io/$_path?$params';
+
+  String get _path => type.isGeocoding() ? 'api' : 'reverse';
+
+  String get params {
+    var language = window.locale.languageCode.toLowerCase();
+    var values = ['lang=$language'];
+    if (query != null) {
+      values.add('q=$query');
+    }
+    if (zoom != null) {
+      values.add('zoom=$zoom');
+    }
+    if (debug != null) {
+      values.add('debug=$debug');
+    }
+    if (limit != null) {
+      values.add('limit=$limit');
+    }
+    if (radius != null) {
+      values.add('radius=$radius');
+    }
+    if (distanceSort != null) {
+      values.add('distance_sort=$distanceSort');
+    }
+    if (longitude != null && latitude != null) {
+      values.add('lat=$latitude&lon=$longitude');
+    }
+    if (boundingBox != null) {
+      values.add("bbox=${boundingBox!.join(',')}");
+    }
+    if (locationBiasScale != null) {
+      values.add('location_bias_scale=$locationBiasScale');
+    }
+    if (layers != null) {
+      values.add(layers!.map((e) => 'layer=$e').join('&'));
+    }
+    if (osmTags != null) {
+      values.add(osmTags!.map((e) => 'osm_tag=$e').join('&'));
+    }
+    if (queryStringFilter != null) {
+      values.add(
+        queryStringFilter!.map((e) => 'query_string_filter=$e').join('&'),
+      );
+    }
+    return values.join('&');
   }
-}
 
-class GetReverseGeocoding extends PlaceEvent {
-  const GetReverseGeocoding({
-    required this.long,
-    required this.lat,
-  });
-
-  final double long;
-  final double lat;
-
-  String get url => '${RepositoryService.httpURL}/v1/api/reverse';
-
-  static CancelToken? _cancelToken;
-
+  static HttpClientRequest? _request;
+  static Future<List<PlaceSchema>>? _compute;
   @override
   Future<void> _execute(PlaceService service) async {
-    scheduleMicrotask(() async {
-      service.value = const PendingPlaceState();
-      try {
-        final body = {'long': long, 'lat': lat};
-        _cancelToken?.cancel();
-        _cancelToken = CancelToken();
-        final response = await Dio().postUri<String>(
-          Uri.parse(url),
-          data: jsonEncode(body),
-          cancelToken: _cancelToken,
-          options: Options(headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          }),
-        );
-        switch (response.statusCode) {
-          case 200:
-            final data = await compute(PlaceSchema.fromRawJsonList, response.data!);
-            service.value = PlaceItemListState(data: data);
-            break;
-          default:
-            service.value = FailurePlaceState(
-              message: response.data!,
-              event: this,
-            );
-        }
-      } catch (error) {
-        if (error is DioError && error.type == DioErrorType.cancel) {
-          service.value = CancelFailurePlaceState(
-            message: error.toString(),
-            event: this,
-          );
-        } else {
-          service.value = FailurePlaceState(
-            message: error.toString(),
-            event: this,
-          );
-        }
+    service.value = const PendingPlaceState();
+    try {
+      _request?.abort(TimeoutException('aborted'));
+      if (query != null && query!.isEmpty) {
+        service.value = PlaceItemListState(data: List.empty());
+      } else {
+        _request = await HttpClient().getUrl(Uri.parse(_url));
+        final response = await _request!.close();
+        final body = await response.transform(utf8.decoder).join();
+        await _compute?.timeout(Duration.zero);
+        _compute = compute<String, List<PlaceSchema>>(PlaceSchema.fromRawJsonList, body);
+        service.value = PlaceItemListState(data: await _compute!);
       }
-    });
+    } catch (error) {
+      if (error is TimeoutException) {
+        service.value = CancelFailurePlaceState(message: error.message!);
+      } else {
+        service.value = FailurePlaceState(
+          message: error.toString(),
+          event: this,
+        );
+      }
+    }
   }
 }

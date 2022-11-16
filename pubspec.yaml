@@ -43,6 +43,8 @@ dependencies:
         ref: main
   
   # Service
+  permission_handler:
+  flutter_contacts:
   firebase_auth:
   firebase_core:
   hive_flutter:
