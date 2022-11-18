@@ -32,32 +32,32 @@ class OrderSchema extends Equatable {
     String? name,
   }) {
     return OrderSchema(
-      pickupPlace: pickupPlace ?? this.pickupPlace,
       deliveryPlace: deliveryPlace ?? this.deliveryPlace,
+      pickupPlace: pickupPlace ?? this.pickupPlace,
       name: name ?? this.name,
     );
   }
 
   OrderSchema clone() {
     return copyWith(
-      pickupPlace: pickupPlace,
       deliveryPlace: deliveryPlace,
+      pickupPlace: pickupPlace,
       name: name,
     );
   }
 
   static OrderSchema fromMap(Map<String, dynamic> data) {
     return OrderSchema(
-      pickupPlace: data[pickupPlaceKey],
       deliveryPlace: data[deliveryPlaceKey],
+      pickupPlace: data[pickupPlaceKey],
       name: data[nameKey],
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      pickupPlaceKey: pickupPlace,
       deliveryPlaceKey: deliveryPlace,
+      pickupPlaceKey: pickupPlace,
       nameKey: name,
     };
   }

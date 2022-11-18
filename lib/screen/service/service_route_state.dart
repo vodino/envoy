@@ -17,6 +17,17 @@ class FailureRouteState extends RouteState {
     required this.message,
     this.event,
   });
-  final PlaceEvent? event;
+  final RouteEvent? event;
   final String message;
+}
+
+class RouteItemState extends RouteState {
+  const RouteItemState({
+    this.duration,
+    required this.routes,
+    required this.points,
+  });
+  final int? duration;
+  final List<Routes> routes;
+  final List<Waypoints> points;
 }

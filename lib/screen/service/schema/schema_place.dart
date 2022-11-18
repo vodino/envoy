@@ -131,7 +131,7 @@ class PlaceSchema extends Equatable {
               '${properties?.country}',
           extent: properties?.extent,
           countryCode: properties?.countryCode,
-          latitude: e.geometry?.coordinates?[0],
+          latitude: e.geometry?.coordinates?[1],
           longitude: e.geometry?.coordinates?[0],
         );
       })),

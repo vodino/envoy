@@ -1,5 +1,9 @@
+import 'dart:convert';
+
+import 'package:maplibre_gl/mapbox_gl.dart';
+
 class RouteResult {
-  RouteResult({
+  const RouteResult({
     required this.code,
     required this.routes,
     required this.waypoints,
@@ -16,7 +20,7 @@ class RouteResult {
   static RouteResult fromMap(Map<String, dynamic> data) {
     return RouteResult(
       waypoints: List.from(data[waypointsKey]).map((e) => Waypoints.fromMap(e)).toList(),
-      routes: List.from(data[waypointsKey]).map((e) => Routes.fromMap(e)).toList(),
+      routes: List.from(data[routesKey]).map((e) => Routes.fromMap(e)).toList(),
       code: data[codeKey],
     );
   }
@@ -29,6 +33,18 @@ class RouteResult {
     };
   }
 
+  static RouteResult fromJson(String data) {
+    return fromMap(jsonDecode(data));
+  }
+
+  static RouteResult fromServerJson(String data) {
+    return fromMap(jsonDecode(data)['data']);
+  }
+
+  String toJson() {
+    return jsonEncode(toMap());
+  }
+
   @override
   String toString() {
     return toMap().toString();
@@ -36,39 +52,44 @@ class RouteResult {
 }
 
 class Routes {
-  Routes({
-    required this.legs,
-    required this.weightName,
-    required this.weight,
-    required this.duration,
-    required this.distance,
+  const Routes({
+    this.legs,
+    this.weightName,
+    this.weight,
+    this.duration,
+    this.distance,
+    this.geometry,
   });
 
+  static const String geometryKey = 'geometry';
   static const String legsKey = 'legs';
   static const String weightNameKey = 'weight_name';
   static const String weightKey = 'weight';
   static const String durationKey = 'duration';
   static const String distanceKey = 'distance';
 
-  late final List<Legs> legs;
-  late final String weightName;
-  late final double weight;
-  late final int duration;
-  late final double distance;
+  final Geometry? geometry;
+  final List<Legs>? legs;
+  final String? weightName;
+  final double? weight;
+  final int? duration;
+  final double? distance;
 
   static Routes fromMap(Map<String, dynamic> data) {
     return Routes(
-      legs: List.from(data[legsKey]).map((e) => Legs.fromMap(e)).toList(),
+      legs: (data[legsKey] as List?)?.map((e) => Legs.fromMap(e)).toList(),
+      distance: (data[distanceKey] as num?)?.toDouble(),
+      duration: (data[durationKey] as num?)?.toInt(),
+      weight: (data[weightKey] as num?)?.toDouble(),
+      geometry: Geometry.fromMap(data[geometryKey]),
       weightName: data[weightNameKey],
-      distance: data[distanceKey],
-      duration: data[durationKey],
-      weight: data[weightKey],
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       weightNameKey: weightName,
+      geometryKey: geometry,
       durationKey: duration,
       distanceKey: distance,
       weightKey: weight,
@@ -83,12 +104,12 @@ class Routes {
 }
 
 class Legs {
-  Legs({
-    required this.steps,
-    required this.summary,
-    required this.weight,
-    required this.duration,
-    required this.distance,
+  const Legs({
+    this.steps,
+    this.summary,
+    this.weight,
+    this.duration,
+    this.distance,
   });
 
   static const String stepsKey = 'steps';
@@ -97,19 +118,19 @@ class Legs {
   static const String durationKey = 'duration';
   static const String distanceKey = 'distance';
 
-  late final List<dynamic> steps;
-  late final String summary;
-  late final double weight;
-  late final double duration;
-  late final int? distance;
+  final List<dynamic>? steps;
+  final String? summary;
+  final double? weight;
+  final int? duration;
+  final double? distance;
 
   static Legs fromMap(Map<String, dynamic> data) {
     return Legs(
-      steps: List.castFrom<dynamic, dynamic>(data[stepsKey]),
-      distance: data[distanceKey],
-      duration: data[durationKey],
+      distance: (data[distanceKey] as num?)?.toDouble(),
+      duration: (data[durationKey] as num?)?.toInt(),
+      weight: (data[weightKey] as num?)?.toDouble(),
+      steps: (data[stepsKey] as List?),
       summary: data[summaryKey],
-      weight: data[weightKey],
     );
   }
 
@@ -129,27 +150,55 @@ class Legs {
   }
 }
 
-class Waypoints {
-  Waypoints({
-    required this.hint,
-    required this.distance,
-    required this.name,
-    required this.location,
+class Geometry {
+  const Geometry({
+    this.coordinates,
   });
+
+  static const String coordinatesKey = 'coordinates';
+
+  final List<LatLng>? coordinates;
+
+  static Geometry fromMap(Map<String, dynamic> data) {
+    return Geometry(
+      coordinates: (data[coordinatesKey] as List?)?.map((e) => LatLng(e[1], e[0])).toList(),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      coordinatesKey: coordinates,
+    };
+  }
+
+  @override
+  String toString() {
+    return toMap().toString();
+  }
+}
+
+class Waypoints {
+  const Waypoints({
+    this.hint,
+    this.distance,
+    this.name,
+    this.location,
+  });
+
   static const String hintKey = 'hint';
   static const String distanceKey = 'distance';
   static const String nameKey = 'name';
   static const String locationKey = 'locations';
 
-  late final String hint;
-  late final double distance;
-  late final String name;
-  late final List<double> location;
+  final String? hint;
+  final double? distance;
+  final String? name;
+  final List<double>? location;
 
   static Waypoints fromMap(Map<String, dynamic> data) {
     return Waypoints(
-      location: List.castFrom<dynamic, double>(data[locationKey]),
-      distance: data[distanceKey],
+      location: (data[locationKey] as List?)?.map((e) => e as double).toList(),
+      distance: (data[distanceKey] as num?)?.toDouble(),
       hint: data[hintKey],
       name: data[nameKey],
     );

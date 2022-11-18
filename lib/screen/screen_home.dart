@@ -32,14 +32,39 @@ class _HomeScreenState extends State<HomeScreen> {
     _openHomeSearch();
   }
 
-  void _openHomeSearch() {
-    showBottomSheet(
+  void _openHomeSearch() async {
+    final popController = ValueNotifier<RouteItemState?>(null);
+    final controller = showBottomSheet(
       context: _context,
       enableDrag: false,
       builder: (context) {
-        return const HomeSearchScreen();
+        return HomeSearchScreen(
+          popController: popController,
+        );
       },
     );
+    await controller.closed;
+    final state = popController.value;
+    if (state != null) {
+      for (var element in state.routes) {
+        await _mapController?.addLine(
+          LineOptions(geometry: element.geometry!.coordinates, lineColor: "#ff0000", lineWidth: 4.0),
+        );
+        LatLng southwest = element.geometry!.coordinates!.first;
+        LatLng northeast = element.geometry!.coordinates!.last;
+
+        if (southwest.latitude > northeast.latitude) {
+          LatLng value = northeast;
+          northeast = southwest;
+          southwest = value;
+        }
+        await _mapController!.animateCamera(
+          CameraUpdate.newLatLngBounds(
+            LatLngBounds(southwest: southwest, northeast: northeast),
+          ),
+        );
+      }
+    }
   }
 
   /// MapLibre
@@ -49,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onMapCreated(MaplibreMapController controller) async {
     _mapController = controller;
-    await _mapController!.updateContentInsets(EdgeInsets.only(bottom: _height * 0.3));
+    await _mapController!.updateContentInsets(EdgeInsets.only(bottom: _height * 0.3, left: 30.0, right: 30.0));
     _goToMyPosition();
   }
 

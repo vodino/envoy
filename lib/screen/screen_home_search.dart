@@ -8,7 +8,12 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import '_screen.dart';
 
 class HomeSearchScreen extends StatefulWidget {
-  const HomeSearchScreen({super.key});
+  const HomeSearchScreen({
+    super.key,
+    required this.popController,
+  });
+
+  final ValueNotifier<RouteItemState?> popController;
 
   static const String name = 'home_search';
   static const String path = 'search';
@@ -29,6 +34,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
     _bottomSheetController.value = true;
     if (_deliveryFocusNode.hasFocus) _deliveryFocusNode.unfocus();
     if (_pickupFocusNode.hasFocus) _pickupFocusNode.unfocus();
+    
     Navigator.push(
       context,
       CupertinoPageRoute(builder: (context) {
@@ -44,13 +50,16 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
 
   void _openOrdersSheet({
     required BuildContext context,
-  }) {
-    Navigator.push(
+  }) async {
+    final value = await Navigator.push<RouteItemState>(
       context,
       CupertinoPageRoute(builder: (context) {
         return const HomeOrderSearchScreen();
       }),
     );
+    if (value != null && mounted) {
+      Navigator.pop(context, value);
+    }
   }
 
   /// Input
@@ -108,7 +117,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
     _pickupTextController = TextEditingController(text: _pickupPlaceItem.value?.title);
     _deliveryTextController = TextEditingController();
 
-    await showCupertinoModalBottomSheet(
+    final value = await showCupertinoModalBottomSheet<RouteItemState>(
       expand: true,
       context: context,
       builder: (context) {
@@ -124,6 +133,10 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
       },
     );
     _bottomSheetController.value = false;
+    if (value != null && mounted) {
+      widget.popController.value = value;
+      Navigator.pop(context);
+    }
   }
 
   /// LocationService

@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:maplibre_gl/mapbox_gl.dart';
 
@@ -32,10 +36,50 @@ class GetRoute extends RouteEvent {
   final LatLng source;
   final LatLng destination;
 
-  String get _url => 'http://router.project-osrm.org/route/v1/driving$_route';
-
-  String get _route => '${source.longitude},${source.latitude};${destination.longitude},${destination.latitude}';
+  String get _url => 'https://router.project-osrm.org/route/v1/driving/$_route?steps=true&geometries=geojson&continue_straight=true';
+  String get _route => '${destination.longitude},${destination.latitude};${source.longitude},${source.latitude}';
 
   @override
-  Future<void> _execute(RouteService service) async {}
+  Future<void> _execute(RouteService service) async {
+    service.value = const PendingRouteState();
+    try {
+      final request = await HttpClient().getUrl(Uri.parse(_url));
+      final response = await request.close();
+      final body = await response.transform(utf8.decoder).join();
+      final data = await compute(RouteResult.fromJson, body);
+      service.value = RouteItemState(points: data.waypoints, routes: data.routes);
+    } catch (error) {
+      service.value = FailureRouteState(
+        message: error.toString(),
+        event: this,
+      );
+    }
+  }
+
+  // String get _url => '${RepositoryService.httpURL}/v1/api/routing';
+
+  // @override
+  // Future<void> _execute(RouteService service) async {
+  //   service.value = const PendingRouteState();
+  //   try {
+  //     final response = await Dio().postUri<String>(
+  //       Uri.parse(_url),
+  //       data: jsonEncode({
+  //         "long_from": source.longitude,
+  //         "lat_from": source.latitude,
+  //         "long_to": destination.longitude,
+  //         "lat_to": destination.latitude,
+  //       }),
+  //     );
+  //     log(response.data.toString());
+  //     final data = await compute(RouteResult.fromServerJson, response.data!);
+  //     service.value = RouteItemState(points: data.waypoints, routes: data.routes);
+  //   } catch (error) {
+  //     print(error);
+  //     service.value = FailureRouteState(
+  //       message: error.toString(),
+  //       event: this,
+  //     );
+  //   }
+  // }
 }

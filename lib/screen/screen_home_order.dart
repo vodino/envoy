@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:maplibre_gl/mapbox_gl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -97,6 +98,28 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
     }
   }
 
+  /// RouteService
+  late final RouteService _routeService;
+
+  void _listenRouteState(BuildContext context, RouteState state) {
+    if (state is RouteItemState) {
+      Navigator.of(context, rootNavigator: true).pop(state);
+    }
+  }
+
+  void _getRoute() {
+    _routeService.handle(GetRoute(
+      destination: LatLng(
+        widget.order.deliveryPlace.latitude!,
+        widget.order.deliveryPlace.longitude!,
+      ),
+      source: LatLng(
+        widget.order.pickupPlace.latitude!,
+        widget.order.pickupPlace.longitude!,
+      ),
+    ));
+  }
+
   @override
   void initState() {
     super.initState();
@@ -110,6 +133,9 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
     /// ContactService
     _pickupContactController = ValueNotifier(null);
     _deliveryContactController = ValueNotifier(null);
+
+    /// RouteService
+    _routeService = RouteService();
   }
 
   @override
@@ -245,12 +271,25 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                 ),
               ),
             ),
+            const Divider(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: CupertinoButton.filled(
-                child: const Text('Commander'),
-                onPressed: () {
-                  Navigator.pop(context, true);
+              child: ValueListenableConsumer<RouteState>(
+                listener: _listenRouteState,
+                valueListenable: _routeService,
+                builder: (context, state, child) {
+                  VoidCallback? onPressed = _getRoute;
+                  if (state is PendingRouteState) {
+                    onPressed = null;
+                  }
+                  return CupertinoButton.filled(
+                    onPressed: onPressed,
+                    child: Visibility(
+                      visible: state is! PendingRouteState,
+                      replacement: const CupertinoActivityIndicator(),
+                      child: const Text('Commander'),
+                    ),
+                  );
                 },
               ),
             ),

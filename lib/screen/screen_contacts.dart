@@ -63,7 +63,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
     /// ContactService
     _contactController = ValueNotifier(widget.contact);
     _contactService = ContactService.instance();
-    _getcontacts();
+    if (_contactService.value is! ContactItemListState) _getcontacts();
   }
 
   @override
@@ -142,6 +142,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
                 ],
               ),
             ),
+            const Divider(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: CupertinoButton.filled(
