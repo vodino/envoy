@@ -76,7 +76,7 @@ class CustomTextField extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12.0),
       decoration: ShapeDecoration(
-        color: CupertinoColors.systemFill,
+        color: CupertinoColors.systemGrey5,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
       ),
       child: TextFormField(

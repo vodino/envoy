@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '_widget.dart';
 
@@ -40,7 +41,7 @@ class HomeOrderContactListTile extends StatelessWidget {
           trailing: const Icon(CupertinoIcons.forward, size: 18.0, color: CupertinoColors.systemGrey2),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
           contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
-          tileColor: tileColor ?? CupertinoColors.systemFill,
+          tileColor: tileColor ?? CupertinoColors.systemGrey5,
           horizontalTitleGap: 12.0,
           subtitle: subtitle,
           title: title,
@@ -156,60 +157,77 @@ class HomeOrderPlaceListTile extends StatelessWidget {
 class HomeOrderPriceWidget extends StatelessWidget {
   const HomeOrderPriceWidget({
     super.key,
-    required this.title,
-    required this.amount,
-    required this.value,
     required this.onChanged,
+    required this.amount,
+    required this.image,
+    required this.title,
+    required this.value,
+    this.padding = const EdgeInsets.only(left: 8.0),
   });
 
-  final String title;
-  final String amount;
   final bool value;
+  final String title;
+  final String image;
+  final String? amount;
+  final EdgeInsetsGeometry padding;
   final ValueChanged<bool>? onChanged;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: 100.0,
-      child: CustomButton(
-        onPressed: () => onChanged?.call(!value),
-        child: Material(
-          shape: RoundedRectangleBorder(
-            side: BorderSide(color: value ? CupertinoColors.systemRed : CupertinoColors.systemFill, width: 2.0),
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: ClipRect(
-                  child: Transform.scale(
-                    scale: 1.2,
-                    child: Lottie.asset(
-                      Assets.images.motorbike,
-                      alignment: Alignment.center,
-                      fit: BoxFit.fill,
-                      animate: false,
+      child: Opacity(
+        opacity: value ? 1.0: 0.6,
+        child: CustomButton(
+          onPressed: onChanged != null ? () => onChanged?.call(!value) : null,
+          child: Material(
+            color: value ? CupertinoColors.systemGrey5 : CupertinoColors.systemGrey6.withOpacity(0.5),
+            shape: RoundedRectangleBorder(
+              // side: BorderSide(color: value ? CupertinoColors.systemRed : CupertinoColors.systemFill, width: 2.0),
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: ClipRect(
+                    child: Padding(
+                      padding: padding,
+                      child: Transform.scale(
+                        scale: 1.2,
+                        child: Lottie.asset(
+                          image,
+                          alignment: Alignment.center,
+                          fit: BoxFit.fill,
+                          animate: false,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              CustomListTile(
-                height: 40.0,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
-                title: Text(title, style: const TextStyle(fontSize: 8.0)),
-                subtitle: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    amount,
-                    style: context.cupertinoTheme.textTheme.navTitleTextStyle.copyWith(
-                      letterSpacing: -2.0,
-                    ),
+                CustomListTile(
+                  height: 40.0,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  title: Text(title, style: const TextStyle(fontSize: 8.0)),
+                  subtitle: Visibility(
+                    visible: amount != null,
+                    replacement: const HomeOrderSchimmer(),
+                    child: Builder(builder: (context) {
+                      return FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          amount!,
+                          style: context.cupertinoTheme.textTheme.navTitleTextStyle.copyWith(
+                            letterSpacing: -2.0,
+                          ),
+                        ),
+                      );
+                    }),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -325,6 +343,27 @@ class _HomeOrderDateTimeBottomSheetState extends State<HomeOrderDateTimeBottomSh
           ),
         ),
       ],
+    );
+  }
+}
+
+class HomeOrderSchimmer extends StatelessWidget {
+  const HomeOrderSchimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade500,
+      highlightColor: Colors.grey.shade300,
+      child: Container(
+        height: 12.0,
+        width: 60.0,
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        decoration: BoxDecoration(
+          color: CupertinoColors.systemFill,
+          borderRadius: BorderRadius.circular(2.0),
+        ),
+      ),
     );
   }
 }

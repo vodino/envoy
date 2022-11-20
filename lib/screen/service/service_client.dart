@@ -65,7 +65,6 @@ class LoginClient extends ClientEvent {
           );
       }
     } catch (error) {
-      print(error);
       if (error is DioError && error.type == DioErrorType.response) {
         service.value = NoClientItemState(
           phoneNumber: phoneNumber,
@@ -125,8 +124,6 @@ class RegisterClient extends ClientEvent {
           );
       }
     } catch (error) {
-      print(error);
-
       service.value = FailureClientState(
         message: error.toString(),
         event: this,
@@ -150,7 +147,6 @@ class GetClient extends ClientEvent {
         service.value = const NoClientItemState();
       }
     } catch (error) {
-      print(error);
       service.value = FailureClientState(
         message: error.toString(),
         event: this,
@@ -173,7 +169,6 @@ class PutClient extends ClientEvent {
       await HiveService.settingsBox.put('current_client', client.toJson());
       service.value = ClientItemState(data: client);
     } catch (error) {
-      print(error);
       service.value = FailureClientState(
         message: error.toString(),
         event: this,
@@ -196,7 +191,6 @@ class DeleteClient extends ClientEvent {
       await HiveService.settingsBox.delete('current_client');
       service.value = ClientItemState(data: client);
     } catch (error) {
-      print(error);
       service.value = FailureClientState(
         message: error.toString(),
         event: this,

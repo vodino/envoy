@@ -120,6 +120,22 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
     ));
   }
 
+  /// RiderService
+  late final RiderService _riderService;
+
+  void _listenRiderState(BuildContext context, RiderState state) {
+    if (state is RiderItemState) {}
+  }
+
+  void _getRiderService() {
+    _riderService.handle(GetRiderAvailable(
+      source: LatLng(
+        widget.order.pickupPlace.latitude!,
+        widget.order.pickupPlace.longitude!,
+      ),
+    ));
+  }
+
   @override
   void initState() {
     super.initState();
@@ -136,6 +152,10 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
 
     /// RouteService
     _routeService = RouteService();
+
+    /// RiderService
+    _riderService = RiderService();
+    _getRiderService();
   }
 
   @override
@@ -170,21 +190,48 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                   SliverToBoxAdapter(
                     child: AspectRatio(
                       aspectRatio: 4.0,
-                      child: ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                        scrollDirection: Axis.horizontal,
-                        separatorBuilder: (context, index) {
-                          return const SizedBox(width: 12.0);
-                        },
-                        itemBuilder: (context, index) {
-                          return HomeOrderPriceWidget(
-                            onChanged: (value) {},
-                            amount: '1000 F',
-                            title: 'À moto',
-                            value: false,
+                      child: ValueListenableBuilder<RiderState>(
+                        valueListenable: _riderService,
+                        builder: (context, state, child) {
+                          List<PriceSchema>? prices;
+                          if (state is RiderItemState) {
+                            prices = state.data.prices;
+                          }
+                          return ListView(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                            children: [
+                              Builder(
+                                builder: (context) {
+                                  final result = prices?.where((value) => value.type == RiderType.motorbike);
+                                  final isNotEmpty = result?.isNotEmpty ?? false;
+                                  return HomeOrderPriceWidget(
+                                    amount: prices != null ? (isNotEmpty ? '${result!.first.price.toInt()} F' : '-') : null,
+                                    padding: const EdgeInsets.only(top: 6.0, left: 8.0),
+                                    onChanged: isNotEmpty ? (value) {} : null,
+                                    image: Assets.images.motorbike,
+                                    title: 'À moto',
+                                    value: true,
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 12.0),
+                              Builder(
+                                builder: (context) {
+                                  final result = prices?.where((value) => value.type == RiderType.car);
+                                  final isNotEmpty = result?.isNotEmpty ?? false;
+                                  return HomeOrderPriceWidget(
+                                    amount: prices != null ? (isNotEmpty ? '${result!.first.price.toInt()} F' : '-') : null,
+                                    onChanged: isNotEmpty ? (value) {} : null,
+                                    image: Assets.images.car,
+                                    title: 'En voiture',
+                                    value: false,
+                                  );
+                                },
+                              ),
+                            ],
                           );
                         },
-                        itemCount: 1,
                       ),
                     ),
                   ),
@@ -272,21 +319,41 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
             const Divider(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: ValueListenableConsumer<RouteState>(
-                listener: _listenRouteState,
-                valueListenable: _routeService,
-                builder: (context, state, child) {
-                  VoidCallback? onPressed = _getRoute;
-                  if (state is PendingRouteState) {
-                    onPressed = null;
+              child: ValueListenableConsumer<RiderState>(
+                listener: _listenRiderState,
+                valueListenable: _riderService,
+                builder: (context, riderState, child) {
+                  bool pending = false;
+                  bool available = true;
+                  if (riderState is RiderItemState) {
+                    available = riderState.data.available;
+                  } else {
+                    pending = riderState is PendingRiderState;
                   }
-                  return CupertinoButton.filled(
-                    onPressed: onPressed,
-                    child: Visibility(
-                      visible: state is! PendingRouteState,
-                      replacement: const CupertinoActivityIndicator(),
-                      child: const Text('Commander'),
-                    ),
+                  return ValueListenableConsumer<RouteState>(
+                    listener: _listenRouteState,
+                    valueListenable: _routeService,
+                    builder: (context, routeState, child) {
+                      VoidCallback? onPressed = _getRoute;
+                      if (routeState is PendingRouteState || pending || !available) {
+                        pending = true;
+                        onPressed = null;
+                      } else {
+                        pending = false;
+                      }
+                      return CupertinoButton.filled(
+                        onPressed: onPressed,
+                        disabledColor: CupertinoColors.systemFill,
+                        child: DefaultTextStyle(
+                          style: TextStyle(color: pending || !available ? CupertinoColors.systemGrey2 : null),
+                          child: Visibility(
+                            visible: available,
+                            replacement: const Text('Oops, pas de coursiers disponibles'),
+                            child: const Text('Commander'),
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),

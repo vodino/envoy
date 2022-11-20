@@ -13,8 +13,6 @@ class ContactService extends ValueNotifier<ContactState> {
   }
 
   Future<void> handle(ContactEvent event) => event._execute(this);
-
-  void onState(ValueChanged<ContactState> callBack) => callBack(value);
 }
 
 abstract class ContactEvent {
