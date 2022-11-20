@@ -13,5 +13,8 @@
     "notifications": "notifications",
     "language": "langue",
     "selectlanguage": "selectionner une langue",
-    "logout": "deconnexion"
+    "logout": "deconnexion",
+    "hospital": "hopital",
+    "airport": "aeroport",
+    "neighbourhood": "quartier"
 }

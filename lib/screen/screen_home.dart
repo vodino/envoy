@@ -20,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Customer
   late final GlobalKey<ScaffoldState> _scaffoldState;
   late final BuildContext _context;
+  late MediaQueryData _mediaQuery;
   late double _height;
 
   void _trailingFloatingActionPressed() {
@@ -32,8 +33,39 @@ class _HomeScreenState extends State<HomeScreen> {
     _openHomeSearch();
   }
 
+  void _drawLines(RouteItemListState state) async {
+    for (final route in state.data) {
+      await _mapController?.addLine(
+        LineOptions(
+          geometry: route.coordinates,
+          lineColor: "#ff0000",
+          lineJoin: 'round',
+          lineWidth: 4.0,
+        ),
+      );
+      await _mapController!.animateCamera(
+        CameraUpdate.newLatLngBounds(route.bounds!, bottom: _mediaQuery.size.height * 0.55),
+      );
+    }
+  }
+
+  void _openHomeFinder(RouteItemListState state) async {
+    final controller = showBottomSheet(
+      context: _context,
+      enableDrag: false,
+      builder: (context) {
+        return AfterLayout(
+          listener: (context) => _drawLines(state),
+          child: const HomeFinderScreen(),
+        );
+      },
+    );
+
+    await controller.closed;
+  }
+
   void _openHomeSearch() async {
-    final popController = ValueNotifier<RouteItemState?>(null);
+    final popController = ValueNotifier<RouteItemListState?>(null);
     final controller = showBottomSheet(
       context: _context,
       enableDrag: false,
@@ -45,26 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
     await controller.closed;
     final state = popController.value;
-    if (state != null) {
-      for (var element in state.routes) {
-        await _mapController?.addLine(
-          LineOptions(geometry: element.geometry!.coordinates, lineColor: "#ff0000", lineWidth: 4.0),
-        );
-        LatLng southwest = element.geometry!.coordinates!.first;
-        LatLng northeast = element.geometry!.coordinates!.last;
-
-        if (southwest.latitude > northeast.latitude) {
-          LatLng value = northeast;
-          northeast = southwest;
-          southwest = value;
-        }
-        await _mapController!.animateCamera(
-          CameraUpdate.newLatLngBounds(
-            LatLngBounds(southwest: southwest, northeast: northeast),
-          ),
-        );
-      }
-    }
+    if (state != null) _openHomeFinder(state);
   }
 
   /// MapLibre
@@ -74,7 +87,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onMapCreated(MaplibreMapController controller) async {
     _mapController = controller;
-    await _mapController!.updateContentInsets(EdgeInsets.only(bottom: _height * 0.3, left: 30.0, right: 30.0));
+    await _mapController!.updateContentInsets(EdgeInsets.only(
+      bottom: _height * 0.3,
+      right: 16.0,
+      left: 16.0,
+    ));
     _goToMyPosition();
   }
 
@@ -128,8 +145,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final mediaQuery = MediaQuery.of(context);
-    _height = mediaQuery.size.height;
+    _mediaQuery = MediaQuery.of(context);
+    _height = _mediaQuery.size.height;
   }
 
   @override

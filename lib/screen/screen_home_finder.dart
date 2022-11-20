@@ -9,9 +9,10 @@ class HomeFinderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      maxChildSize: 1.0,
-      minChildSize: 1.0,
-      initialChildSize: 1.0,
+      expand: false,
+      maxChildSize: 0.5,
+      minChildSize: 0.5,
+      initialChildSize: 0.5,
       builder: (context, scrollController) {
         return SafeArea(
           child: CustomScrollView(

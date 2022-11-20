@@ -34,14 +34,15 @@ class OrderFeedbackScreen extends StatelessWidget {
               child: CustomListTile(
                 height: 60.0,
                 title: Center(
-                    child: Text(
-                  'Allou Coulibaly',
-                  style: context.cupertinoTheme.textTheme.navTitleTextStyle,
-                )),
+                  child: Text(
+                    'Allou Coulibaly',
+                    style: context.cupertinoTheme.textTheme.navTitleTextStyle,
+                  ),
+                ),
                 subtitle: Center(
                   child: Text(
                     "S'il te plait evaluez mon service",
-                    style: context.cupertinoTheme.textTheme.actionTextStyle,
+                    style: context.cupertinoTheme.textTheme.textStyle,
                   ),
                 ),
               ),

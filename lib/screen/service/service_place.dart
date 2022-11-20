@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:ui';
 import 'dart:async';
 
@@ -119,7 +120,7 @@ class FetchPlaces extends PlaceEvent {
   }
 
   static HttpClientRequest? _request;
-  static Future<List<PlaceSchema>>? _compute;
+  static CustomComputeController? _controller;
   @override
   Future<void> _execute(PlaceService service) async {
     service.value = const PendingPlaceState();
@@ -131,13 +132,15 @@ class FetchPlaces extends PlaceEvent {
         _request = await HttpClient().getUrl(Uri.parse(_url));
         final response = await _request!.close();
         final body = await response.transform(utf8.decoder).join();
-        await _compute?.timeout(Duration.zero);
-        _compute = compute<String, List<PlaceSchema>>(PlaceSchema.fromRawJsonList, body);
-        service.value = PlaceItemListState(data: await _compute!);
+        scheduleMicrotask(() async {
+          await _controller?.dispose();
+          _controller = customCompute<String, List<PlaceSchema>>(PlaceSchema.fromRawJsonList, body);
+          service.value = PlaceItemListState(data: await _controller!.future);
+        });
       }
     } catch (error) {
-      if (error is TimeoutException) {
-        service.value = CancelFailurePlaceState(message: error.message!);
+      if (error is TimeoutException || error is RemoteError) {
+        service.value = const CancelFailurePlaceState(message: 'aborted');
       } else {
         service.value = FailurePlaceState(
           message: error.toString(),

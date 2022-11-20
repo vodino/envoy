@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:maplibre_gl/mapbox_gl.dart';
 
 extension CustomBuildContext on BuildContext {
   bool isPortrait(Orientation orientation) {
@@ -77,5 +79,20 @@ extension CustomList<T> on List<T> {
       result.add(items);
     }
     return result;
+  }
+}
+
+extension CustomLatLng on LatLng {
+  static const num earthRadius = 6371009.0;
+  double distance(LatLng to) {
+    num arcHav(num x) => 2 * asin(sqrt(x));
+    num hav(num x) => sin(x * 0.5) * sin(x * 0.5);
+    num toRadians(num degrees) => degrees / 180.0 * pi;
+    num havDistance(num lat1, num lat2, num dLng) => hav(lat1 - lat2) + hav(dLng) * cos(lat1) * cos(lat2);
+
+    num distanceRadians(num lat1, num lng1, num lat2, num lng2) => arcHav(havDistance(lat1, lat2, lng1 - lng2));
+    num computeAngleBetween(LatLng from, LatLng to) => distanceRadians(toRadians(from.latitude), toRadians(from.longitude), toRadians(to.latitude), toRadians(to.longitude));
+
+    return (computeAngleBetween(this, to) * earthRadius).toDouble();
   }
 }

@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:maplibre_gl/mapbox_gl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -13,7 +15,7 @@ class HomeSearchScreen extends StatefulWidget {
     required this.popController,
   });
 
-  final ValueNotifier<RouteItemState?> popController;
+  final ValueNotifier<RouteItemListState?> popController;
 
   static const String name = 'home_search';
   static const String path = 'search';
@@ -31,27 +33,29 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
     required PlaceSchema deliveryPlace,
     required PlaceSchema pickupPlace,
   }) {
-    _bottomSheetController.value = true;
-    if (_deliveryFocusNode.hasFocus) _deliveryFocusNode.unfocus();
-    if (_pickupFocusNode.hasFocus) _pickupFocusNode.unfocus();
-    
-    Navigator.push(
-      context,
-      CupertinoPageRoute(builder: (context) {
-        return HomeOrderCreateScreen(
-          order: OrderSchema(
-            deliveryPlace: deliveryPlace,
-            pickupPlace: pickupPlace,
-          ),
-        );
-      }),
-    );
+    if (ClientService.instance().value is ClientItemState) {
+      if (_deliveryFocusNode.hasFocus) _deliveryFocusNode.unfocus();
+      if (_pickupFocusNode.hasFocus) _pickupFocusNode.unfocus();
+      Navigator.push(
+        context,
+        CupertinoPageRoute(builder: (context) {
+          return HomeOrderCreateScreen(
+            order: OrderSchema(
+              deliveryPlace: deliveryPlace,
+              pickupPlace: pickupPlace,
+            ),
+          );
+        }),
+      );
+    } else {
+      context.goNamed(AuthScreen.name);
+    }
   }
 
   void _openOrdersSheet({
     required BuildContext context,
   }) async {
-    final value = await Navigator.push<RouteItemState>(
+    final value = await Navigator.push<RouteItemListState>(
       context,
       CupertinoPageRoute(builder: (context) {
         return const HomeOrderSearchScreen();
@@ -116,8 +120,9 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
     _deliveryFocusNode = FocusNode();
     _pickupTextController = TextEditingController(text: _pickupPlaceItem.value?.title);
     _deliveryTextController = TextEditingController();
+    _bottomSheetController.value = true;
 
-    final value = await showCupertinoModalBottomSheet<RouteItemState>(
+    final value = await showCupertinoModalBottomSheet<RouteItemListState>(
       expand: true,
       context: context,
       builder: (context) {
@@ -146,7 +151,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
   void _listenLocationState(BuildContext context, LocationState state) {
     if (state is UserLocationItemState) {
       _myPosition = state.data;
-      _getReverseGeocoding(latLng: _myPosition!.position, service: _pickupPlaceService);
+      if (!_bottomSheetController.value) _getReverseGeocoding(latLng: _myPosition!.position, service: _pickupPlaceService);
     }
   }
 
@@ -246,6 +251,33 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
     );
   }
 
+  String _itemSubtitlePrefix(PlaceOsmTag tag) {
+    final localizarions = context.localizations;
+    String? prefix;
+    switch (tag) {
+      case PlaceOsmTag.hospital:
+        prefix = localizarions.hospital.capitalize();
+        break;
+      case PlaceOsmTag.airport:
+        prefix = localizarions.airport.capitalize();
+        break;
+      default:
+    }
+    return prefix != null ? '$prefix • ' : '';
+  }
+
+  String _itemTitlePrefix(PlaceOsmTag tag) {
+    final localizarions = context.localizations;
+    String? prefix;
+    switch (tag) {
+      case PlaceOsmTag.neighbourhood:
+        prefix = localizarions.neighbourhood.capitalize();
+        break;
+      default:
+    }
+    return prefix != null ? '$prefix ' : '';
+  }
+
   Widget _listBuilder({
     required TextEditingController textEditingController,
     required PlaceCategory placeCategory,
@@ -281,10 +313,27 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
                               index ~/= 2;
                               final item = items[index];
                               return CustomListTile(
+                                trailing: ValueListenableBuilder<LocationState>(
+                                  valueListenable: _locationService,
+                                  builder: (context, state, child) {
+                                    return Visibility(
+                                      visible: _myPosition != null,
+                                      child: Builder(builder: (context) {
+                                        return Text(
+                                          '${NumberFormat.compactCurrency(
+                                            decimalDigits: 1,
+                                            symbol: '',
+                                          ).format(LatLng(item.latitude!, item.longitude!).distance(_myPosition!.position))}m',
+                                          style: context.theme.textTheme.caption,
+                                        );
+                                      }),
+                                    );
+                                  },
+                                ),
                                 leading: const Icon(CupertinoIcons.location_solid, size: 18.0, color: CupertinoColors.systemGrey2),
+                                subtitle: Text(_itemSubtitlePrefix(item.osmTag!) + item.subtitle!),
                                 onTap: () => _onPlaceItemPressed(context, item, placeCategory),
-                                subtitle: const Text('37 km'),
-                                title: Text(item.title!),
+                                title: Text(_itemTitlePrefix(item.osmTag!) + item.title!),
                               );
                             }
                             return const Divider(indent: 40.0);

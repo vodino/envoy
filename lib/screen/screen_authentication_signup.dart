@@ -14,8 +14,11 @@ class AuthSignupScreen extends StatefulWidget {
   final String phoneNumber;
   final String token;
 
+  static const String phoneNumberKey = 'phone_number';
+  static const String tokenKey = 'token';
+
   static const String name = 'auth_signup';
-  static const String path = 'signup';
+  static const String path = 'auth_signup';
 
   @override
   State<AuthSignupScreen> createState() => _AuthSignupScreenState();
@@ -43,9 +46,7 @@ class _AuthSignupScreenState extends State<AuthSignupScreen> {
   }
 
   void _listenClientService(BuildContext context, ClientState state) {
-    if (state is ClientItemState) {
-    } else if (state is NoClientItemState) {
-    } else if (state is FailureClientState) {
+    if (state is FailureClientState) {
       _errorController.value = state.message;
     }
   }
@@ -79,8 +80,8 @@ class _AuthSignupScreenState extends State<AuthSignupScreen> {
             const SliverToBoxAdapter(child: AuthSignupFullNameLabel()),
             SliverToBoxAdapter(
               child: AuthSignupFullNameTextField(
-                focusNode: _fullNameFocusNode,
                 controller: _fullNameTextController,
+                focusNode: _fullNameFocusNode,
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 16.0)),

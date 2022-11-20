@@ -15,8 +15,6 @@ class ClientService extends ValueNotifier<ClientState> {
   }
 
   Future<void> handle(ClientEvent event) => event._execute(this);
-
-  void onState(ValueChanged<ClientState> callBack) => callBack(value);
 }
 
 abstract class ClientEvent {
@@ -51,8 +49,8 @@ class LoginClient extends ClientEvent {
       );
       switch (response.statusCode) {
         case 200:
-          final data = await compute(ClientSchema.fromJson, response.data!);
-          service.value = ClientItemState(data: data);
+          final data = await compute(ClientSchema.fromServerJson, response.data!);
+          await service.handle(PutClient(client: data));
           break;
         case 404:
           service.value = NoClientItemState(
@@ -67,10 +65,18 @@ class LoginClient extends ClientEvent {
           );
       }
     } catch (error) {
-      service.value = FailureClientState(
-        message: error.toString(),
-        event: this,
-      );
+      print(error);
+      if (error is DioError && error.type == DioErrorType.response) {
+        service.value = NoClientItemState(
+          phoneNumber: phoneNumber,
+          token: token,
+        );
+      } else {
+        service.value = FailureClientState(
+          message: error.toString(),
+          event: this,
+        );
+      }
     }
   }
 }
@@ -103,8 +109,8 @@ class RegisterClient extends ClientEvent {
       );
       switch (response.statusCode) {
         case 200:
-          final data = await compute(ClientSchema.fromJson, response.data!);
-          service.value = ClientItemState(data: data);
+          final data = await compute(ClientSchema.fromServerJson, response.data!);
+          await service.handle(PutClient(client: data));
           break;
         case 404:
           service.value = NoClientItemState(
@@ -119,6 +125,8 @@ class RegisterClient extends ClientEvent {
           );
       }
     } catch (error) {
+      print(error);
+
       service.value = FailureClientState(
         message: error.toString(),
         event: this,
@@ -142,6 +150,7 @@ class GetClient extends ClientEvent {
         service.value = const NoClientItemState();
       }
     } catch (error) {
+      print(error);
       service.value = FailureClientState(
         message: error.toString(),
         event: this,
@@ -164,6 +173,7 @@ class PutClient extends ClientEvent {
       await HiveService.settingsBox.put('current_client', client.toJson());
       service.value = ClientItemState(data: client);
     } catch (error) {
+      print(error);
       service.value = FailureClientState(
         message: error.toString(),
         event: this,
@@ -186,6 +196,7 @@ class DeleteClient extends ClientEvent {
       await HiveService.settingsBox.delete('current_client');
       service.value = ClientItemState(data: client);
     } catch (error) {
+      print(error);
       service.value = FailureClientState(
         message: error.toString(),
         event: this,

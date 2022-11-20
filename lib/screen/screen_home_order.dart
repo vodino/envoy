@@ -102,7 +102,7 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
   late final RouteService _routeService;
 
   void _listenRouteState(BuildContext context, RouteState state) {
-    if (state is RouteItemState) {
+    if (state is RouteItemListState) {
       Navigator.of(context, rootNavigator: true).pop(state);
     }
   }
@@ -147,128 +147,126 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: CupertinoScrollbar(
-                child: CustomScrollView(
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  controller: ModalScrollController.of(context),
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: HomeOrderPlaceListTile(
-                        title: Text(widget.order.pickupPlace.title!),
-                        iconColor: CupertinoColors.activeBlue,
-                        onTap: () {},
-                      ),
+              child: CustomScrollView(
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                controller: ModalScrollController.of(context),
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: HomeOrderPlaceListTile(
+                      title: Text(widget.order.pickupPlace.title!),
+                      iconColor: CupertinoColors.activeBlue,
+                      onTap: () {},
                     ),
-                    const SliverToBoxAdapter(child: Divider(indent: 40.0)),
-                    SliverToBoxAdapter(
-                      child: HomeOrderPlaceListTile(
-                        title: Text(widget.order.deliveryPlace.title!),
-                        iconColor: CupertinoColors.activeOrange,
-                        onTap: () {},
-                      ),
+                  ),
+                  const SliverToBoxAdapter(child: Divider(indent: 40.0)),
+                  SliverToBoxAdapter(
+                    child: HomeOrderPlaceListTile(
+                      title: Text(widget.order.deliveryPlace.title!),
+                      iconColor: CupertinoColors.activeOrange,
+                      onTap: () {},
                     ),
-                    const SliverToBoxAdapter(child: Divider(thickness: 6.0, height: 6.0)),
-                    SliverToBoxAdapter(
-                      child: AspectRatio(
-                        aspectRatio: 4.0,
-                        child: ListView.separated(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                          scrollDirection: Axis.horizontal,
-                          separatorBuilder: (context, index) {
-                            return const SizedBox(width: 12.0);
-                          },
-                          itemBuilder: (context, index) {
-                            return HomeOrderPriceWidget(
-                              onChanged: (value) {},
-                              amount: '1000 F',
-                              title: 'À moto',
-                              value: false,
-                            );
-                          },
-                          itemCount: 1,
-                        ),
-                      ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: ValueListenableBuilder<Contact?>(
-                        valueListenable: _pickupContactController,
-                        builder: (context, contact, child) {
-                          return HomeOrderContactListTile(
-                            title: const Text('Contact pour le ramassage'),
-                            subtitle: contact != null ? Text(contact.phones.map((e) => e.number).join(', ')) : null,
-                            onTap: () => _onContactPressed(
-                              controller: _pickupContactController,
-                              title: 'Contact pour le ramassage',
-                            ),
+                  ),
+                  const SliverToBoxAdapter(child: Divider(thickness: 6.0, height: 6.0)),
+                  SliverToBoxAdapter(
+                    child: AspectRatio(
+                      aspectRatio: 4.0,
+                      child: ListView.separated(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                        scrollDirection: Axis.horizontal,
+                        separatorBuilder: (context, index) {
+                          return const SizedBox(width: 12.0);
+                        },
+                        itemBuilder: (context, index) {
+                          return HomeOrderPriceWidget(
+                            onChanged: (value) {},
+                            amount: '1000 F',
+                            title: 'À moto',
+                            value: false,
                           );
                         },
+                        itemCount: 1,
                       ),
                     ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 12.0)),
-                    SliverToBoxAdapter(
-                      child: ValueListenableBuilder<Contact?>(
-                        valueListenable: _deliveryContactController,
-                        builder: (context, contact, child) {
-                          return HomeOrderContactListTile(
-                            title: const Text('Contact pour la livraison'),
-                            subtitle: contact != null ? Text(contact.phones.map((e) => e.number).join(', ')) : null,
-                            onTap: () => _onContactPressed(
-                              controller: _deliveryContactController,
-                              title: 'Contact pour la livraison',
-                            ),
-                          );
-                        },
-                      ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: ValueListenableBuilder<Contact?>(
+                      valueListenable: _pickupContactController,
+                      builder: (context, contact, child) {
+                        return HomeOrderContactListTile(
+                          title: const Text('Contact pour le ramassage'),
+                          subtitle: contact != null ? Text(contact.phones.map((e) => e.number).join(', ')) : null,
+                          onTap: () => _onContactPressed(
+                            controller: _pickupContactController,
+                            title: 'Contact pour le ramassage',
+                          ),
+                        );
+                      },
                     ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 12.0)),
-                    SliverToBoxAdapter(
-                      child: CustomTextField(
-                        controller: _titleTextController,
-                        prefixIcon: const Icon(CupertinoIcons.cube_box_fill, color: CupertinoColors.systemGrey2),
-                        hintText: 'Nom de la commande',
-                      ),
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 12.0)),
+                  SliverToBoxAdapter(
+                    child: ValueListenableBuilder<Contact?>(
+                      valueListenable: _deliveryContactController,
+                      builder: (context, contact, child) {
+                        return HomeOrderContactListTile(
+                          title: const Text('Contact pour la livraison'),
+                          subtitle: contact != null ? Text(contact.phones.map((e) => e.number).join(', ')) : null,
+                          onTap: () => _onContactPressed(
+                            controller: _deliveryContactController,
+                            title: 'Contact pour la livraison',
+                          ),
+                        );
+                      },
                     ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 12.0)),
-                    SliverToBoxAdapter(
-                      child: CustomTextField(
-                        controller: _descriptionTextController,
-                        hintText: 'Description',
-                        maxLines: 6,
-                        minLines: 4,
-                      ),
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 12.0)),
+                  SliverToBoxAdapter(
+                    child: CustomTextField(
+                      controller: _titleTextController,
+                      prefixIcon: const Icon(CupertinoIcons.cube_box_fill, color: CupertinoColors.systemGrey2),
+                      hintText: 'Nom de la commande',
                     ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 8.0)),
-                    SliverToBoxAdapter(
-                      child: ValueListenableBuilder<DateTime?>(
-                        valueListenable: _dateTimeOrderController,
-                        builder: (context, dateTime, child) {
-                          final localizations = CupertinoLocalizations.of(context);
-                          return HomeOrderSwitchListTile(
-                            trailing: dateTime != null ? '${localizations.datePickerMediumDate(dateTime)} à ${TimeOfDay.fromDateTime(dateTime).format(context)}' : null,
-                            onTrailingPressed: _openDatetimeOrderModal,
-                            title: const Text('Programmer'),
-                            onChanged: _switchDatetimeOrder,
-                            value: dateTime != null,
-                          );
-                        },
-                      ),
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 12.0)),
+                  SliverToBoxAdapter(
+                    child: CustomTextField(
+                      controller: _descriptionTextController,
+                      hintText: 'Description',
+                      maxLines: 6,
+                      minLines: 4,
                     ),
-                    SliverToBoxAdapter(
-                      child: ValueListenableBuilder<String?>(
-                        valueListenable: _amountPayByCourierController,
-                        builder: (context, amount, child) {
-                          return HomeOrderSwitchListTile(
-                            trailing: amount != null ? '$amount F' : null,
-                            title: const Text('Paiement par le livreur'),
-                            onChanged: _switchAmountPayByCourier,
-                            onTrailingPressed: _openAmountModal,
-                            value: amount != null,
-                          );
-                        },
-                      ),
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 8.0)),
+                  SliverToBoxAdapter(
+                    child: ValueListenableBuilder<DateTime?>(
+                      valueListenable: _dateTimeOrderController,
+                      builder: (context, dateTime, child) {
+                        final localizations = CupertinoLocalizations.of(context);
+                        return HomeOrderSwitchListTile(
+                          trailing: dateTime != null ? '${localizations.datePickerMediumDate(dateTime)} à ${TimeOfDay.fromDateTime(dateTime).format(context)}' : null,
+                          onTrailingPressed: _openDatetimeOrderModal,
+                          title: const Text('Programmer'),
+                          onChanged: _switchDatetimeOrder,
+                          value: dateTime != null,
+                        );
+                      },
                     ),
-                  ],
-                ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: ValueListenableBuilder<String?>(
+                      valueListenable: _amountPayByCourierController,
+                      builder: (context, amount, child) {
+                        return HomeOrderSwitchListTile(
+                          trailing: amount != null ? '$amount F' : null,
+                          title: const Text('Paiement par le livreur'),
+                          onChanged: _switchAmountPayByCourier,
+                          onTrailingPressed: _openAmountModal,
+                          value: amount != null,
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
             const Divider(),

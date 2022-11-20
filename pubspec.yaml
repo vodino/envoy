@@ -48,6 +48,7 @@ dependencies:
   firebase_auth:
   firebase_core:
   hive_flutter:
+  async:
   hive:
   dio:
 

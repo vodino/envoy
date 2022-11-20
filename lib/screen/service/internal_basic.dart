@@ -9,7 +9,9 @@ Future<void> runService() async {
   } else {
     service = const ProductionService();
   }
-  return service._initialize();
+  await service._initialize();
+
+  await ClientService.instance().handle(const GetClient());
 }
 
 abstract class Service {

@@ -686,7 +686,7 @@ class AfterLayout extends StatefulWidget {
     required this.child,
   });
 
-  final ValueChanged<BuildContext>? listener;
+  final void Function(BuildContext context)? listener;
   final Widget child;
 
   @override

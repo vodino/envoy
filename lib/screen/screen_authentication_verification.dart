@@ -20,8 +20,13 @@ class AuthVerificationScreen extends StatefulWidget {
   final Duration timeout;
   final int? resendToken;
 
+  static const String verificationIdKey = 'verificationId';
+  static const String phoneNumberKey = 'phone_number';
+  static const String timeoutKey = 'timeout';
+  static const String resendTokenKey = 'resend_token';
+
   static const String name = 'auth_verification';
-  static const String path = 'verification';
+  static const String path = 'auth_verification';
 
   @override
   State<AuthVerificationScreen> createState() => _AuthVerificationScreenState();
@@ -105,14 +110,12 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
 
   void _listenClientService(BuildContext context, ClientState state) {
     if (state is ClientItemState) {
+      if (context.canPop()) context.pop();
     } else if (state is NoClientItemState) {
-      context.pushNamed(
-        AuthSignupScreen.name,
-        extra: {
-          'phone_number': state.phoneNumber,
-          'token': state.token,
-        }
-      );
+      context.pushNamed(AuthSignupScreen.name, extra: {
+        AuthSignupScreen.phoneNumberKey: state.phoneNumber,
+        AuthSignupScreen.tokenKey: state.token,
+      });
     }
   }
 

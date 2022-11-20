@@ -21,13 +21,9 @@ class FailureRouteState extends RouteState {
   final String message;
 }
 
-class RouteItemState extends RouteState {
-  const RouteItemState({
-    this.duration,
-    required this.routes,
-    required this.points,
+class RouteItemListState extends RouteState {
+  const RouteItemListState({
+    required this.data,
   });
-  final int? duration;
-  final List<Routes> routes;
-  final List<Waypoints> points;
+  final List<RouteSchema> data;
 }

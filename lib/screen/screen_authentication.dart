@@ -58,13 +58,13 @@ class _AuthScreenState extends State<AuthScreen> {
 
   void _listenAuthService(BuildContext context, AuthState state) {
     if (state is SmsCodeSentState) {
-      context.pushNamed(
+      context.goNamed(
         AuthVerificationScreen.name,
         extra: {
-          'verification_id': state.verificationId,
-          'phone_number': state.phoneNumber,
-          'resend_token': state.resendToken,
-          'timeout': state.timeout,
+          AuthVerificationScreen.verificationIdKey: state.verificationId,
+          AuthVerificationScreen.phoneNumberKey: state.phoneNumber,
+          AuthVerificationScreen.resendTokenKey: state.resendToken,
+          AuthVerificationScreen.timeoutKey: state.timeout,
         },
       );
     } else if (state is PendingAuthState) {

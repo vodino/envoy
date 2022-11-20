@@ -63,7 +63,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
     /// ContactService
     _contactController = ValueNotifier(widget.contact);
     _contactService = ContactService.instance();
-    if (_contactService.value is! ContactItemListState) _getcontacts();
+    if (_contactService.value is! ContactItemListState) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (timeStamp) => _getcontacts(),
+      );
+    }
   }
 
   @override

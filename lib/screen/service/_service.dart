@@ -15,6 +15,7 @@ export 'service_contact_state.dart';
 export 'service_contact.dart';
 export 'service_country_state.dart';
 export 'service_country.dart';
+export 'service_isolate.dart';
 export 'service_locale.dart';
 export 'service_place_state.dart';
 export 'service_place.dart';

@@ -22,6 +22,156 @@ enum PlaceType {
   }
 }
 
+enum PlaceOsmTag {
+  unknown,
+
+  ///
+  neighbourhood,
+  bridleway,
+  busStop,
+  construction,
+  cycleway,
+  distanceMarker,
+  emergencyAccessPoint,
+  footway,
+  gate,
+  motorwayJunction,
+  path,
+  pedestrian,
+  platform,
+  primary,
+  primaryLink,
+  raceway,
+  road,
+  secondary,
+  secondaryLink,
+  services,
+  steps,
+  tertiary,
+  track,
+  trail,
+  trunk,
+  trunkLink,
+  unsurfaced,
+
+  ///
+  airport,
+  atm,
+  auditorium,
+  bank,
+  bar,
+  bench,
+  brothel,
+  cafe,
+  casino,
+  cinema,
+  clinic,
+  club,
+  college,
+  courthouse,
+  crematorium,
+  dentist,
+  doctors,
+  dormitory,
+  embassy,
+  fastFood,
+  ferryTerminal,
+  fountain,
+  fuel,
+  hall,
+  hospital,
+  hotel,
+  kindergarten,
+  library,
+  market,
+  marketplace,
+  nightclub,
+  nursery,
+  office,
+  park,
+  parking,
+  pharmacy,
+  police,
+  preschool,
+  prison,
+  pub,
+  publicMarket,
+  restaurant,
+  sauna,
+  school,
+  shelter,
+  shop,
+  shopping,
+  studio,
+  supermarket,
+  taxi,
+  telephone,
+  theatre,
+  toilets,
+  townhall,
+  university,
+  veterinary,
+  wifi,
+  administrative,
+  military,
+
+  ///
+  house,
+  education,
+  placeOfWorship;
+
+  static PlaceOsmTag fromString(String value) {
+    switch (value) {
+      case 'locality':
+      case 'neighbourhood':
+        return neighbourhood;
+      case 'bus_stop':
+      case 'bus_station':
+        return busStop;
+      case 'place_of_worship':
+        return placeOfWorship;
+      case 'pharmacy':
+        return pharmacy;
+      case 'pub':
+        return pub;
+      case 'shop':
+      case 'shopping':
+        return shop;
+      case 'airport':
+        return airport;
+      case 'hotel':
+        return hotel;
+      case 'house':
+        return house;
+      case 'school':
+        return school;
+      case 'education':
+        return education;
+      case 'university':
+        return university;
+      case 'supermarket':
+        return supermarket;
+      case 'public_market':
+        return publicMarket;
+      case 'hospital':
+      case 'health_centre':
+        return hospital;
+      case 'restaurant':
+        return restaurant;
+      case 'police':
+        return police;
+      case 'military':
+        return military;
+      case 'cinema':
+        return cinema;
+      case 'embassy':
+        return embassy;
+      default:
+        return unknown;
+    }
+  }
+}
+
 class PlaceSchema extends Equatable {
   const PlaceSchema({
     this.title,
@@ -29,7 +179,7 @@ class PlaceSchema extends Equatable {
     this.subtitle,
     this.latitude,
     this.longitude,
-    this.countryCode,
+    this.osmTag,
   });
 
   static const titleKey = 'title';
@@ -37,13 +187,13 @@ class PlaceSchema extends Equatable {
   static const subtitleKey = 'subtitle';
   static const latitudeKey = 'latitude';
   static const longitudeKey = 'longitude';
-  static const countryCodeKey = 'countryCode';
+  static const osmTagKey = 'osmTag';
 
   final String? title;
   final String? subtitle;
   final double? latitude;
   final double? longitude;
-  final String? countryCode;
+  final PlaceOsmTag? osmTag;
   final List<double>? extent;
 
   @override
@@ -53,7 +203,7 @@ class PlaceSchema extends Equatable {
         subtitle,
         latitude,
         longitude,
-        countryCode,
+        osmTag,
       ];
 
   PlaceSchema copyWith({
@@ -61,7 +211,7 @@ class PlaceSchema extends Equatable {
     String? subtitle,
     double? latitude,
     double? longitude,
-    String? countryCode,
+    PlaceOsmTag? osmTag,
     List<double>? extent,
   }) {
     return PlaceSchema(
@@ -70,7 +220,7 @@ class PlaceSchema extends Equatable {
       subtitle: subtitle ?? this.subtitle,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
-      countryCode: countryCode ?? this.countryCode,
+      osmTag: osmTag ?? this.osmTag,
     );
   }
 
@@ -81,7 +231,7 @@ class PlaceSchema extends Equatable {
       subtitle: subtitle,
       latitude: latitude,
       longitude: longitude,
-      countryCode: countryCode,
+      osmTag: osmTag,
     );
   }
 
@@ -92,7 +242,7 @@ class PlaceSchema extends Equatable {
       latitude: data[latitudeKey],
       longitude: data[longitudeKey],
       extent: data[extentKey].cast<double>(),
-      countryCode: data[countryCodeKey].cast<String, String>(),
+      osmTag: data[osmTagKey].cast<String, String>(),
     );
   }
 
@@ -103,7 +253,7 @@ class PlaceSchema extends Equatable {
       subtitleKey: subtitle,
       latitudeKey: latitude,
       longitudeKey: longitude,
-      countryCodeKey: countryCode,
+      osmTagKey: osmTag,
     };
   }
 
@@ -125,14 +275,20 @@ class PlaceSchema extends Equatable {
     final result = _PlaceResult.fromJson(value);
     return List.of(
       (result.features!.map((e) {
-        final properties = e.properties;
+        final properties = e.properties!;
+        List<String> subtitles = [];
+        if (properties.locality != null) subtitles.add(properties.locality!);
+        if (properties.city != null) subtitles.add(properties.city!);
+        if (properties.state != null) subtitles.add(properties.state!);
+        if (properties.country != null) subtitles.add(properties.country!);
+
         return PlaceSchema(
-          title: '${properties?.name} ${properties?.state}, '
-              '${properties?.country}',
-          extent: properties?.extent,
-          countryCode: properties?.countryCode,
-          latitude: e.geometry?.coordinates?[1],
-          longitude: e.geometry?.coordinates?[0],
+          title: properties.name,
+          extent: properties.extent,
+          subtitle: subtitles.join(', '),
+          latitude: (e.geometry?.coordinates?[1])?.toDouble(),
+          longitude: (e.geometry?.coordinates?[0])?.toDouble(),
+          osmTag: PlaceOsmTag.fromString(properties.osmValue!),
         );
       })),
     );

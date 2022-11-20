@@ -60,40 +60,38 @@ class _MyAppState extends State<MyApp> {
                   ),
                 );
               },
-              routes: [
-                GoRoute(
-                  path: AuthVerificationScreen.path,
-                  name: AuthVerificationScreen.name,
-                  pageBuilder: (context, state) {
-                    final data = (state.extra as Map<String, dynamic>);
-                    return CupertinoPage(
-                      child: CustomKeepAlive(
-                        child: AuthVerificationScreen(
-                          verificationId: data['verification_id'],
-                          phoneNumber: data['phone_number'],
-                          resendToken: data['resend_token'],
-                          timeout: data['timeout'],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                GoRoute(
-                  path: AuthSignupScreen.path,
-                  name: AuthSignupScreen.name,
-                  pageBuilder: (context, state) {
-                    final data = (state.extra as Map<String, dynamic>);
-                    return CupertinoPage(
-                      child: CustomKeepAlive(
-                        child: AuthSignupScreen(
-                          phoneNumber: data['phone_number'],
-                          token: data['token'],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
+            ),
+            GoRoute(
+              path: AuthVerificationScreen.path,
+              name: AuthVerificationScreen.name,
+              pageBuilder: (context, state) {
+                final data = (state.extra as Map<String, dynamic>);
+                return CupertinoPage(
+                  child: CustomKeepAlive(
+                    child: AuthVerificationScreen(
+                      verificationId: data[AuthVerificationScreen.verificationIdKey],
+                      phoneNumber: data[AuthVerificationScreen.phoneNumberKey],
+                      resendToken: data[AuthVerificationScreen.resendTokenKey],
+                      timeout: data[AuthVerificationScreen.timeoutKey],
+                    ),
+                  ),
+                );
+              },
+            ),
+            GoRoute(
+              path: AuthSignupScreen.path,
+              name: AuthSignupScreen.name,
+              pageBuilder: (context, state) {
+                final data = (state.extra as Map<String, dynamic>);
+                return CupertinoPage(
+                  child: CustomKeepAlive(
+                    child: AuthSignupScreen(
+                      phoneNumber: data[AuthSignupScreen.phoneNumberKey],
+                      token: data[AuthSignupScreen.tokenKey],
+                    ),
+                  ),
+                );
+              },
             ),
             GoRoute(
               path: OrderRecordingScreen.path,

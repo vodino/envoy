@@ -43,10 +43,17 @@ class ClientSchema extends Equatable {
     );
   }
 
-  static ClientSchema fromMap(Map<String, dynamic> value) {
+  static ClientSchema fromServerMap(Map<String, dynamic> value) {
     final Map<String, dynamic> data = value['data'];
     return ClientSchema(
       fullName: data[fullNameKey],
+      accessToken: value[accessTokenKey],
+    );
+  }
+
+  static ClientSchema fromMap(Map<String, dynamic> value) {
+    return ClientSchema(
+      fullName: value[fullNameKey],
       accessToken: value[accessTokenKey],
     );
   }
@@ -58,10 +65,14 @@ class ClientSchema extends Equatable {
     };
   }
 
-  static List<ClientSchema> fromListJson(String source) {
+  static List<ClientSchema> fromServerListJson(String source) {
     return List.of(
       (jsonDecode(source)['data'] as List).map((map) => fromMap(map)),
     );
+  }
+
+  static ClientSchema fromServerJson(String source) {
+    return fromServerMap(jsonDecode(source));
   }
 
   static ClientSchema fromJson(String source) {

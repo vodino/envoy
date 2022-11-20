@@ -36,7 +36,7 @@ class GetRoute extends RouteEvent {
   final LatLng source;
   final LatLng destination;
 
-  String get _url => 'https://router.project-osrm.org/route/v1/driving/$_route?steps=true&geometries=geojson&continue_straight=true';
+  String get _url => 'https://router.project-osrm.org/route/v1/driving/$_route?steps=true&continue_straight=true&overview=full';
   String get _route => '${destination.longitude},${destination.latitude};${source.longitude},${source.latitude}';
 
   @override
@@ -45,9 +45,19 @@ class GetRoute extends RouteEvent {
     try {
       final request = await HttpClient().getUrl(Uri.parse(_url));
       final response = await request.close();
-      final body = await response.transform(utf8.decoder).join();
-      final data = await compute(RouteResult.fromJson, body);
-      service.value = RouteItemState(points: data.waypoints, routes: data.routes);
+
+      switch (response.statusCode) {
+        case 200:
+          final body = await response.transform(utf8.decoder).join();
+          final data = await compute(RouteSchema.fromRawJsonList, body);
+          service.value = RouteItemListState(data: data);
+          break;
+        default:
+          service.value = FailureRouteState(
+            message: 'internal error',
+            event: this,
+          );
+      }
     } catch (error) {
       service.value = FailureRouteState(
         message: error.toString(),

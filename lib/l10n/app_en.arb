@@ -13,5 +13,8 @@
     "notifications": "notifications",
     "language": "language",
     "selectlanguage": "Select a language",
-    "logout": "logout"
+    "logout": "logout",
+    "hospital": "hospital",
+    "airport": "airport",
+    "neighbourhood": "neighbourhood"
 }

@@ -1,220 +1,105 @@
 import 'dart:convert';
+import 'dart:math';
 
+import 'package:equatable/equatable.dart';
 import 'package:maplibre_gl/mapbox_gl.dart';
 
-class RouteResult {
-  const RouteResult({
-    required this.code,
-    required this.routes,
-    required this.waypoints,
+import '_schema.dart';
+
+class RouteSchema extends Equatable {
+  const RouteSchema({
+    this.coordinates,
+    this.bounds,
   });
 
-  static const String codeKey = 'code';
-  static const String routesKey = 'routes';
-  static const String waypointsKey = 'waypoints';
+  static const coordinatesKey = 'coordinates';
+  static const boundsKey = 'bounds';
 
-  final String code;
-  final List<Routes> routes;
-  final List<Waypoints> waypoints;
+  final LatLngBounds? bounds;
+  final List<LatLng>? coordinates;
 
-  static RouteResult fromMap(Map<String, dynamic> data) {
-    return RouteResult(
-      waypoints: List.from(data[waypointsKey]).map((e) => Waypoints.fromMap(e)).toList(),
-      routes: List.from(data[routesKey]).map((e) => Routes.fromMap(e)).toList(),
-      code: data[codeKey],
+  @override
+  List<Object?> get props => [
+        coordinates,
+        bounds,
+      ];
+
+  RouteSchema copyWith({
+    LatLngBounds? bounds,
+    List<LatLng>? coordinates,
+  }) {
+    return RouteSchema(
+      coordinates: coordinates ?? this.coordinates,
+      bounds: bounds ?? this.bounds,
+    );
+  }
+
+  RouteSchema clone() {
+    return copyWith(
+      coordinates: coordinates,
+      bounds: bounds,
+    );
+  }
+
+  static RouteSchema fromMap(Map<String, dynamic> data) {
+    return RouteSchema(
+      bounds: data[boundsKey],
+      coordinates: data[coordinatesKey].cast<double>(),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      waypointsKey: waypoints,
-      routesKey: routes,
-      codeKey: code,
+      coordinatesKey: coordinates,
+      boundsKey: bounds,
     };
-  }
-
-  static RouteResult fromJson(String data) {
-    return fromMap(jsonDecode(data));
-  }
-
-  static RouteResult fromServerJson(String data) {
-    return fromMap(jsonDecode(data)['data']);
   }
 
   String toJson() {
     return jsonEncode(toMap());
   }
 
-  @override
-  String toString() {
-    return toMap().toString();
+  static RouteSchema fromJson(String value) {
+    return fromMap(jsonDecode(value));
   }
-}
 
-class Routes {
-  const Routes({
-    this.legs,
-    this.weightName,
-    this.weight,
-    this.duration,
-    this.distance,
-    this.geometry,
-  });
-
-  static const String geometryKey = 'geometry';
-  static const String legsKey = 'legs';
-  static const String weightNameKey = 'weight_name';
-  static const String weightKey = 'weight';
-  static const String durationKey = 'duration';
-  static const String distanceKey = 'distance';
-
-  final Geometry? geometry;
-  final List<Legs>? legs;
-  final String? weightName;
-  final double? weight;
-  final int? duration;
-  final double? distance;
-
-  static Routes fromMap(Map<String, dynamic> data) {
-    return Routes(
-      legs: (data[legsKey] as List?)?.map((e) => Legs.fromMap(e)).toList(),
-      distance: (data[distanceKey] as num?)?.toDouble(),
-      duration: (data[durationKey] as num?)?.toInt(),
-      weight: (data[weightKey] as num?)?.toDouble(),
-      geometry: Geometry.fromMap(data[geometryKey]),
-      weightName: data[weightNameKey],
+  static List<RouteSchema> fromJsonList(String value) {
+    return List.of(
+      (jsonDecode(value) as List).map((map) => fromMap(map)),
     );
   }
 
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      weightNameKey: weightName,
-      geometryKey: geometry,
-      durationKey: duration,
-      distanceKey: distance,
-      weightKey: weight,
-      legsKey: legs,
-    };
+  static List<RouteSchema> fromRawJsonList(String value) {
+    final result = RouteResult.fromJson(value);
+    return List.of(result.routes.map((route) {
+      final coordinates = route.polyline;
+      return RouteSchema(
+        coordinates: coordinates,
+        bounds: computeBounds(coordinates),
+      );
+    }));
+  }
+
+  static String toJsonList(List<RouteSchema> value) {
+    return jsonEncode(List.of(value.map((e) => e.toMap())));
   }
 
   @override
   String toString() {
     return toMap().toString();
   }
-}
 
-class Legs {
-  const Legs({
-    this.steps,
-    this.summary,
-    this.weight,
-    this.duration,
-    this.distance,
-  });
-
-  static const String stepsKey = 'steps';
-  static const String summaryKey = 'summary';
-  static const String weightKey = 'weight';
-  static const String durationKey = 'duration';
-  static const String distanceKey = 'distance';
-
-  final List<dynamic>? steps;
-  final String? summary;
-  final double? weight;
-  final int? duration;
-  final double? distance;
-
-  static Legs fromMap(Map<String, dynamic> data) {
-    return Legs(
-      distance: (data[distanceKey] as num?)?.toDouble(),
-      duration: (data[durationKey] as num?)?.toInt(),
-      weight: (data[weightKey] as num?)?.toDouble(),
-      steps: (data[stepsKey] as List?),
-      summary: data[summaryKey],
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      durationKey: duration,
-      distanceKey: distance,
-      summaryKey: summary,
-      weightKey: weight,
-      stepsKey: steps,
-    };
-  }
-
-  @override
-  String toString() {
-    return toMap().toString();
-  }
-}
-
-class Geometry {
-  const Geometry({
-    this.coordinates,
-  });
-
-  static const String coordinatesKey = 'coordinates';
-
-  final List<LatLng>? coordinates;
-
-  static Geometry fromMap(Map<String, dynamic> data) {
-    return Geometry(
-      coordinates: (data[coordinatesKey] as List?)?.map((e) => LatLng(e[1], e[0])).toList(),
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      coordinatesKey: coordinates,
-    };
-  }
-
-  @override
-  String toString() {
-    return toMap().toString();
-  }
-}
-
-class Waypoints {
-  const Waypoints({
-    this.hint,
-    this.distance,
-    this.name,
-    this.location,
-  });
-
-  static const String hintKey = 'hint';
-  static const String distanceKey = 'distance';
-  static const String nameKey = 'name';
-  static const String locationKey = 'locations';
-
-  final String? hint;
-  final double? distance;
-  final String? name;
-  final List<double>? location;
-
-  static Waypoints fromMap(Map<String, dynamic> data) {
-    return Waypoints(
-      location: (data[locationKey] as List?)?.map((e) => e as double).toList(),
-      distance: (data[distanceKey] as num?)?.toDouble(),
-      hint: data[hintKey],
-      name: data[nameKey],
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      locationKey: location,
-      distanceKey: distance,
-      hintKey: hint,
-      nameKey: name,
-    };
-  }
-
-  @override
-  String toString() {
-    return toMap().toString();
+  static LatLngBounds computeBounds(List<LatLng> list) {
+    assert(list.isNotEmpty);
+    var firstLatLng = list.first;
+    var s = firstLatLng.latitude, n = firstLatLng.latitude, w = firstLatLng.longitude, e = firstLatLng.longitude;
+    for (var i = 1; i < list.length; i++) {
+      var latlng = list[i];
+      s = min(s, latlng.latitude);
+      n = max(n, latlng.latitude);
+      w = min(w, latlng.longitude);
+      e = max(e, latlng.longitude);
+    }
+    return LatLngBounds(southwest: LatLng(s, w), northeast: LatLng(n, e));
   }
 }
