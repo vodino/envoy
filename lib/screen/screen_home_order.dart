@@ -22,8 +22,9 @@ class HomeOrderCreateScreen extends StatefulWidget {
 class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
   /// Customer
   late final ValueNotifier<String?> _amountPayByCourierController;
-  late final ValueNotifier<DateTime?> _dateTimeOrderController;
+  late final ValueNotifier<DateTime?> _scheduledDateController;
   late final TextEditingController _descriptionTextController;
+  late final ValueNotifier<OrderSchema> _orderController;
   late final TextEditingController _titleTextController;
 
   Future<void> _openAmountModal() async {
@@ -53,18 +54,18 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
       barrierColor: Colors.black26,
       builder: (context) {
         return HomeOrderDateTimeBottomSheet(
-          dateTime: _dateTimeOrderController.value,
+          dateTime: _scheduledDateController.value,
         );
       },
     );
-    if (value != null) _dateTimeOrderController.value = value;
+    if (value != null) _scheduledDateController.value = value;
   }
 
   Future<void> _switchDatetimeOrder(bool value) async {
     if (value) {
       return _openDatetimeOrderModal();
     } else {
-      _dateTimeOrderController.value = null;
+      _scheduledDateController.value = null;
     }
   }
 
@@ -98,42 +99,48 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
     }
   }
 
-  /// RouteService
-  late final RouteService _routeService;
+  /// RiderService
+  late final RiderService _riderService;
+  late final ValueNotifier<RiderType> _riderTypeController;
+  List<PriceSchema>? _orderPriceItems;
 
-  void _listenRouteState(BuildContext context, RouteState state) {
-    if (state is RouteItemListState) {
-      Navigator.of(context, rootNavigator: true).pop(state);
+  void _listenRiderState(BuildContext context, RiderState state) {
+    if (state is RiderItemState) {
+      _orderPriceItems = state.data.prices;
     }
   }
 
-  void _getRoute() {
-    _routeService.handle(GetRoute(
-      destination: LatLng(
-        widget.order.deliveryPlace.latitude!,
-        widget.order.deliveryPlace.longitude!,
-      ),
-      source: LatLng(
-        widget.order.pickupPlace.latitude!,
-        widget.order.pickupPlace.longitude!,
-      ),
-    ));
-  }
-
-  /// RiderService
-  late final RiderService _riderService;
-
-  void _listenRiderState(BuildContext context, RiderState state) {
-    if (state is RiderItemState) {}
-  }
-
-  void _getRiderService() {
+  void _getRiderAvailable() {
     _riderService.handle(GetRiderAvailable(
       source: LatLng(
-        widget.order.pickupPlace.latitude!,
-        widget.order.pickupPlace.longitude!,
+        _orderController.value.pickupPlace.latitude!,
+        _orderController.value.pickupPlace.longitude!,
       ),
     ));
+  }
+
+  /// OrderService
+  late final OrderService _orderService;
+
+  void _listenOrderState(BuildContext context, OrderState state) {
+    if (state is OrderItemState) {
+      Navigator.of(context, rootNavigator: true).pop(state.data);
+    }
+  }
+
+  void _createOrder() {
+    _orderService.handle(
+      CreateOrder(
+        order: _orderController.value.copyWith(
+          name: _titleTextController.text,
+          description: _descriptionTextController.text,
+          scheduledDate: _scheduledDateController.value,
+          pickupPhoneNumber: _pickupContactController.value,
+          deliveryPhoneNumber: _deliveryContactController.value!,
+          price: _orderPriceItems!.firstWhere((type) => type.type == _riderTypeController.value).price,
+        ),
+      ),
+    );
   }
 
   @override
@@ -142,20 +149,23 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
 
     /// Customer
     _amountPayByCourierController = ValueNotifier(null);
-    _dateTimeOrderController = ValueNotifier(null);
+    _scheduledDateController = ValueNotifier(null);
     _descriptionTextController = TextEditingController();
     _titleTextController = TextEditingController();
+    _orderController = ValueNotifier(widget.order);
+
+    _riderTypeController = ValueNotifier(RiderType.motorbike);
 
     /// ContactService
     _pickupContactController = ValueNotifier(null);
     _deliveryContactController = ValueNotifier(null);
 
-    /// RouteService
-    _routeService = RouteService();
-
     /// RiderService
     _riderService = RiderService();
-    _getRiderService();
+    _getRiderAvailable();
+
+    /// OrderService
+    _orderService = OrderService();
   }
 
   @override
@@ -193,43 +203,44 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                       child: ValueListenableBuilder<RiderState>(
                         valueListenable: _riderService,
                         builder: (context, state, child) {
-                          List<PriceSchema>? prices;
-                          if (state is RiderItemState) {
-                            prices = state.data.prices;
-                          }
-                          return ListView(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                            children: [
-                              Builder(
-                                builder: (context) {
-                                  final result = prices?.where((value) => value.type == RiderType.motorbike);
-                                  final isNotEmpty = result?.isNotEmpty ?? false;
-                                  return HomeOrderPriceWidget(
-                                    amount: prices != null ? (isNotEmpty ? '${result!.first.price.toInt()} F' : '-') : null,
-                                    padding: const EdgeInsets.only(top: 6.0, left: 8.0),
-                                    onChanged: isNotEmpty ? (value) {} : null,
-                                    image: Assets.images.motorbike,
-                                    title: 'À moto',
-                                    value: true,
-                                  );
-                                },
-                              ),
-                              const SizedBox(width: 12.0),
-                              Builder(
-                                builder: (context) {
-                                  final result = prices?.where((value) => value.type == RiderType.car);
-                                  final isNotEmpty = result?.isNotEmpty ?? false;
-                                  return HomeOrderPriceWidget(
-                                    amount: prices != null ? (isNotEmpty ? '${result!.first.price.toInt()} F' : '-') : null,
-                                    onChanged: isNotEmpty ? (value) {} : null,
-                                    image: Assets.images.car,
-                                    title: 'En voiture',
-                                    value: false,
-                                  );
-                                },
-                              ),
-                            ],
+                          return ValueListenableBuilder<RiderType>(
+                            valueListenable: _riderTypeController,
+                            builder: (context, type, child) {
+                              return ListView(
+                                scrollDirection: Axis.horizontal,
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                                children: [
+                                  Builder(
+                                    builder: (context) {
+                                      final result = _orderPriceItems?.where((value) => value.type == RiderType.motorbike);
+                                      final isNotEmpty = result?.isNotEmpty ?? false;
+                                      return HomeOrderPriceWidget(
+                                        onChanged: isNotEmpty ? (value) => _riderTypeController.value = RiderType.motorbike : null,
+                                        amount: _orderPriceItems != null ? (isNotEmpty ? '${result!.first.price.toInt()} F' : '-') : null,
+                                        padding: const EdgeInsets.only(top: 6.0, left: 8.0),
+                                        value: type == RiderType.motorbike,
+                                        image: Assets.images.motorbike,
+                                        title: 'À moto',
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 12.0),
+                                  Builder(
+                                    builder: (context) {
+                                      final result = _orderPriceItems?.where((value) => value.type == RiderType.car);
+                                      final isNotEmpty = result?.isNotEmpty ?? false;
+                                      return HomeOrderPriceWidget(
+                                        amount: _orderPriceItems != null ? (isNotEmpty ? '${result!.first.price.toInt()} F' : '-') : null,
+                                        onChanged: isNotEmpty ? (value) => _riderTypeController.value = RiderType.car : null,
+                                        value: type == RiderType.car,
+                                        image: Assets.images.car,
+                                        title: 'En voiture',
+                                      );
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
                           );
                         },
                       ),
@@ -286,7 +297,7 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                   const SliverToBoxAdapter(child: SizedBox(height: 8.0)),
                   SliverToBoxAdapter(
                     child: ValueListenableBuilder<DateTime?>(
-                      valueListenable: _dateTimeOrderController,
+                      valueListenable: _scheduledDateController,
                       builder: (context, dateTime, child) {
                         final localizations = CupertinoLocalizations.of(context);
                         return HomeOrderSwitchListTile(
@@ -319,37 +330,36 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
             const Divider(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: ValueListenableConsumer<RiderState>(
-                listener: _listenRiderState,
-                valueListenable: _riderService,
-                builder: (context, riderState, child) {
-                  bool pending = false;
-                  bool available = true;
-                  if (riderState is RiderItemState) {
-                    available = riderState.data.available;
-                  } else {
-                    pending = riderState is PendingRiderState;
-                  }
-                  return ValueListenableConsumer<RouteState>(
-                    listener: _listenRouteState,
-                    valueListenable: _routeService,
-                    builder: (context, routeState, child) {
-                      VoidCallback? onPressed = _getRoute;
-                      if (routeState is PendingRouteState || pending || !available) {
-                        pending = true;
+              child: ValueListenableConsumer<OrderState>(
+                listener: _listenOrderState,
+                valueListenable: _orderService,
+                builder: (context, orderState, child) {
+                  return ValueListenableConsumer<RiderState>(
+                    listener: _listenRiderState,
+                    valueListenable: _riderService,
+                    builder: (context, riderState, child) {
+                      bool available = true;
+                      VoidCallback? onPressed = _createOrder;
+                      if (riderState is PendingRiderState || orderState is PendingOrderState) {
                         onPressed = null;
-                      } else {
-                        pending = false;
+                      } else if (riderState is RiderItemState) {
+                        available = riderState.data.available;
+                        if (available) onPressed = null;
                       }
+                      final style = TextStyle(color: onPressed == null ? CupertinoColors.systemGrey2 : null);
                       return CupertinoButton.filled(
                         onPressed: onPressed,
                         disabledColor: CupertinoColors.systemFill,
-                        child: DefaultTextStyle(
-                          style: TextStyle(color: pending || !available ? CupertinoColors.systemGrey2 : null),
-                          child: Visibility(
-                            visible: available,
-                            replacement: const Text('Oops, pas de coursiers disponibles'),
-                            child: const Text('Commander'),
+                        child: Visibility(
+                          visible: orderState is! PendingOrderState,
+                          replacement: const CupertinoActivityIndicator(),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Visibility(
+                              visible: available,
+                              replacement: Text('Oops, pas de coursiers disponibles', style: style),
+                              child: Text('Commander', style: style),
+                            ),
                           ),
                         ),
                       );

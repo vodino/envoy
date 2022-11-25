@@ -1,6 +1,6 @@
-import 'package:go_router/go_router.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:go_router/go_router.dart';
 
 import 'screen/_screen.dart';
 
@@ -200,9 +200,9 @@ class _MyAppState extends State<MyApp> {
         return MaterialApp.router(
           locale: locale,
           theme: Themes.theme,
+          color: Themes.primaryColor,
           themeMode: ThemeMode.light,
           darkTheme: Themes.darkTheme,
-          color: Themes.primaryColor,
           debugShowCheckedModeBanner: false,
           routerDelegate: _router.routerDelegate,
           scrollBehavior: const CustomScrollBehavior(),

@@ -286,8 +286,8 @@ class PlaceSchema extends Equatable {
           title: properties.name,
           extent: properties.extent,
           subtitle: subtitles.join(', '),
-          latitude: (e.geometry?.coordinates?[1])?.toDouble(),
-          longitude: (e.geometry?.coordinates?[0])?.toDouble(),
+          latitude: e.geometry?.coordinates?[1],
+          longitude: e.geometry?.coordinates?[0],
           osmTag: PlaceOsmTag.fromString(properties.osmValue!),
         );
       })),

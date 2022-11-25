@@ -49,3 +49,4 @@ class GetRiderAvailable extends RiderEvent {
     }
   }
 }
+

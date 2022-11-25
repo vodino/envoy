@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 
 import '_screen.dart';
 
@@ -58,14 +57,18 @@ class _AuthScreenState extends State<AuthScreen> {
 
   void _listenAuthService(BuildContext context, AuthState state) {
     if (state is SmsCodeSentState) {
-      context.goNamed(
-        AuthVerificationScreen.name,
-        extra: {
-          AuthVerificationScreen.verificationIdKey: state.verificationId,
-          AuthVerificationScreen.phoneNumberKey: state.phoneNumber,
-          AuthVerificationScreen.resendTokenKey: state.resendToken,
-          AuthVerificationScreen.timeoutKey: state.timeout,
-        },
+      Navigator.push(
+        context,
+        CupertinoPageRoute(
+          builder: (context) {
+            return AuthVerificationScreen(
+              verificationId: state.verificationId,
+              phoneNumber: state.phoneNumber,
+              resendToken: state.resendToken,
+              timeout: state.timeout,
+            );
+          },
+        ),
       );
     } else if (state is PendingAuthState) {
       _phoneFocusNode.unfocus();

@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:maplibre_gl/mapbox_gl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -15,7 +14,7 @@ class HomeSearchScreen extends StatefulWidget {
     required this.popController,
   });
 
-  final ValueNotifier<RouteItemListState?> popController;
+  final ValueNotifier<OrderSchema?> popController;
 
   static const String name = 'home_search';
   static const String path = 'search';
@@ -29,15 +28,15 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
   late final ValueNotifier<bool> _bottomSheetController;
 
   void _openOrderCreateSheet({
-    required BuildContext context,
+    required BuildContext customContext,
     required PlaceSchema deliveryPlace,
     required PlaceSchema pickupPlace,
-  }) {
+  }) async {
     if (ClientService.instance().value is ClientItemState) {
       if (_deliveryFocusNode.hasFocus) _deliveryFocusNode.unfocus();
       if (_pickupFocusNode.hasFocus) _pickupFocusNode.unfocus();
-      Navigator.push(
-        context,
+      Navigator.push<OrderSchema>(
+        customContext,
         CupertinoPageRoute(builder: (context) {
           return HomeOrderCreateScreen(
             order: OrderSchema(
@@ -48,22 +47,31 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
         }),
       );
     } else {
-      context.goNamed(AuthScreen.name);
+      await Navigator.push(
+        context,
+        CupertinoPageRoute(
+          builder: (context) {
+            return const AuthScreen();
+          },
+        ),
+      );
+      if (ClientService.instance().value is ClientItemState) {
+        _openOrderCreateSheet(
+          pickupPlace: pickupPlace,
+          deliveryPlace: deliveryPlace,
+          customContext: customContext,
+        );
+      }
     }
   }
 
-  void _openOrdersSheet({
-    required BuildContext context,
-  }) async {
-    final value = await Navigator.push<RouteItemListState>(
+  void _openOrdersSheet() async {
+    Navigator.push(
       context,
       CupertinoPageRoute(builder: (context) {
         return const HomeOrderSearchScreen();
       }),
     );
-    if (value != null && mounted) {
-      Navigator.pop(context, value);
-    }
   }
 
   /// Input
@@ -89,24 +97,24 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
   void _onPlaceItemPressed(BuildContext context, PlaceSchema item, PlaceCategory category) {
     if (category == PlaceCategory.source) {
       if (_deliveryPlaceItem.value == null) {
-        _pickupTextController.text = item.title!;
         _pickupPlaceItem.value = item;
+        _pickupTextController.text = item.title!;
         _deliveryFocusNode.requestFocus();
       } else {
         _openOrderCreateSheet(
-          context: context,
+          customContext: context,
           pickupPlace: item,
           deliveryPlace: _deliveryPlaceItem.value!,
         );
       }
     } else {
       if (_pickupPlaceItem.value == null) {
-        _deliveryTextController.text = item.title!;
         _deliveryPlaceItem.value = item;
+        _deliveryTextController.text = item.title!;
         _pickupFocusNode.requestFocus();
       } else {
         _openOrderCreateSheet(
-          context: context,
+          customContext: context,
           deliveryPlace: item,
           pickupPlace: _pickupPlaceItem.value!,
         );
@@ -122,9 +130,10 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
     _deliveryTextController = TextEditingController();
     _bottomSheetController.value = true;
 
-    final value = await showCupertinoModalBottomSheet<RouteItemListState>(
+    final value = await showCupertinoModalBottomSheet<OrderSchema>(
       expand: true,
       context: context,
+      useRootNavigator: true,
       builder: (context) {
         return Navigator(
           onGenerateRoute: (settings) {
@@ -384,7 +393,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
                     ),
                     SliverToBoxAdapter(
                       child: CustomListTile(
-                        onTap: () => _openOrdersSheet(context: context),
+                        onTap: _openOrdersSheet,
                         title: const Text(
                           'Rechercher des commandes précédentes',
                           style: TextStyle(color: Colors.blue),

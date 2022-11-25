@@ -33,39 +33,28 @@ class _HomeScreenState extends State<HomeScreen> {
     _openHomeSearch();
   }
 
-  void _drawLines(RouteItemListState state) async {
-    for (final route in state.data) {
-      await _mapController?.addLine(
-        LineOptions(
-          geometry: route.coordinates,
-          lineColor: "#ff0000",
-          lineJoin: 'round',
-          lineWidth: 4.0,
-        ),
-      );
-      await _mapController!.animateCamera(
-        CameraUpdate.newLatLngBounds(route.bounds!, bottom: _mediaQuery.size.height * 0.55),
-      );
-    }
-  }
-
-  void _openHomeFinder(RouteItemListState state) async {
+  void _openHomeFinder(OrderSchema order) async {
+    final popController = ValueNotifier<OrderSchema?>(null);
     final controller = showBottomSheet(
       context: _context,
       enableDrag: false,
       builder: (context) {
-        return AfterLayout(
-          listener: (context) => _drawLines(state),
-          child: const HomeFinderScreen(),
+        return HomeFinderScreen(
+          popController: popController,
+          order: order,
         );
       },
     );
-
     await controller.closed;
+    final value = popController.value;
+    if (value != null) {
+    } else {
+      _openHomeSearch();
+    }
   }
 
   void _openHomeSearch() async {
-    final popController = ValueNotifier<RouteItemListState?>(null);
+    final popController = ValueNotifier<OrderSchema?>(null);
     final controller = showBottomSheet(
       context: _context,
       enableDrag: false,
@@ -76,8 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
     await controller.closed;
-    final state = popController.value;
-    if (state != null) _openHomeFinder(state);
+    final value = popController.value;
+    if (value != null) _openHomeFinder(value);
   }
 
   /// MapLibre
@@ -87,11 +76,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onMapCreated(MaplibreMapController controller) async {
     _mapController = controller;
-    await _mapController!.updateContentInsets(EdgeInsets.only(
-      bottom: _height * 0.3,
-      right: 16.0,
-      left: 16.0,
-    ));
+    await _mapController!.updateContentInsets(
+      EdgeInsets.only(bottom: _height * 0.3, right: 16.0, left: 16.0),
+    );
     _goToMyPosition();
   }
 
@@ -116,6 +103,19 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _drawLines(List<RouteSchema> routes) async {
+    const options = LineOptions(lineColor: "#ff0000", lineJoin: 'round', lineWidth: 4.0);
+    for (final route in routes) {
+      await _mapController?.addLine(
+        options.copyWith(LineOptions(geometry: route.coordinates)),
+      );
+      final bottom = _mediaQuery.size.height * 0.55;
+      _mapController!.animateCamera(
+        CameraUpdate.newLatLngBounds(route.bounds!, bottom: bottom),
+      );
+    }
+  }
+
   /// LocationService
   late final LocationService _locationService;
   StreamSubscription? _locationSubscription;
@@ -125,6 +125,17 @@ class _HomeScreenState extends State<HomeScreen> {
       _locationSubscription = state.subscription;
       _myPosition = state.data;
       _goToMyPosition();
+    }
+  }
+
+  /// RouteService
+  late final RouteService _routeService;
+
+  void _listenRouteState(BuildContext context, RouteState state) {
+    if (state is InitRouteState) {
+      _mapController?.clearLines();
+    } else if (state is RouteItemListState) {
+      _drawLines(state.data);
     }
   }
 
@@ -140,6 +151,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     /// LocationService
     _locationService = LocationService.instance();
+
+    /// RouteService
+    _routeService = RouteService.instance();
   }
 
   @override
@@ -157,36 +171,40 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      key: _scaffoldState,
-      appBar: const HomeAppBar(),
-      drawer: const HomeDrawer(),
-      extendBodyBehindAppBar: true,
-      resizeToAvoidBottomInset: false,
-      floatingActionButton: HomeFloatingActionButton(
-        onPressed: _trailingFloatingActionPressed,
-        child: ValueListenableBuilder<bool>(
-          valueListenable: _myPositionFocus,
-          builder: (context, visible, child) {
-            return Visibility(
-              visible: visible,
-              replacement: const Icon(CupertinoIcons.location),
-              child: const Icon(CupertinoIcons.location_fill),
-            );
-          },
+    return ValueListenableListener(
+      listener: _listenRouteState,
+      valueListenable: _routeService,
+      child: Scaffold(
+        extendBody: true,
+        key: _scaffoldState,
+        appBar: const HomeAppBar(),
+        drawer: const HomeDrawer(),
+        extendBodyBehindAppBar: true,
+        resizeToAvoidBottomInset: false,
+        floatingActionButton: HomeFloatingActionButton(
+          onPressed: _trailingFloatingActionPressed,
+          child: ValueListenableBuilder<bool>(
+            valueListenable: _myPositionFocus,
+            builder: (context, visible, child) {
+              return Visibility(
+                visible: visible,
+                replacement: const Icon(CupertinoIcons.location),
+                child: const Icon(CupertinoIcons.location_fill),
+              );
+            },
+          ),
         ),
-      ),
-      body: ValueListenableListener(
-        listener: _listenLocationState,
-        valueListenable: _locationService,
-        child: AfterLayout(
-          listener: _afterLayout,
-          child: Listener(
-            onPointerMove: _onCameraIdle,
-            child: HomeMap(
-              onMapCreated: _onMapCreated,
-              onUserLocationUpdated: _onUserLocationUpdated,
+        body: ValueListenableListener(
+          listener: _listenLocationState,
+          valueListenable: _locationService,
+          child: AfterLayout(
+            listener: _afterLayout,
+            child: Listener(
+              onPointerMove: _onCameraIdle,
+              child: HomeMap(
+                onMapCreated: _onMapCreated,
+                onUserLocationUpdated: _onUserLocationUpdated,
+              ),
             ),
           ),
         ),

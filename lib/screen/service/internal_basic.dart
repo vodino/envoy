@@ -11,7 +11,7 @@ Future<void> runService() async {
   }
   await service._initialize();
 
-  await ClientService.instance().handle(const GetClient());
+  // await ClientService.instance().handle(const GetClient());
 }
 
 abstract class Service {
@@ -22,7 +22,6 @@ abstract class Service {
 
 class DevelopmentService extends Service {
   const DevelopmentService();
-
   @override
   Future<void> _initialize() async {
     RepositoryService.development();

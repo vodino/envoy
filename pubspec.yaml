@@ -22,33 +22,32 @@ dependencies:
   intl:
 
   # Widgets
-  solid_bottom_sheet:
   modal_bottom_sheet:
   flutter_rating_bar:
   loading_indicator:
   auto_size_text:
   flutter_svg:
-  animations:
   shimmer:
   badges:
   lottie:
   pinput:
-  sheet:
 
   # Location and Geocoding
   location:
   maplibre_gl:
-      git:
-        url: https://github.com/m0nac0/flutter-maplibre-gl.git
-        ref: main
-  
+    git:
+      url: https://github.com/m0nac0/flutter-maplibre-gl.git
+      ref: main
+
   # Service
   permission_handler:
   flutter_contacts:
   firebase_auth:
+  pusher_client:
+    git:
+      url: https://github.com/thijskuilman/pusher_client.git
   firebase_core:
   hive_flutter:
-  async:
   hive:
   dio:
 

@@ -22,13 +22,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.2.0"
-  animations:
-    dependency: "direct main"
-    description:
-      name: animations
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.7"
   archive:
     dependency: transitive
     description:
@@ -44,7 +37,7 @@ packages:
     source: hosted
     version: "2.3.1"
   async:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: async
       url: "https://pub.dartlang.org"
@@ -743,13 +736,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.1"
-  sheet:
+  pusher_client:
     dependency: "direct main"
     description:
-      name: sheet
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.4+1"
+      path: "."
+      ref: HEAD
+      resolved-ref: d95d362a74d3e0602e8959b3c8b992ec57adba24
+      url: "https://github.com/thijskuilman/pusher_client.git"
+    source: git
+    version: "2.0.0"
   shelf:
     dependency: transitive
     description:
@@ -783,13 +778,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.6"
-  solid_bottom_sheet:
-    dependency: "direct main"
-    description:
-      name: solid_bottom_sheet
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.10"
   source_span:
     dependency: transitive
     description:

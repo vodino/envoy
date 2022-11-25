@@ -53,6 +53,9 @@ class _ContactsScreenState extends State<ContactsScreen> {
 
   void _listenContactState(BuildContext context, ContactState state) {}
 
+  /// ClientService
+  late final ClientService _clientService;
+
   @override
   void initState() {
     super.initState();
@@ -68,6 +71,9 @@ class _ContactsScreenState extends State<ContactsScreen> {
         (timeStamp) => _getcontacts(),
       );
     }
+
+    /// ClientService
+    _clientService = ClientService.instance();
   }
 
   @override
@@ -91,12 +97,14 @@ class _ContactsScreenState extends State<ContactsScreen> {
                     ),
                   ),
                   const SliverPinnedHeader(child: Material(child: Divider(thickness: 8.0, height: 12.0))),
-                  ValueListenableBuilder<Contact?>(
-                    valueListenable: _contactController,
-                    builder: (context, contact, child) {
+                  ValueListenableBuilder<ClientState?>(
+                    valueListenable: _clientService,
+                    builder: (context, state, child) {
+                      state = state as ClientItemState;
+                      final user = FirebaseService.firebaseAuth.currentUser;
                       return SliverToBoxAdapter(
                         child: ContactCheckListTile(
-                          subtitle: const Text('+225 0749414602'),
+                          subtitle: Text(user!.phoneNumber!),
                           title: const Text('Moi'),
                           onChanged: (value) {},
                           value: false,

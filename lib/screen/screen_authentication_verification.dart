@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '_screen.dart';
 
@@ -110,12 +111,15 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
 
   void _listenClientService(BuildContext context, ClientState state) {
     if (state is ClientItemState) {
-      if (context.canPop()) context.pop();
+      Navigator.popUntil(context, (route) => route is CupertinoModalBottomSheetRoute);
     } else if (state is NoClientItemState) {
-      context.pushNamed(AuthSignupScreen.name, extra: {
-        AuthSignupScreen.phoneNumberKey: state.phoneNumber,
-        AuthSignupScreen.tokenKey: state.token,
-      });
+      context.goNamed(
+        AuthSignupScreen.name,
+        extra: {
+          AuthSignupScreen.phoneNumberKey: state.phoneNumber,
+          AuthSignupScreen.tokenKey: state.token,
+        },
+      );
     }
   }
 

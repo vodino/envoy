@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:lottie/lottie.dart';
 
 import '_widget.dart';
 
@@ -10,7 +11,7 @@ class HomeFinderAppBar extends DefaultAppBar {
   Widget build(BuildContext context) {
     return CupertinoNavigationBar(
       border: const Border.fromBorderSide(BorderSide.none),
-      middle: const Text("Recherche de coursiers..."),
+      middle: const Text("En attente de coursiers..."),
       backgroundColor: context.theme.colorScheme.surface,
       automaticallyImplyLeading: false,
     );
@@ -18,9 +19,9 @@ class HomeFinderAppBar extends DefaultAppBar {
 }
 
 class HomeFinderLoader extends StatelessWidget {
-  const HomeFinderLoader({super.key, required this.child});
+  const HomeFinderLoader({super.key, required this.image});
 
-  final Widget child;
+  final String image;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +41,14 @@ class HomeFinderLoader extends StatelessWidget {
         Positioned.fill(
           child: Padding(
             padding: const EdgeInsets.all(52.0),
-            child: child,
+            child: Center(
+              child: Lottie.asset(
+                Assets.images.motorbike,
+                alignment: Alignment.center,
+                fit: BoxFit.cover,
+                animate: false,
+              ),
+            ),
           ),
         ),
       ],

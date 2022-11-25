@@ -182,7 +182,7 @@ class _Geometry {
   static _Geometry fromMap(Map<String, dynamic> value) {
     return _Geometry(
       type: value[typeKey],
-      coordinates: value[coordinatesKey]?.cast<double>(),
+      coordinates: value[coordinatesKey]?.cast<num>().cast<double>(),
     );
   }
 

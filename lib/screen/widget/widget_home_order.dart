@@ -177,13 +177,12 @@ class HomeOrderPriceWidget extends StatelessWidget {
     return SizedBox(
       width: 100.0,
       child: Opacity(
-        opacity: value ? 1.0: 0.6,
+        opacity: value ? 1.0: 0.4,
         child: CustomButton(
           onPressed: onChanged != null ? () => onChanged?.call(!value) : null,
           child: Material(
             color: value ? CupertinoColors.systemGrey5 : CupertinoColors.systemGrey6.withOpacity(0.5),
             shape: RoundedRectangleBorder(
-              // side: BorderSide(color: value ? CupertinoColors.systemRed : CupertinoColors.systemFill, width: 2.0),
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: Column(
