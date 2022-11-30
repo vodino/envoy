@@ -32,7 +32,9 @@ class CreateOrder extends OrderEvent {
 
   final OrderSchema order;
 
-  String get url => '${RepositoryService.httpURL}/v1/api/deliveries';
+  String get _url => '${RepositoryService.httpURL}/v1/api/deliveries';
+
+  static const _notificationURL = 'https://fcm.googleapis.com/fcm/send';
 
   @override
   Future<void> _execute(OrderService service) async {
@@ -49,7 +51,7 @@ class CreateOrder extends OrderEvent {
         "recipient_phone_number": order.deliveryPhoneNumber?.phones.map((e) => e.number).join(', '),
 
         ///
-        "scheduled_date": order.scheduledDate,
+        // "scheduled_date": order.scheduledDate,
 
         ///
         "lat_from": order.pickupPlace.latitude,
@@ -66,8 +68,31 @@ class CreateOrder extends OrderEvent {
         ///
         'price': order.price,
       };
+      print(jsonEncode({
+          'to': '/topics/online_users',
+          'data': body,
+          'notification': {
+            'title': 'hello',
+          }
+        }));
+      final notificationResponse = await Dio().postUri<String>(
+        Uri.parse(_notificationURL),
+        data: jsonEncode({
+          'to': '/topics/online_users',
+          'data': body,
+          'notification': {
+            'title': 'hello',
+          }
+        }),
+        options: Options(headers: {
+          'Accept': 'application/json',
+          'Authorization': 'key=AAAA55CoBZc:APA91bGllEw9yVKfo8S9Reylfs4VQJ8WKRAPYQtZwnsL4R4l1DAR6anH1MrX5iFFUWPgw6xnU833HQ_qz9Rh1iAnqQlHeaIDctDG-e05t7YvWsmoFwjW135nBL2dsoAF6iNF_uWnEzha',
+          'Content-Type': 'application/json',
+        }),
+      );
+      print(notificationResponse.data);
       final response = await Dio().postUri<String>(
-        Uri.parse(url),
+        Uri.parse(_url),
         data: jsonEncode(body),
         options: Options(headers: {
           'Accept': 'application/json',
@@ -86,6 +111,7 @@ class CreateOrder extends OrderEvent {
           );
       }
     } catch (error) {
+      if (error is DioError) print(error.response?.data);
       service.value = FailureOrderState(
         message: error.toString(),
         event: this,

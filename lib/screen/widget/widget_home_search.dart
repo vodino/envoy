@@ -81,34 +81,36 @@ class HomeSearchFields extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Expanded(
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: CupertinoSearchTextField(
-                                  onTap: onTap,
-                                  autofocus: pickupAutoFocus,
-                                  focusNode: pickupFocusNode,
-                                  onChanged: onPickupChanged,
-                                  prefixInsets: prefixInsets,
-                                  suffixInsets: suffixInsets,
-                                  borderRadius: BorderRadius.zero,
-                                  controller: pickupTextController,
-                                  backgroundColor: Colors.transparent,
-                                  suffixMode: OverlayVisibilityMode.editing,
-                                  suffixIcon: const Icon(CupertinoIcons.clear),
-                                  prefixIcon: const Icon(CupertinoIcons.search, color: CupertinoColors.activeBlue),
+                          child: Form(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: CupertinoSearchTextField(
+                                    onTap: onTap,
+                                    autofocus: pickupAutoFocus,
+                                    focusNode: pickupFocusNode,
+                                    onChanged: onPickupChanged,
+                                    prefixInsets: prefixInsets,
+                                    suffixInsets: suffixInsets,
+                                    borderRadius: BorderRadius.zero,
+                                    controller: pickupTextController,
+                                    backgroundColor: Colors.transparent,
+                                    suffixMode: OverlayVisibilityMode.editing,
+                                    suffixIcon: const Icon(CupertinoIcons.clear),
+                                    prefixIcon: const Icon(CupertinoIcons.search, color: CupertinoColors.activeBlue),
+                                  ),
                                 ),
-                              ),
-                              ChangeNotifierBuilder<FocusNode>(
-                                notifier: pickupFocusNode!,
-                                builder: (context, focusNode, child) {
-                                  return Visibility(
-                                    visible: focusNode.hasFocus,
-                                    child: _mapButton(onPressed: onDeliveryMapPressed),
-                                  );
-                                },
-                              ),
-                            ],
+                                ChangeNotifierBuilder<FocusNode>(
+                                  notifier: pickupFocusNode!,
+                                  builder: (context, focusNode, child) {
+                                    return Visibility(
+                                      visible: focusNode.hasFocus,
+                                      child: _mapButton(onPressed: onDeliveryMapPressed),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         const Divider(indent: 45.0),

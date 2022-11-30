@@ -132,11 +132,9 @@ class FetchPlaces extends PlaceEvent {
         _request = await HttpClient().getUrl(Uri.parse(_url));
         final response = await _request!.close();
         final body = await response.transform(utf8.decoder).join();
-        scheduleMicrotask(() async {
-          await _controller?.dispose();
-          _controller = customCompute<String, List<PlaceSchema>>(PlaceSchema.fromRawJsonList, body);
-          service.value = PlaceItemListState(data: await _controller!.future);
-        });
+        await _controller?.dispose();
+        _controller = customCompute<String, List<PlaceSchema>>(PlaceSchema.fromRawJsonList, body);
+        service.value = PlaceItemListState(data: await _controller!.future);
       }
     } catch (error) {
       if (error is TimeoutException || error is RemoteError) {

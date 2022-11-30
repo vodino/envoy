@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:location/location.dart';
 import 'package:maplibre_gl/mapbox_gl.dart';
 
 import '_screen.dart';
@@ -72,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
   /// MapLibre
   MaplibreMapController? _mapController;
   late final ValueNotifier<bool> _myPositionFocus;
-  UserLocation? _myPosition;
+  UserLocation? _userLocation;
 
   void _onMapCreated(MaplibreMapController controller) async {
     _mapController = controller;
@@ -82,20 +83,20 @@ class _HomeScreenState extends State<HomeScreen> {
     _goToMyPosition();
   }
 
+  void _onUserLocationUpdated(UserLocation location) {
+    _userLocation = location;
+  }
+
   void _onCameraIdle(PointerMoveEvent event) {
     _myPositionFocus.value = false;
   }
 
-  void _onUserLocationUpdated(UserLocation location) {
-    _locationService.value = UserLocationItemState(data: location);
-  }
-
   void _goToMyPosition() async {
-    if (_myPosition != null && _mapController != null && _myPositionFocus.value) {
-      final position = _myPosition!.position;
+    if (_userLocation != null && _mapController != null && _myPositionFocus.value) {
+      final position = _userLocation!.position;
       _mapController!.animateCamera(
         CameraUpdate.newCameraPosition(CameraPosition(
-          bearing: _myPosition!.bearing!,
+          bearing: _userLocation!.bearing!,
           target: position,
           zoom: 16.0,
         )),
@@ -104,6 +105,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _drawLines(List<RouteSchema> routes) async {
+    await _mapController?.clearLines();
+
+    ///
     const options = LineOptions(lineColor: "#ff0000", lineJoin: 'round', lineWidth: 4.0);
     for (final route in routes) {
       await _mapController?.addLine(
@@ -119,9 +123,14 @@ class _HomeScreenState extends State<HomeScreen> {
   /// LocationService
   late final LocationService _locationService;
   StreamSubscription? _locationSubscription;
+  LocationData? _myPosition;
+
+  void _getCurrentLocation() {
+    _locationService.handle(const GetLocation(subscription: true, distanceFilter: 5));
+  }
 
   void _listenLocationState(BuildContext context, LocationState state) {
-    if (state is UserLocationItemState) {
+    if (state is LocationItemState) {
       _locationSubscription = state.subscription;
       _myPosition = state.data;
       _goToMyPosition();
@@ -151,6 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     /// LocationService
     _locationService = LocationService.instance();
+    _getCurrentLocation();
 
     /// RouteService
     _routeService = RouteService.instance();

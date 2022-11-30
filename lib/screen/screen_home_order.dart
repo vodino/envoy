@@ -129,6 +129,29 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
   }
 
   void _createOrder() {
+    if (_deliveryContactController.value == null) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return const HomeOrderErrorModal(
+            text: 'Contact pour le ramassage ne peut être vide. Choisissez un contact',
+          );
+        },
+      );
+      return;
+    }
+    if (_pickupContactController.value == null) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return const HomeOrderErrorModal(
+            text: 'Contact pour la livraison ne peut être vide. Choisissez un contact',
+          );
+        },
+      );
+      return;
+    }
+
     _orderService.handle(
       CreateOrder(
         order: _orderController.value.copyWith(

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:location/location.dart';
 import 'package:maplibre_gl/mapbox_gl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -32,7 +33,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
     required PlaceSchema deliveryPlace,
     required PlaceSchema pickupPlace,
   }) async {
-    if (ClientService.instance().value is ClientItemState) {
+    if (ClientService.authenticated != null) {
       if (_deliveryFocusNode.hasFocus) _deliveryFocusNode.unfocus();
       if (_pickupFocusNode.hasFocus) _pickupFocusNode.unfocus();
       Navigator.push<OrderSchema>(
@@ -55,7 +56,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
           },
         ),
       );
-      if (ClientService.instance().value is ClientItemState) {
+      if (ClientService.authenticated != null) {
         _openOrderCreateSheet(
           pickupPlace: pickupPlace,
           deliveryPlace: deliveryPlace,
@@ -82,14 +83,14 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
 
   void _onPickupTextChanged(String query) {
     if (query.isNotEmpty) {
-      _getGeocoding(query: query, latLng: _myPosition!.position, service: _pickupPlaceService);
+      _getGeocoding(query: query, latLng: _myPosition != null ? LatLng(_myPosition!.latitude!, _myPosition!.longitude!) : null, service: _pickupPlaceService);
       _pickupPlaceItem.value = null;
     }
   }
 
   void _onDeliveryTextChanged(String query) {
     if (query.isNotEmpty) {
-      _getGeocoding(query: query, latLng: _myPosition!.position, service: _deliveryPlaceService);
+      _getGeocoding(query: query, latLng: _myPosition != null ? LatLng(_myPosition!.latitude!, _myPosition!.longitude!) : null, service: _deliveryPlaceService);
       _deliveryPlaceItem.value = null;
     }
   }
@@ -155,12 +156,12 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
 
   /// LocationService
   late final LocationService _locationService;
-  UserLocation? _myPosition;
+  LocationData? _myPosition;
 
   void _listenLocationState(BuildContext context, LocationState state) {
-    if (state is UserLocationItemState) {
+    if (state is LocationItemState) {
       _myPosition = state.data;
-      if (!_bottomSheetController.value) _getReverseGeocoding(latLng: _myPosition!.position, service: _pickupPlaceService);
+      if (!_bottomSheetController.value) _getReverseGeocoding(latLng: LatLng(_myPosition!.latitude!, _myPosition!.longitude!), service: _pickupPlaceService);
     }
   }
 
@@ -172,12 +173,12 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
   late final ValueNotifier<PlaceSchema?> _pickupPlaceItem;
   late final ValueNotifier<PlaceSchema?> _deliveryPlaceItem;
 
-  void _getGeocoding({String? query, required LatLng latLng, required PlaceService service}) {
-    service.handle(FetchPlaces(longitude: latLng.longitude, latitude: latLng.latitude, query: query));
+  void _getGeocoding({String? query, required LatLng? latLng, required PlaceService service}) {
+    service.handle(FetchPlaces(longitude: latLng?.longitude, latitude: latLng?.latitude, query: query));
   }
 
-  void _getReverseGeocoding({required LatLng latLng, required PlaceService service}) {
-    service.handle(FetchPlaces(longitude: latLng.longitude, latitude: latLng.latitude, type: PlaceType.reverseGeocoding));
+  void _getReverseGeocoding({required LatLng? latLng, required PlaceService service}) {
+    service.handle(FetchPlaces(longitude: latLng?.longitude, latitude: latLng?.latitude, type: PlaceType.reverseGeocoding));
   }
 
   void _listenDeliveryPlaceState(BuildContext context, PlaceState state) {}
@@ -332,7 +333,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
                                           '${NumberFormat.compactCurrency(
                                             decimalDigits: 1,
                                             symbol: '',
-                                          ).format(LatLng(item.latitude!, item.longitude!).distance(_myPosition!.position))}m',
+                                          ).format(LatLng(item.latitude!, item.longitude!).distance(LatLng(_myPosition!.latitude!, _myPosition!.longitude!)))}m',
                                           style: context.theme.textTheme.caption,
                                         );
                                       }),

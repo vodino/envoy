@@ -26,6 +26,7 @@ abstract class CustomPusherEvent {
     return PusherClient(
       'ebfafd3c927ce67edeff',
       PusherOptions(
+        cluster: 'eu',
         auth: PusherAuth(
           '${RepositoryService.httpURL}/broadcasting/auth',
           headers: {
@@ -34,7 +35,6 @@ abstract class CustomPusherEvent {
             HttpHeaders.contentTypeHeader: 'application/json',
           },
         ),
-        cluster: 'eu',
       ),
     );
   }
@@ -53,16 +53,24 @@ class SubscribeToEvent extends CustomPusherEvent {
   Future<void> _execute(PusherService service) async {
     try {
       final client = createClient();
-      client.onConnectionStateChange((state) {
-        print(state);
+      client.registerListener('delivery-status-updated', (p0) {
+        print(p0);
       });
       client.onConnectionError((error) {
-        print(error?.message);
+        print(error);
+        service.value = FailurePusherState(
+          message: error.toString(),
+          event: this,
+        );
       });
-      final channel = client.subscribe('private-delivery-updated-status.50');
+      await client.unsubscribe('presence-delivery-updated-status.51');
+      final channel = client.subscribe('presence-delivery-updated-status.51');
       await channel.bind('delivery-status-updated', onEvent);
-    } catch (e) {
-      print(e);
+    } catch (error) {
+      service.value = FailurePusherState(
+        message: error.toString(),
+        event: this,
+      );
     }
   }
 }

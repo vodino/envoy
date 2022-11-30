@@ -15,6 +15,12 @@ class ClientService extends ValueNotifier<ClientState> {
   }
 
   Future<void> handle(ClientEvent event) => event._execute(this);
+
+  static ClientSchema? get authenticated {
+    final state = ClientService.instance().value;
+    if (state is ClientItemState) return state.data;
+    return null;
+  }
 }
 
 abstract class ClientEvent {

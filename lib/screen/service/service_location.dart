@@ -40,7 +40,7 @@ class GetLocation extends LocationEvent {
     try {
       final location = Location();
       if (subscription) {
-        location.changeSettings(distanceFilter: distanceFilter);
+        location.changeSettings(distanceFilter: distanceFilter, interval: 5000);
         StreamSubscription? subscription;
         subscription = location.onLocationChanged.listen((data) {
           service.value = LocationItemState(subscription: subscription, data: data);

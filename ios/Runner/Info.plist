@@ -74,7 +74,7 @@
 	<key>NSAppTransportSecurity</key>
 	<dict>
     	<key>NSAllowsArbitraryLoads</key>
-    <true/>
-</dict>
+    	<true/>
+	</dict>
 </dict>
 </plist>

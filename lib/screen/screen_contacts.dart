@@ -97,22 +97,35 @@ class _ContactsScreenState extends State<ContactsScreen> {
                     ),
                   ),
                   const SliverPinnedHeader(child: Material(child: Divider(thickness: 8.0, height: 12.0))),
-                  ValueListenableBuilder<ClientState?>(
-                    valueListenable: _clientService,
-                    builder: (context, state, child) {
-                      state = state as ClientItemState;
-                      final user = FirebaseService.firebaseAuth.currentUser;
-                      return SliverToBoxAdapter(
-                        child: ContactCheckListTile(
-                          subtitle: Text(user!.phoneNumber!),
-                          title: const Text('Moi'),
-                          onChanged: (value) {},
-                          value: false,
-                        ),
+                  ValueListenableBuilder<TextEditingValue>(
+                    valueListenable: _searchTextController,
+                    builder: (context, textValue, child) {
+                      final item = Contact(displayName: 'Moi', phones: [Phone(ClientService.authenticated!.phoneNumber)]);
+                      final contains = _onSearchChanged(textValue.text, item);
+                      return ValueListenableBuilder<Contact?>(
+                        valueListenable: _contactController,
+                        builder: (context, contactValue, child) {
+                          return SliverVisibility(
+                            visible: contains,
+                            sliver: SliverToBoxAdapter(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  ContactCheckListTile(
+                                    subtitle: Text(item.phones.map((e) => e.number).join(', ')),
+                                    onChanged: (value) => _onContactChanged(value, item),
+                                    value: contactValue?.id == item.id,
+                                    title: Text(item.displayName),
+                                  ),
+                                  const Divider(thickness: 8.0, height: 12.0)
+                                ],
+                              ),
+                            ),
+                          );
+                        },
                       );
                     },
                   ),
-                  const SliverToBoxAdapter(child: Divider(thickness: 8.0, height: 12.0)),
                   ValueListenableBuilder<TextEditingValue>(
                     valueListenable: _searchTextController,
                     builder: (context, textValue, child) {
@@ -124,7 +137,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
                             List<Contact> items = state.data.where((element) => _onSearchChanged(textValue.text, element)).toList();
                             return ValueListenableBuilder<Contact?>(
                               valueListenable: _contactController,
-                              builder: (context, contact, child) {
+                              builder: (context, contactValue, child) {
                                 return SliverList(
                                   delegate: SliverChildBuilderDelegate(
                                     (context, index) {
@@ -133,7 +146,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
                                         final item = items[index];
                                         return ContactCheckListTile(
                                           title: Text(item.displayName),
-                                          value: contact?.id == item.id,
+                                          value: contactValue?.id == item.id,
                                           onChanged: (value) => _onContactChanged(value, item),
                                           subtitle: Text(item.phones.map((e) => e.number).join(', ')),
                                         );

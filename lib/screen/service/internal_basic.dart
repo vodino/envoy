@@ -11,7 +11,7 @@ Future<void> runService() async {
   }
   await service._initialize();
 
-  // await ClientService.instance().handle(const GetClient());
+  await ClientService.instance().handle(const GetClient());
 }
 
 abstract class Service {

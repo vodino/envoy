@@ -177,7 +177,7 @@ class HomeOrderPriceWidget extends StatelessWidget {
     return SizedBox(
       width: 100.0,
       child: Opacity(
-        opacity: value ? 1.0: 0.4,
+        opacity: value ? 1.0 : 0.4,
         child: CustomButton(
           onPressed: onChanged != null ? () => onChanged?.call(!value) : null,
           child: Material(
@@ -363,6 +363,43 @@ class HomeOrderSchimmer extends StatelessWidget {
           borderRadius: BorderRadius.circular(2.0),
         ),
       ),
+    );
+  }
+}
+
+class HomeOrderErrorModal extends StatelessWidget {
+  const HomeOrderErrorModal({super.key, required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoAlertDialog(
+      content: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12.0),
+            child: Icon(
+              CupertinoIcons.clear_circled_solid,
+              color: context.theme.colorScheme.primary,
+              size: 60.0,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            child: Text(text),
+          ),
+        ],
+      ),
+      actions: [
+        CupertinoDialogAction(
+          isDefaultAction: true,
+          child: const Text('Ok'),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        )
+      ],
     );
   }
 }
