@@ -12,6 +12,7 @@ class AuthVerificationAppBar extends DefaultAppBar {
     return const CupertinoNavigationBar(
       middle: Text('Verification'),
       border: Border.fromBorderSide(BorderSide.none),
+      transitionBetweenRoutes: false,
     );
   }
 }

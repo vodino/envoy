@@ -46,6 +46,7 @@ class _AuthSignupScreenState extends State<AuthSignupScreen> {
   }
 
   void _listenClientService(BuildContext context, ClientState state) {
+    print(state);
     if (state is FailureClientState) {
       _errorController.value = state.message;
     }

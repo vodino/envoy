@@ -9,6 +9,7 @@ class DiscountAppBar extends DefaultAppBar {
   @override
   Widget build(BuildContext context) {
     return const CupertinoNavigationBar(
+      transitionBetweenRoutes: false,
       middle: Text('Coupons de réduction'),
     );
   }

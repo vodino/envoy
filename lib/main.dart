@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'screen/_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   await runAssets();
   await runService();
   runApp(const MyApp());
@@ -19,13 +21,17 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  /// Customer
   late final GoRouter _router;
+
+  /// LocaleService
   late final LocaleService _localeService;
 
   @override
   void initState() {
     super.initState();
-    _localeService = LocaleService.instance();
+
+    /// Customer
     _router = GoRouter(
       routes: [
         GoRoute(
@@ -38,6 +44,10 @@ class _MyAppState extends State<MyApp> {
               ),
             );
           },
+          redirect: (context, state) {
+            if (state.location == HomeScreen.path) return null;
+            return ClientService.authenticated != null ? null : AuthScreen.path;
+          },
           routes: [
             GoRoute(
               path: AccountScreen.path,
@@ -46,49 +56,6 @@ class _MyAppState extends State<MyApp> {
                 return const CupertinoPage(
                   child: CustomKeepAlive(
                     child: AccountScreen(),
-                  ),
-                );
-              },
-            ),
-            GoRoute(
-              path: AuthScreen.path,
-              name: AuthScreen.name,
-              pageBuilder: (context, state) {
-                return const CupertinoPage(
-                  child: CustomKeepAlive(
-                    child: AuthScreen(),
-                  ),
-                );
-              },
-            ),
-            GoRoute(
-              path: AuthVerificationScreen.path,
-              name: AuthVerificationScreen.name,
-              pageBuilder: (context, state) {
-                final data = (state.extra as Map<String, dynamic>);
-                return CupertinoPage(
-                  child: CustomKeepAlive(
-                    child: AuthVerificationScreen(
-                      verificationId: data[AuthVerificationScreen.verificationIdKey],
-                      phoneNumber: data[AuthVerificationScreen.phoneNumberKey],
-                      resendToken: data[AuthVerificationScreen.resendTokenKey],
-                      timeout: data[AuthVerificationScreen.timeoutKey],
-                    ),
-                  ),
-                );
-              },
-            ),
-            GoRoute(
-              path: AuthSignupScreen.path,
-              name: AuthSignupScreen.name,
-              pageBuilder: (context, state) {
-                final data = (state.extra as Map<String, dynamic>);
-                return CupertinoPage(
-                  child: CustomKeepAlive(
-                    child: AuthSignupScreen(
-                      phoneNumber: data[AuthSignupScreen.phoneNumberKey],
-                      token: data[AuthSignupScreen.tokenKey],
-                    ),
                   ),
                 );
               },
@@ -105,12 +72,13 @@ class _MyAppState extends State<MyApp> {
               },
               routes: [
                 GoRoute(
-                  path: OrderDeliveriedScreen.path,
-                  name: OrderDeliveriedScreen.name,
+                  path: OrderContentScreen.path,
+                  name: OrderContentScreen.name,
                   pageBuilder: (context, state) {
-                    return const CupertinoPage(
+                    final order = state.extra as Order;
+                    return CupertinoPage(
                       child: CustomKeepAlive(
-                        child: OrderDeliveriedScreen(),
+                        child: OrderContentScreen(order: order),
                       ),
                     );
                   },
@@ -119,9 +87,10 @@ class _MyAppState extends State<MyApp> {
                   path: OrderFeedbackScreen.path,
                   name: OrderFeedbackScreen.name,
                   pageBuilder: (context, state) {
-                    return const CupertinoPage(
+                    final order = state.extra as Order;
+                    return CupertinoPage(
                       child: CustomKeepAlive(
-                        child: OrderFeedbackScreen(),
+                        child: OrderFeedbackScreen(order: order),
                       ),
                     );
                   },
@@ -176,10 +145,9 @@ class _MyAppState extends State<MyApp> {
                   path: SettingsLanguageScreen.path,
                   name: SettingsLanguageScreen.name,
                   pageBuilder: (context, state) {
-                    Locale? locale = state.extra as Locale?;
-                    return CupertinoPage(
+                    return const CupertinoPage(
                       child: CustomKeepAlive(
-                        child: SettingsLanguageScreen(locale: locale),
+                        child: SettingsLanguageScreen(),
                       ),
                     );
                   },
@@ -188,8 +156,56 @@ class _MyAppState extends State<MyApp> {
             ),
           ],
         ),
+        GoRoute(
+          path: AuthScreen.path,
+          name: AuthScreen.name,
+          pageBuilder: (context, state) {
+            return const CupertinoPage(
+              child: CustomKeepAlive(
+                child: AuthScreen(),
+              ),
+            );
+          },
+          routes: [
+            GoRoute(
+              path: AuthVerificationScreen.path,
+              name: AuthVerificationScreen.name,
+              pageBuilder: (context, state) {
+                final data = (state.extra as Map<String, dynamic>);
+                return CupertinoPage(
+                  child: CustomKeepAlive(
+                    child: AuthVerificationScreen(
+                      verificationId: data[AuthVerificationScreen.verificationIdKey],
+                      phoneNumber: data[AuthVerificationScreen.phoneNumberKey],
+                      resendToken: data[AuthVerificationScreen.resendTokenKey],
+                      timeout: data[AuthVerificationScreen.timeoutKey],
+                    ),
+                  ),
+                );
+              },
+            ),
+            GoRoute(
+              path: AuthSignupScreen.path,
+              name: AuthSignupScreen.name,
+              pageBuilder: (context, state) {
+                final data = (state.extra as Map<String, dynamic>);
+                return CupertinoPage(
+                  child: CustomKeepAlive(
+                    child: AuthSignupScreen(
+                      phoneNumber: data[AuthSignupScreen.phoneNumberKey],
+                      token: data[AuthSignupScreen.tokenKey],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ],
     );
+
+    /// LocaleService
+    _localeService = LocaleService.instance();
   }
 
   @override
@@ -200,9 +216,9 @@ class _MyAppState extends State<MyApp> {
         return MaterialApp.router(
           locale: locale,
           theme: Themes.theme,
-          color: Themes.primaryColor,
           themeMode: ThemeMode.light,
           darkTheme: Themes.darkTheme,
+          color: Themes.primaryColor,
           debugShowCheckedModeBanner: false,
           routerDelegate: _router.routerDelegate,
           scrollBehavior: const CustomScrollBehavior(),

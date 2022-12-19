@@ -12,6 +12,8 @@ class AuthCountryAppBar extends DefaultAppBar {
       middle: const Text("Selectionner un pays"),
       backgroundColor: context.theme.colorScheme.surface,
       automaticallyImplyLeading: false,
+      transitionBetweenRoutes: false,
+
     );
   }
 }

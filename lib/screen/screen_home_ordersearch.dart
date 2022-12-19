@@ -25,9 +25,7 @@ class _HomeOrderSearchScreenState extends State<HomeOrderSearchScreen> {
           controller: ModalScrollController.of(context),
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           slivers: [
-            const SliverPinnedHeader(
-              child: HomeOrderSearchTextField(),
-            ),
+            const SliverPinnedHeader(child: HomeOrderSearchTextField()),
             const SliverPinnedHeader(child: Divider()),
             SliverList(
               delegate: SliverChildBuilderDelegate(

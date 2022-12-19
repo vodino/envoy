@@ -9,6 +9,7 @@ class HelpFaqAppBar extends DefaultAppBar {
   Widget build(BuildContext context) {
     return const CupertinoNavigationBar(
       middle: Text('Aide/Faq'),
+      transitionBetweenRoutes: false,
     );
   }
 }

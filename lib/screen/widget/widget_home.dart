@@ -52,8 +52,9 @@ class HomeMap extends StatelessWidget {
     this.initialCameraPosition,
     this.onUserLocationUpdated,
     this.onStyleLoadedCallback,
+    this.myLocationEnabled = true,
   });
-
+  final bool myLocationEnabled;
   final VoidCallback? onCameraIdle;
   final OnMapClickCallback? onMapClick;
   final MapCreatedCallback? onMapCreated;
@@ -67,11 +68,11 @@ class HomeMap extends StatelessWidget {
     return MaplibreMap(
       compassEnabled: false,
       onMapClick: onMapClick,
-      myLocationEnabled: true,
       onMapCreated: onMapCreated,
       trackCameraPosition: true,
       onCameraIdle: onCameraIdle,
       onMapLongClick: onMapLongClick,
+      myLocationEnabled: myLocationEnabled,
       onUserLocationUpdated: onUserLocationUpdated,
       onStyleLoadedCallback: onStyleLoadedCallback ?? () {},
       gestureRecognizers: {Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer())},

@@ -35,7 +35,7 @@ class GetCountries extends CountryEvent {
     service.value = const PendingCountryState();
     try {
       final response = await Dio().getUri<String>(Uri.parse(url));
-      final data = compute(CountrySchema.fromListJson, response.data!);
+      final data = compute(Country.fromListJson, response.data!);
       data.then(
         (data) async {
           final countryCode = window.locale.countryCode;

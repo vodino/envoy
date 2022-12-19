@@ -26,11 +26,11 @@ class SliverPinnedHeader extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderSliverPinnedHeader();
+    return RenderSliverPinnedHeader();
   }
 }
 
-class _RenderSliverPinnedHeader extends RenderSliverSingleBoxAdapter {
+class RenderSliverPinnedHeader extends RenderSliverSingleBoxAdapter {
   @override
   void performLayout() {
     child!.layout(constraints.asBoxConstraints(), parentUsesSize: true);
@@ -53,13 +53,15 @@ class _RenderSliverPinnedHeader extends RenderSliverSingleBoxAdapter {
       maxScrollObstructionExtent: childExtent,
       paintOrigin: constraints.overlap,
       scrollExtent: childExtent,
-      hasVisualOverflow: paintedChildExtent < childExtent,
       layoutExtent: max(0.0, paintedChildExtent - constraints.scrollOffset),
+      hasVisualOverflow: paintedChildExtent < childExtent,
     );
   }
 
   @override
-  double childMainAxisPosition(RenderBox child) => 0;
+  double childMainAxisPosition(RenderBox child) {
+    return 0;
+  }
 }
 
 class SliverPinnedOverlapInjector extends SingleChildRenderObjectWidget {
@@ -146,6 +148,7 @@ class _RenderSliverPinnedOverlapInjector extends RenderSliver {
   }
 }
 
+/// [MultiSliver] allows for returning multiple slivers from a single build method
 class MultiSliver extends MultiChildRenderObjectWidget {
   MultiSliver({
     Key? key,
@@ -169,7 +172,6 @@ class MultiSliver extends MultiChildRenderObjectWidget {
     renderObject.containing = pushPinnedChildren;
   }
 }
-
 class MultiSliverParentData extends SliverPhysicalParentData
     with ContainerParentDataMixin<RenderObject> {
   late double mainAxisPosition;

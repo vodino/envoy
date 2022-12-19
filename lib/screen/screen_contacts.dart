@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '_screen.dart';
@@ -35,10 +35,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
   bool _onSearchChanged(String value, Contact contact) {
     if (value.isNotEmpty) {
       value = value.toLowerCase();
-      return (contact.displayName.toLowerCase().contains(value)) ||
-          (contact.phones.any((element) {
-            return element.number.contains(value);
-          }));
+      return (contact.name!.toLowerCase().contains(value)) || (contact.phones!.any((element) => element.contains(value)));
     }
     return true;
   }
@@ -52,9 +49,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
   }
 
   void _listenContactState(BuildContext context, ContactState state) {}
-
-  /// ClientService
-  late final ClientService _clientService;
 
   @override
   void initState() {
@@ -71,9 +65,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
         (timeStamp) => _getcontacts(),
       );
     }
-
-    /// ClientService
-    _clientService = ClientService.instance();
   }
 
   @override
@@ -100,7 +91,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
                   ValueListenableBuilder<TextEditingValue>(
                     valueListenable: _searchTextController,
                     builder: (context, textValue, child) {
-                      final item = Contact(displayName: 'Moi', phones: [Phone(ClientService.authenticated!.phoneNumber)]);
+                      final item = Contact(name: 'Moi', phones: [ClientService.authenticated!.phoneNumber!]);
                       final contains = _onSearchChanged(textValue.text, item);
                       return ValueListenableBuilder<Contact?>(
                         valueListenable: _contactController,
@@ -111,11 +102,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  ContactCheckListTile(
-                                    subtitle: Text(item.phones.map((e) => e.number).join(', ')),
+                                  CustomCheckListTile(
+                                    subtitle: Text(item.phones!.join(', ')),
                                     onChanged: (value) => _onContactChanged(value, item),
-                                    value: contactValue?.id == item.id,
-                                    title: Text(item.displayName),
+                                    value: listEquals(contactValue?.phones, item.phones),
+                                    title: Text(item.name!),
                                   ),
                                   const Divider(thickness: 8.0, height: 12.0)
                                 ],
@@ -144,11 +135,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
                                       if (index.isEven) {
                                         index ~/= 2;
                                         final item = items[index];
-                                        return ContactCheckListTile(
-                                          title: Text(item.displayName),
-                                          value: contactValue?.id == item.id,
+                                        return CustomCheckListTile(
+                                          title: Text(item.name!),
+                                          value: listEquals(contactValue?.phones, item.phones),
                                           onChanged: (value) => _onContactChanged(value, item),
-                                          subtitle: Text(item.phones.map((e) => e.number).join(', ')),
+                                          subtitle: Text(item.phones!.join(', ')),
                                         );
                                       }
                                       return const Divider();
@@ -173,7 +164,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
               child: CupertinoButton.filled(
                 child: const Text('Valider'),
                 onPressed: () {
-                  Navigator.pop(context, _contactController.value);
+                  final data = _contactController.value;
+                  Navigator.pop(context, data);
                 },
               ),
             ),

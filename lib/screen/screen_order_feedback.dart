@@ -1,23 +1,57 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '_screen.dart';
 
-class OrderFeedbackScreen extends StatelessWidget {
-  const OrderFeedbackScreen({super.key});
+class OrderFeedbackScreen extends StatefulWidget {
+  const OrderFeedbackScreen({super.key, required this.order});
+
+  final Order order;
 
   static const String name = 'order_feedback';
   static const String path = 'feedback';
 
   @override
+  State<OrderFeedbackScreen> createState() => _OrderFeedbackScreenState();
+}
+
+class _OrderFeedbackScreenState extends State<OrderFeedbackScreen> {
+  /// Customer
+  late final TextEditingController _messageTextController;
+
+  void _onClose() {
+    Navigator.pop(context);
+  }
+
+  /// OrderService
+  late final OrderService _orderService;
+
+  void _listenOrderState(BuildContext context, OrderState state) {}
+
+  void _submitMessage() {}
+
+  @override
+  void initState() {
+    super.initState();
+
+    /// Customer
+    _messageTextController = TextEditingController();
+
+    /// OrderService
+    _orderService = OrderService();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const OrderFeedbackAppBar(),
+      appBar: OrderFeedbackAppBar(close: _onClose),
       body: BottomAppBar(
         elevation: 0.0,
         color: Colors.transparent,
         child: CustomScrollView(
+          controller: ModalScrollController.of(context),
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           slivers: [
             const SliverToBoxAdapter(child: SizedBox(height: 16.0)),
@@ -35,7 +69,7 @@ class OrderFeedbackScreen extends StatelessWidget {
                 height: 60.0,
                 title: Center(
                   child: Text(
-                    'Allou Coulibaly',
+                    widget.order.rider!.fullName!,
                     style: context.cupertinoTheme.textTheme.navTitleTextStyle,
                   ),
                 ),
@@ -53,8 +87,8 @@ class OrderFeedbackScreen extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(vertical: 8.0),
                 child: RatingBar.builder(
                   itemCount: 5,
-                  minRating: 1,
-                  initialRating: 3,
+                  minRating: 0,
+                  initialRating: 0,
                   allowHalfRating: true,
                   direction: Axis.horizontal,
                   onRatingUpdate: (rating) {},
@@ -64,8 +98,9 @@ class OrderFeedbackScreen extends StatelessWidget {
               ),
             ),
             const SliverToBoxAdapter(child: CustomListTile(height: 35.0, title: Text('Message'))),
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: CustomTextField(
+                controller: _messageTextController,
                 hintText: 'Ecrire...',
                 maxLines: 6,
                 minLines: 6,
@@ -74,18 +109,32 @@ class OrderFeedbackScreen extends StatelessWidget {
             SliverFillRemaining(
               hasScrollBody: false,
               fillOverscroll: true,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    CupertinoButton.filled(
-                      child: const Text('Soumettre'),
-                      onPressed: () {},
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: ValueListenableConsumer<OrderState>(
+                      listener: _listenOrderState,
+                      valueListenable: _orderService,
+                      builder: (context, state, child) {
+                        VoidCallback? onPressed = _submitMessage;
+                        if (state is PendingOrderState) onPressed = null;
+                        return CupertinoButton.filled(
+                          padding: EdgeInsets.zero,
+                          onPressed: onPressed,
+                          child: Visibility(
+                            visible: onPressed != null,
+                            replacement: const CupertinoActivityIndicator(),
+                            child: const Text('Soumettre'),
+                          ),
+                        );
+                      },
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],

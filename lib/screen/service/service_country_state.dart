@@ -25,7 +25,7 @@ class CountryItemState extends CountryState {
   const CountryItemState({
     required this.data,
   });
-  final CountrySchema data;
+  final Country data;
 }
 
 class CountryItemListState extends CountryState {
@@ -33,6 +33,6 @@ class CountryItemListState extends CountryState {
     required this.data,
     this.currentCountry,
   });
-  final CountrySchema? currentCountry;
-  final List<CountrySchema> data;
+  final Country? currentCountry;
+  final List<Country> data;
 }

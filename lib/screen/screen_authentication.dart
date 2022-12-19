@@ -7,7 +7,7 @@ import '_screen.dart';
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
 
-  static const String path = 'auth';
+  static const String path = '/auth';
   static const String name = 'auth';
 
   @override
@@ -20,14 +20,14 @@ class _AuthScreenState extends State<AuthScreen> {
   late final ValueNotifier<String?> _errorController;
   late final ValueNotifier<bool> _privacyController;
   late final FocusNode _phoneFocusNode;
-  CountrySchema? _currentCountry;
+  Country? _currentCountry;
 
   void _listenError(BuildContext context, String? data) {
     if (data != null) HapticFeedback.vibrate();
   }
 
   String get _phoneNumber {
-    final String dialCode = _currentCountry!.dialCode;
+    final String dialCode = _currentCountry!.dialCode!;
     final String phoneNumber = _phoneTextController.text.trimSpace();
     return '$dialCode $phoneNumber';
   }
@@ -87,10 +87,10 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   void _goToAuthCountry({
-    required List<CountrySchema> items,
-    CountrySchema? currentItem,
+    required List<Country> items,
+    Country? currentItem,
   }) async {
-    final country = await showModalBottomSheet<CountrySchema>(
+    final country = await showModalBottomSheet<Country>(
       context: context,
       builder: (context) {
         return AuthCountryScreen(
@@ -173,7 +173,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             child: Builder(
                               builder: (context) {
                                 return Text(
-                                  '${CustomString.toFlag(_currentCountry!.code)} '
+                                  '${CustomString.toFlag(_currentCountry!.code!)} '
                                   '${_currentCountry!.dialCode}',
                                 );
                               },

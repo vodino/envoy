@@ -25,12 +25,29 @@ class OrderItemState extends OrderState {
   const OrderItemState({
     required this.data,
   });
-  final OrderSchema data;
+  final Order data;
 }
 
 class OrderItemListState extends OrderState {
   const OrderItemListState({
     required this.data,
   });
-  final List<OrderSchema> data;
+  final List<Order> data;
+}
+
+class NoOrderItemState extends OrderState {
+  const NoOrderItemState({
+    this.phoneNumber,
+    this.token,
+  });
+
+  final String? phoneNumber;
+  final String? token;
+}
+
+class SubscriptionOrderState extends OrderState {
+  const SubscriptionOrderState({
+    required this.canceller,
+  });
+  final Future<void> Function() canceller;
 }

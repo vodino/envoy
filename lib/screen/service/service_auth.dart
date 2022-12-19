@@ -1,7 +1,7 @@
 import 'dart:ui';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '_service.dart';
 
@@ -79,16 +79,18 @@ class VerifyPhoneNumberAuthEvent extends AuthEvent {
   }
 }
 
-class SignInAuthEvent extends AuthEvent {
-  SignInAuthEvent({
+class SignInOrUpdateAuthEvent extends AuthEvent {
+  SignInOrUpdateAuthEvent({
     required this.verificationId,
     required this.smsCode,
+    this.update = false,
     this.credential,
   });
 
   PhoneAuthCredential? credential;
   final String verificationId;
   final String smsCode;
+  final bool update;
 
   @override
   Future<void> _execute(AuthService service) async {
@@ -98,12 +100,32 @@ class SignInAuthEvent extends AuthEvent {
         verificationId: verificationId,
         smsCode: smsCode,
       );
-      final userCredential = await firebaseAuth.signInWithCredential(
-        credential!,
+      if (update) {
+        await firebaseAuth.currentUser!.updatePhoneNumber(credential!);
+      } else {
+        await firebaseAuth.signInWithCredential(credential!);
+      }
+      service.value = UserSignedState(user: firebaseAuth.currentUser!);
+    } catch (error) {
+      service.value = FailureAuthState(
+        message: error.toString(),
+        event: this,
       );
-      service.value = UserSignedState(
-        user: userCredential.user!,
-      );
+    }
+  }
+}
+
+class UpdatePhoneNumberAuthEvent extends AuthEvent {
+  const UpdatePhoneNumberAuthEvent({required this.credential});
+
+  final PhoneAuthCredential credential;
+
+  @override
+  Future<void> _execute(AuthService service) async {
+    service.value = const PendingAuthState();
+    try {
+      await firebaseAuth.currentUser!.updatePhoneNumber(credential);
+      service.value = UserSignedState(user: firebaseAuth.currentUser!);
     } catch (error) {
       service.value = FailureAuthState(
         message: error.toString(),

@@ -9,9 +9,10 @@ class HomeDeliveryAppBar extends DefaultAppBar {
   Widget build(BuildContext context) {
     return CupertinoNavigationBar(
       border: const Border.fromBorderSide(BorderSide.none),
-      middle: const Text("Livraisons en cours..."),
       backgroundColor: context.theme.colorScheme.surface,
+      middle: const Text("Commandes en cours..."),
       automaticallyImplyLeading: false,
+      transitionBetweenRoutes: false,
     );
   }
 }

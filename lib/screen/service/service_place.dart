@@ -133,7 +133,7 @@ class FetchPlaces extends PlaceEvent {
         final response = await _request!.close();
         final body = await response.transform(utf8.decoder).join();
         await _controller?.dispose();
-        _controller = customCompute<String, List<PlaceSchema>>(PlaceSchema.fromRawJsonList, body);
+        _controller = customCompute<String, List<Place>>(Place.fromRawJsonList, body);
         service.value = PlaceItemListState(data: await _controller!.future);
       }
     } catch (error) {

@@ -16,7 +16,7 @@ class ClientService extends ValueNotifier<ClientState> {
 
   Future<void> handle(ClientEvent event) => event._execute(this);
 
-  static ClientSchema? get authenticated {
+  static Client? get authenticated {
     final state = ClientService.instance().value;
     if (state is ClientItemState) return state.data;
     return null;
@@ -49,13 +49,13 @@ class LoginClient extends ClientEvent {
         Uri.parse(url),
         data: jsonEncode(body),
         options: Options(headers: {
-          'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
         }),
       );
       switch (response.statusCode) {
         case 200:
-          final data = await compute(ClientSchema.fromServerJson, response.data!);
+          final data = await compute(Client.fromServerJson, response.data!);
           await service.handle(PutClient(client: data));
           break;
         case 404:
@@ -77,11 +77,72 @@ class LoginClient extends ClientEvent {
           token: token,
         );
       } else {
+        if (error is DioError) print(error.response?.data);
+        print(error);
         service.value = FailureClientState(
           message: error.toString(),
           event: this,
         );
       }
+    }
+  }
+}
+
+class LogoutClient extends ClientEvent {
+  const LogoutClient();
+
+  @override
+  Future<void> _execute(ClientService service) async {
+    service.value = const PendingClientState();
+    try {
+      await Future.wait([
+        IsarService.isar.clear(),
+        HiveService.settingsBox.clear(),
+      ]);
+      service.value = const InitClientState();
+    } catch (error) {
+      service.value = FailureClientState(
+        message: error.toString(),
+        event: this,
+      );
+    }
+  }
+}
+
+class DeleteClient extends ClientEvent {
+  const DeleteClient();
+
+  String get url => '${RepositoryService.httpURL}/v1/api/client/delete';
+
+  @override
+  Future<void> _execute(ClientService service) async {
+    service.value = const PendingClientState();
+    final client = ClientService.authenticated!;
+    final token = client.accessToken;
+    try {
+      final response = await Dio().postUri<String>(
+        Uri.parse(url),
+        options: Options(headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        }),
+      );
+      switch (response.statusCode) {
+        case 200:
+          service.handle(const LogoutClient());
+          break;
+        default:
+          service.value = FailureClientState(
+            message: 'internal error',
+            event: this,
+          );
+      }
+    } catch (error) {
+      service.value = FailureClientState(
+        message: error.toString(),
+        event: this,
+      );
     }
   }
 }
@@ -114,14 +175,11 @@ class RegisterClient extends ClientEvent {
       );
       switch (response.statusCode) {
         case 200:
-          final data = await compute(ClientSchema.fromServerJson, response.data!);
+          print(response.data!);
+          final data = await compute(Client.fromServerJson, response.data!);
+          print(data);
           await service.handle(PutClient(client: data));
-          break;
-        case 404:
-          service.value = NoClientItemState(
-            phoneNumber: phoneNumber,
-            token: token,
-          );
+          print(service.value);
           break;
         default:
           service.value = FailureClientState(
@@ -130,6 +188,8 @@ class RegisterClient extends ClientEvent {
           );
       }
     } catch (error) {
+      if (error is DioError) print(error.response?.data);
+      print(error);
       service.value = FailureClientState(
         message: error.toString(),
         event: this,
@@ -147,7 +207,7 @@ class GetClient extends ClientEvent {
     try {
       final value = HiveService.settingsBox.get('current_client');
       if (value != null) {
-        final data = ClientSchema.fromJson(value);
+        final data = Client.fromJson(value);
         service.value = ClientItemState(data: data);
       } else {
         service.value = const NoClientItemState();
@@ -166,7 +226,7 @@ class PutClient extends ClientEvent {
     required this.client,
   });
 
-  final ClientSchema client;
+  final Client client;
 
   @override
   Future<void> _execute(ClientService service) async {
@@ -183,19 +243,14 @@ class PutClient extends ClientEvent {
   }
 }
 
-class DeleteClient extends ClientEvent {
-  const DeleteClient({
-    required this.client,
-  });
-
-  final ClientSchema client;
+class RemoveClient extends ClientEvent {
+  const RemoveClient();
 
   @override
   Future<void> _execute(ClientService service) async {
     service.value = const PendingClientState();
     try {
       await HiveService.settingsBox.delete('current_client');
-      service.value = ClientItemState(data: client);
     } catch (error) {
       service.value = FailureClientState(
         message: error.toString(),

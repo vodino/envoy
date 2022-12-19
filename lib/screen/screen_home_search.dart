@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:maplibre_gl/mapbox_gl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -15,7 +14,7 @@ class HomeSearchScreen extends StatefulWidget {
     required this.popController,
   });
 
-  final ValueNotifier<OrderSchema?> popController;
+  final ValueNotifier<Order?> popController;
 
   static const String name = 'home_search';
   static const String path = 'search';
@@ -30,17 +29,17 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
 
   void _openOrderCreateSheet({
     required BuildContext customContext,
-    required PlaceSchema deliveryPlace,
-    required PlaceSchema pickupPlace,
+    required Place deliveryPlace,
+    required Place pickupPlace,
   }) async {
     if (ClientService.authenticated != null) {
       if (_deliveryFocusNode.hasFocus) _deliveryFocusNode.unfocus();
       if (_pickupFocusNode.hasFocus) _pickupFocusNode.unfocus();
-      Navigator.push<OrderSchema>(
+      Navigator.push<Order>(
         customContext,
         CupertinoPageRoute(builder: (context) {
           return HomeOrderCreateScreen(
-            order: OrderSchema(
+            order: Order(
               deliveryPlace: deliveryPlace,
               pickupPlace: pickupPlace,
             ),
@@ -66,7 +65,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
     }
   }
 
-  void _openOrdersSheet() async {
+  void _openOrdersSheet(BuildContext context) async {
     Navigator.push(
       context,
       CupertinoPageRoute(builder: (context) {
@@ -80,6 +79,14 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
   late FocusNode _deliveryFocusNode;
   late TextEditingController _pickupTextController;
   late TextEditingController _deliveryTextController;
+
+  void _onSwitch() {
+    final pickupPlaceItem = _pickupPlaceItem.value;
+    final deliveryPlaceItem = _deliveryPlaceItem.value;
+
+    _pickupPlaceItem.value = deliveryPlaceItem;
+    _deliveryPlaceItem.value = pickupPlaceItem;
+  }
 
   void _onPickupTextChanged(String query) {
     if (query.isNotEmpty) {
@@ -95,7 +102,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
     }
   }
 
-  void _onPlaceItemPressed(BuildContext context, PlaceSchema item, PlaceCategory category) {
+  void _onPlaceItemPressed(BuildContext context, Place item, PlaceCategory category) {
     if (category == PlaceCategory.source) {
       if (_deliveryPlaceItem.value == null) {
         _pickupPlaceItem.value = item;
@@ -115,8 +122,8 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
         _pickupFocusNode.requestFocus();
       } else {
         _openOrderCreateSheet(
-          customContext: context,
           deliveryPlace: item,
+          customContext: context,
           pickupPlace: _pickupPlaceItem.value!,
         );
       }
@@ -131,10 +138,8 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
     _deliveryTextController = TextEditingController();
     _bottomSheetController.value = true;
 
-    final value = await showCupertinoModalBottomSheet<OrderSchema>(
-      expand: true,
+    final value = await showCupertinoModalBottomSheet<Order>(
       context: context,
-      useRootNavigator: true,
       builder: (context) {
         return Navigator(
           onGenerateRoute: (settings) {
@@ -170,8 +175,8 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
   late final PlaceService _deliveryPlaceService;
   late final ValueNotifier<PlaceCategory?> _placeCategoryController;
 
-  late final ValueNotifier<PlaceSchema?> _pickupPlaceItem;
-  late final ValueNotifier<PlaceSchema?> _deliveryPlaceItem;
+  late final ValueNotifier<Place?> _pickupPlaceItem;
+  late final ValueNotifier<Place?> _deliveryPlaceItem;
 
   void _getGeocoding({String? query, required LatLng? latLng, required PlaceService service}) {
     service.handle(FetchPlaces(longitude: latLng?.longitude, latitude: latLng?.latitude, query: query));
@@ -239,7 +244,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
                     ValueListenableBuilder<PlaceState>(
                       valueListenable: _pickupPlaceService,
                       builder: (context, state, child) {
-                        return ValueListenableBuilder<PlaceSchema?>(
+                        return ValueListenableBuilder<Place?>(
                           valueListenable: _pickupPlaceItem,
                           builder: (context, pickupPlaceItem, child) {
                             return HomeSearchFieldButtons(
@@ -329,11 +334,10 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
                                     return Visibility(
                                       visible: _myPosition != null,
                                       child: Builder(builder: (context) {
+                                        final start = LatLng(item.latitude!, item.longitude!);
+                                        final end = LatLng(_myPosition!.latitude!, _myPosition!.longitude!);
                                         return Text(
-                                          '${NumberFormat.compactCurrency(
-                                            decimalDigits: 1,
-                                            symbol: '',
-                                          ).format(LatLng(item.latitude!, item.longitude!).distance(LatLng(_myPosition!.latitude!, _myPosition!.longitude!)))}m',
+                                          start.distance(end),
                                           style: context.theme.textTheme.caption,
                                         );
                                       }),
@@ -382,6 +386,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
                   slivers: [
                     SliverPinnedHeader(
                       child: HomeSearchFields(
+                        onSwitch: _onSwitch,
                         pickupFocusNode: _pickupFocusNode,
                         onPickupChanged: _onPickupTextChanged,
                         deliveryFocusNode: _deliveryFocusNode,
@@ -394,7 +399,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
                     ),
                     SliverToBoxAdapter(
                       child: CustomListTile(
-                        onTap: _openOrdersSheet,
+                        onTap: () => _openOrdersSheet(context),
                         title: const Text(
                           'Rechercher des commandes précédentes',
                           style: TextStyle(color: Colors.blue),

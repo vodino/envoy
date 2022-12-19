@@ -32,12 +32,12 @@ class PlaceItemState extends PlaceState {
   const PlaceItemState({
     required this.data,
   });
-  final PlaceSchema data;
+  final Place data;
 }
 
 class PlaceItemListState extends PlaceState {
   const PlaceItemListState({
     required this.data,
   });
-  final List<PlaceSchema> data;
+  final List<Place> data;
 }

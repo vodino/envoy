@@ -9,6 +9,7 @@ class AuthAppBar extends DefaultAppBar {
   Widget build(BuildContext context) {
     return const CupertinoNavigationBar(
       border: Border.fromBorderSide(BorderSide.none),
+      transitionBetweenRoutes: false,
     );
   }
 }
@@ -186,6 +187,7 @@ class AuthSubmitButton extends StatelessWidget {
         backgroundColor: backgroundColor,
         disabledElevation: 0.0,
         onPressed: onPressed,
+        heroTag: UniqueKey(),
         elevation: 0.8,
         child: child,
       ),

@@ -14,6 +14,7 @@ class HomeFinderAppBar extends DefaultAppBar {
       middle: const Text("En attente de coursiers..."),
       backgroundColor: context.theme.colorScheme.surface,
       automaticallyImplyLeading: false,
+      transitionBetweenRoutes: false,
     );
   }
 }

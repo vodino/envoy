@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:maplibre_gl/mapbox_gl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -13,7 +12,7 @@ class HomeOrderCreateScreen extends StatefulWidget {
     required this.order,
   });
 
-  final OrderSchema order;
+  final Order order;
 
   @override
   State<HomeOrderCreateScreen> createState() => _HomeOrderCreateScreenState();
@@ -23,16 +22,19 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
   /// Customer
   late final ValueNotifier<String?> _amountPayByCourierController;
   late final ValueNotifier<DateTime?> _scheduledDateController;
-  late final TextEditingController _descriptionTextController;
-  late final ValueNotifier<OrderSchema> _orderController;
+  late final TextEditingController _pickupAdditionalInfoTextController;
+  late final TextEditingController _deliveryAdditionalInfoTextController;
+  late final ValueNotifier<Order> _orderController;
   late final TextEditingController _titleTextController;
 
   Future<void> _openAmountModal() async {
     final value = await showDialog<String>(
       context: context,
       builder: (context) {
-        return HomeOrderAmountModal(
-          amount: _amountPayByCourierController.value,
+        return CustomTextFieldModal(
+          hint: 'Montant',
+          title: 'Entrer le montant à payer',
+          value: _amountPayByCourierController.value,
         );
       },
     );
@@ -111,10 +113,10 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
   }
 
   void _getRiderAvailable() {
-    _riderService.handle(GetRiderAvailable(
+    _riderService.handle(GetAvailableRiders(
       source: LatLng(
-        _orderController.value.pickupPlace.latitude!,
-        _orderController.value.pickupPlace.longitude!,
+        _orderController.value.pickupPlace!.latitude!,
+        _orderController.value.pickupPlace!.longitude!,
       ),
     ));
   }
@@ -129,7 +131,7 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
   }
 
   void _createOrder() {
-    if (_deliveryContactController.value == null) {
+    if (_pickupContactController.value == null) {
       showDialog(
         context: context,
         builder: (context) {
@@ -140,7 +142,7 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
       );
       return;
     }
-    if (_pickupContactController.value == null) {
+    if (_deliveryContactController.value == null) {
       showDialog(
         context: context,
         builder: (context) {
@@ -156,10 +158,12 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
       CreateOrder(
         order: _orderController.value.copyWith(
           name: _titleTextController.text,
-          description: _descriptionTextController.text,
           scheduledDate: _scheduledDateController.value,
           pickupPhoneNumber: _pickupContactController.value,
           deliveryPhoneNumber: _deliveryContactController.value!,
+          pickupAdditionalInfo: _pickupAdditionalInfoTextController.text,
+          deliveryAdditionalInfo: _deliveryAdditionalInfoTextController.text,
+          amountPaidedByRider: double.tryParse(_amountPayByCourierController.value ?? ''),
           price: _orderPriceItems!.firstWhere((type) => type.type == _riderTypeController.value).price,
         ),
       ),
@@ -173,7 +177,8 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
     /// Customer
     _amountPayByCourierController = ValueNotifier(null);
     _scheduledDateController = ValueNotifier(null);
-    _descriptionTextController = TextEditingController();
+    _pickupAdditionalInfoTextController = TextEditingController();
+    _deliveryAdditionalInfoTextController = TextEditingController();
     _titleTextController = TextEditingController();
     _orderController = ValueNotifier(widget.order);
 
@@ -206,7 +211,7 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                 slivers: [
                   SliverToBoxAdapter(
                     child: HomeOrderPlaceListTile(
-                      title: Text(widget.order.pickupPlace.title!),
+                      title: Text(widget.order.pickupPlace!.title!),
                       iconColor: CupertinoColors.activeBlue,
                       onTap: () {},
                     ),
@@ -214,7 +219,7 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                   const SliverToBoxAdapter(child: Divider(indent: 40.0)),
                   SliverToBoxAdapter(
                     child: HomeOrderPlaceListTile(
-                      title: Text(widget.order.deliveryPlace.title!),
+                      title: Text(widget.order.deliveryPlace!.title!),
                       iconColor: CupertinoColors.activeOrange,
                       onTap: () {},
                     ),
@@ -247,20 +252,20 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                                       );
                                     },
                                   ),
-                                  const SizedBox(width: 12.0),
-                                  Builder(
-                                    builder: (context) {
-                                      final result = _orderPriceItems?.where((value) => value.type == RiderType.car);
-                                      final isNotEmpty = result?.isNotEmpty ?? false;
-                                      return HomeOrderPriceWidget(
-                                        amount: _orderPriceItems != null ? (isNotEmpty ? '${result!.first.price.toInt()} F' : '-') : null,
-                                        onChanged: isNotEmpty ? (value) => _riderTypeController.value = RiderType.car : null,
-                                        value: type == RiderType.car,
-                                        image: Assets.images.car,
-                                        title: 'En voiture',
-                                      );
-                                    },
-                                  ),
+                                  // const SizedBox(width: 12.0),
+                                  // Builder(
+                                  //   builder: (context) {
+                                  //     final result = _orderPriceItems?.where((value) => value.type == RiderType.car);
+                                  //     final isNotEmpty = result?.isNotEmpty ?? false;
+                                  //     return HomeOrderPriceWidget(
+                                  //       amount: _orderPriceItems != null ? (isNotEmpty ? '${result!.first.price.toInt()} F' : '-') : null,
+                                  //       onChanged: isNotEmpty ? (value) => _riderTypeController.value = RiderType.car : null,
+                                  //       value: type == RiderType.car,
+                                  //       image: Assets.images.car,
+                                  //       title: 'En voiture',
+                                  //     );
+                                  //   },
+                                  // ),
                                 ],
                               );
                             },
@@ -275,7 +280,7 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                       builder: (context, contact, child) {
                         return HomeOrderContactListTile(
                           title: const Text('Contact pour le ramassage'),
-                          subtitle: contact != null ? Text(contact.phones.map((e) => e.number).join(', ')) : null,
+                          subtitle: contact != null ? Text(contact.phones!.join(', ')) : null,
                           onTap: () => _onContactPressed(
                             controller: _pickupContactController,
                             title: 'Contact pour le ramassage',
@@ -286,12 +291,23 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                   ),
                   const SliverToBoxAdapter(child: SizedBox(height: 12.0)),
                   SliverToBoxAdapter(
+                    child: CustomTextField(
+                      controller: _pickupAdditionalInfoTextController,
+                      hintText: "Plus d'infos sur le ramassage",
+                      maxLines: 6,
+                      minLines: 4,
+                    ),
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 12.0)),
+                  const SliverToBoxAdapter(child: Divider()),
+                  const SliverToBoxAdapter(child: SizedBox(height: 12.0)),
+                  SliverToBoxAdapter(
                     child: ValueListenableBuilder<Contact?>(
                       valueListenable: _deliveryContactController,
                       builder: (context, contact, child) {
                         return HomeOrderContactListTile(
                           title: const Text('Contact pour la livraison'),
-                          subtitle: contact != null ? Text(contact.phones.map((e) => e.number).join(', ')) : null,
+                          subtitle: contact != null ? Text(contact.phones!.join(', ')) : null,
                           onTap: () => _onContactPressed(
                             controller: _deliveryContactController,
                             title: 'Contact pour la livraison',
@@ -303,18 +319,20 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                   const SliverToBoxAdapter(child: SizedBox(height: 12.0)),
                   SliverToBoxAdapter(
                     child: CustomTextField(
-                      controller: _titleTextController,
-                      prefixIcon: const Icon(CupertinoIcons.cube_box_fill, color: CupertinoColors.systemGrey2),
-                      hintText: 'Nom de la commande',
+                      controller: _deliveryAdditionalInfoTextController,
+                      hintText: "Plus d'infos sur la livraison",
+                      maxLines: 6,
+                      minLines: 4,
                     ),
                   ),
                   const SliverToBoxAdapter(child: SizedBox(height: 12.0)),
+                  const SliverToBoxAdapter(child: Divider()),
+                  const SliverToBoxAdapter(child: SizedBox(height: 12.0)),
                   SliverToBoxAdapter(
                     child: CustomTextField(
-                      controller: _descriptionTextController,
-                      hintText: 'Description',
-                      maxLines: 6,
-                      minLines: 4,
+                      controller: _titleTextController,
+                      prefixIcon: const Icon(CupertinoIcons.cube_box_fill, color: CupertinoColors.systemGrey2),
+                      hintText: 'Nom de la commande',
                     ),
                   ),
                   const SliverToBoxAdapter(child: SizedBox(height: 8.0)),
@@ -367,11 +385,12 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                         onPressed = null;
                       } else if (riderState is RiderItemState) {
                         available = riderState.data.available;
-                        if (available) onPressed = null;
+                        if (!available) onPressed = null;
                       }
                       final style = TextStyle(color: onPressed == null ? CupertinoColors.systemGrey2 : null);
                       return CupertinoButton.filled(
                         onPressed: onPressed,
+                        padding: EdgeInsets.zero,
                         disabledColor: CupertinoColors.systemFill,
                         child: Visibility(
                           visible: orderState is! PendingOrderState,

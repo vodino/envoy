@@ -3,12 +3,17 @@ import 'package:flutter/material.dart';
 
 import '_screen.dart';
 
-class BusinessScreen extends StatelessWidget {
+class BusinessScreen extends StatefulWidget {
   const BusinessScreen({super.key});
 
   static const String path = 'business';
   static const String name = 'business';
 
+  @override
+  State<BusinessScreen> createState() => _BusinessScreenState();
+}
+
+class _BusinessScreenState extends State<BusinessScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

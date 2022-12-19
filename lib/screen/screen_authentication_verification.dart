@@ -14,12 +14,14 @@ class AuthVerificationScreen extends StatefulWidget {
     required this.phoneNumber,
     required this.resendToken,
     required this.timeout,
+    this.update = false,
   });
 
   final String verificationId;
   final String phoneNumber;
   final Duration timeout;
   final int? resendToken;
+  final bool update;
 
   static const String verificationIdKey = 'verificationId';
   static const String phoneNumberKey = 'phone_number';
@@ -70,10 +72,11 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
 
   void _signInUser() {
     _authService.handle(
-      SignInAuthEvent(
+      SignInOrUpdateAuthEvent(
         smsCode: _smsCodeTextController.text,
         verificationId: _verificationId,
         credential: _credential,
+        update: widget.update,
       ),
     );
   }
@@ -110,8 +113,12 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
   }
 
   void _listenClientService(BuildContext context, ClientState state) {
+    print(state);
     if (state is ClientItemState) {
-      Navigator.popUntil(context, (route) => route is CupertinoModalBottomSheetRoute);
+      Navigator.popUntil(context, (route) {
+        print(route);
+        return route is! CupertinoPageRoute;
+      });
     } else if (state is NoClientItemState) {
       context.goNamed(
         AuthSignupScreen.name,

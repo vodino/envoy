@@ -9,6 +9,7 @@ class AccountAppBar extends DefaultAppBar {
   Widget build(BuildContext context) {
     return const CupertinoNavigationBar(
       middle: Text('Profil'),
+      transitionBetweenRoutes: false,
     );
   }
 }

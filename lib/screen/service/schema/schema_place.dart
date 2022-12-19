@@ -1,6 +1,8 @@
 import 'dart:convert';
 
-import 'package:equatable/equatable.dart';
+import 'package:isar/isar.dart';
+
+part 'schema_place.g.dart';
 
 part 'schema_placeraw.dart';
 
@@ -172,8 +174,9 @@ enum PlaceOsmTag {
   }
 }
 
-class PlaceSchema extends Equatable {
-  const PlaceSchema({
+@embedded
+class Place {
+  Place({
     this.title,
     this.extent,
     this.subtitle,
@@ -182,6 +185,7 @@ class PlaceSchema extends Equatable {
     this.osmTag,
   });
 
+  static const idKey = 'id';
   static const titleKey = 'title';
   static const extentKey = 'extent';
   static const subtitleKey = 'subtitle';
@@ -189,24 +193,15 @@ class PlaceSchema extends Equatable {
   static const longitudeKey = 'longitude';
   static const osmTagKey = 'osmTag';
 
-  final String? title;
-  final String? subtitle;
-  final double? latitude;
-  final double? longitude;
-  final PlaceOsmTag? osmTag;
-  final List<double>? extent;
+  String? title;
+  String? subtitle;
+  double? latitude;
+  double? longitude;
+  @Enumerated(EnumType.name)
+  PlaceOsmTag? osmTag;
+  List<double>? extent;
 
-  @override
-  List<Object?> get props => [
-        title,
-        extent,
-        subtitle,
-        latitude,
-        longitude,
-        osmTag,
-      ];
-
-  PlaceSchema copyWith({
+  Place copyWith({
     String? title,
     String? subtitle,
     double? latitude,
@@ -214,7 +209,7 @@ class PlaceSchema extends Equatable {
     PlaceOsmTag? osmTag,
     List<double>? extent,
   }) {
-    return PlaceSchema(
+    return Place(
       title: title ?? this.title,
       extent: extent ?? this.extent,
       subtitle: subtitle ?? this.subtitle,
@@ -224,7 +219,7 @@ class PlaceSchema extends Equatable {
     );
   }
 
-  PlaceSchema clone() {
+  Place clone() {
     return copyWith(
       title: title,
       extent: extent,
@@ -235,8 +230,8 @@ class PlaceSchema extends Equatable {
     );
   }
 
-  static PlaceSchema fromMap(Map<String, dynamic> data) {
-    return PlaceSchema(
+  static Place fromMap(Map<String, dynamic> data) {
+    return Place(
       title: data[titleKey],
       subtitle: data[subtitleKey],
       latitude: data[latitudeKey],
@@ -261,17 +256,17 @@ class PlaceSchema extends Equatable {
     return jsonEncode(toMap());
   }
 
-  static PlaceSchema fromJson(String value) {
+  static Place fromJson(String value) {
     return fromMap(jsonDecode(value));
   }
 
-  static List<PlaceSchema> fromJsonList(String value) {
+  static List<Place> fromJsonList(String value) {
     return List.of(
       (jsonDecode(value) as List).map((map) => fromMap(map)),
     );
   }
 
-  static List<PlaceSchema> fromRawJsonList(String value) {
+  static List<Place> fromRawJsonList(String value) {
     final result = _PlaceResult.fromJson(value);
     return List.of(
       (result.features!.map((e) {
@@ -282,7 +277,7 @@ class PlaceSchema extends Equatable {
         if (properties.state != null) subtitles.add(properties.state!);
         if (properties.country != null) subtitles.add(properties.country!);
 
-        return PlaceSchema(
+        return Place(
           title: properties.name,
           extent: properties.extent,
           subtitle: subtitles.join(', '),
@@ -294,7 +289,7 @@ class PlaceSchema extends Equatable {
     );
   }
 
-  static String toJsonList(List<PlaceSchema> value) {
+  static String toJsonList(List<Place> value) {
     return jsonEncode(List.of(value.map((e) => e.toMap())));
   }
 

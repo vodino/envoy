@@ -10,8 +10,8 @@ class AuthCountryScreen extends StatelessWidget {
     required this.items,
   });
 
-  final CountrySchema? currentItem;
-  final List<CountrySchema> items;
+  final Country? currentItem;
+  final List<Country> items;
 
   @override
   Widget build(BuildContext context) {
@@ -39,11 +39,11 @@ class AuthCountryScreen extends StatelessWidget {
                     onChanged: (value) {
                       if (value != null) Navigator.pop(context, item);
                     },
-                    secondary: Text(CustomString.toFlag(item.code), style: const TextStyle(fontSize: 24.0)),
+                    secondary: Text(CustomString.toFlag(item.code!), style: const TextStyle(fontSize: 24.0)),
                     activeColor: CupertinoColors.systemGreen,
                     visualDensity: VisualDensity.compact,
                     value: item == currentItem,
-                    title: Text(item.name),
+                    title: Text(item.name!),
                   ),
                 );
               },

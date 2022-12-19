@@ -24,8 +24,8 @@ abstract class RiderEvent {
   Future<void> _execute(RiderService service);
 }
 
-class GetRiderAvailable extends RiderEvent {
-  const GetRiderAvailable({
+class GetAvailableRiders extends RiderEvent {
+  const GetAvailableRiders({
     required this.source,
   });
 
@@ -50,3 +50,37 @@ class GetRiderAvailable extends RiderEvent {
   }
 }
 
+class SendOrderToRider extends RiderEvent {
+  const SendOrderToRider({required this.client});
+
+  final Client client;
+
+  String get _url => 'https://fcm.googleapis.com/fcm/send';
+
+  @override
+  Future<void> _execute(RiderService service) async {
+    service.value = const PendingRiderState();
+    try {
+      final body = <String, dynamic>{};
+      final response = await Dio().postUri(
+        Uri.parse(_url),
+        data: jsonEncode(body),
+        options: Options(headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'key=AAAA55CoBZc:APA91bGllEw9yVKfo8S9Reylfs4VQJ8WKRAPYQtZwnsL4R4l1DAR6anH1MrX5iFFUWPgw6xnU833HQ_qz9Rh1iAnqQlHeaIDctDG-e05t7YvWsmoFwjW135nBL2dsoAF6iNF_uWnEzha',
+        }),
+      );
+      switch (response.statusCode) {
+        case 200:
+          break;
+        default:
+      }
+    } catch (error) {
+      service.value = FailureRiderState(
+        message: error.toString(),
+        event: this,
+      );
+    }
+  }
+}

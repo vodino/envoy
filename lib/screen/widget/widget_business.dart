@@ -8,6 +8,7 @@ class BusinessAppBar extends DefaultAppBar {
   Widget build(BuildContext context) {
     return const CupertinoNavigationBar(
       middle: Text('Business'),
+      transitionBetweenRoutes: false,
     );
   }
 }

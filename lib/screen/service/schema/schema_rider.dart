@@ -139,9 +139,7 @@ class PriceSchema extends Equatable {
   }
 
   static List<PriceSchema> fromListJson(String source) {
-    return List.of(
-      (jsonDecode(source)['data'] as List).map((map) => fromMap(map)),
-    );
+    return List.of((jsonDecode(source)['data'] as List).map((map) => fromMap(map)));
   }
 
   static PriceSchema fromJson(String source) {

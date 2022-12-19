@@ -10,6 +10,7 @@ class SettingsLanguageAppBar extends DefaultAppBar {
     final localizations = context.localizations;
     return CupertinoNavigationBar(
       middle: Text(localizations.selectlanguage),
+      transitionBetweenRoutes: false,
     );
   }
 }

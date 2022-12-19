@@ -12,6 +12,7 @@ class HomeOrderAppBar extends DefaultAppBar {
   Widget build(BuildContext context) {
     return const CupertinoNavigationBar(
       middle: Text('Effectuer une commande'),
+      transitionBetweenRoutes: false,
     );
   }
 }
@@ -47,86 +48,6 @@ class HomeOrderContactListTile extends StatelessWidget {
           title: title,
         ),
       ),
-    );
-  }
-}
-
-class HomeOrderAmountModal extends StatefulWidget {
-  const HomeOrderAmountModal({super.key, this.amount});
-
-  final String? amount;
-
-  @override
-  State<HomeOrderAmountModal> createState() => _HomeOrderAmountModalState();
-}
-
-class _HomeOrderAmountModalState extends State<HomeOrderAmountModal> {
-  /// Customer
-  late final GlobalKey<FormState> _formKey;
-
-  late final TextEditingController _amountTextController;
-
-  String? _validator(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Ce champ ne peut être vide';
-    }
-    return null;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    /// Customer
-    _formKey = GlobalKey();
-    _amountTextController = TextEditingController(text: widget.amount);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return CupertinoAlertDialog(
-      title: const Text('Entrer le montant à payer'),
-      content: Padding(
-        padding: const EdgeInsets.only(top: 20.0),
-        child: Form(
-          key: _formKey,
-          child: Material(
-            color: Colors.transparent,
-            borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-            child: TextFormField(
-              autofocus: true,
-              validator: _validator,
-              controller: _amountTextController,
-              decoration: const InputDecoration(
-                filled: true,
-                hintText: 'Montant',
-                fillColor: CupertinoColors.systemFill,
-                contentPadding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide.none,
-                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-      actions: [
-        CupertinoDialogAction(
-          isDestructiveAction: true,
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-        CupertinoDialogAction(
-          isDefaultAction: true,
-          child: const Text('Terminer'),
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              Navigator.pop(context, _amountTextController.text);
-            }
-          },
-        ),
-      ],
     );
   }
 }
@@ -377,11 +298,11 @@ class HomeOrderErrorModal extends StatelessWidget {
     return CupertinoAlertDialog(
       content: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12.0),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.0),
             child: Icon(
               CupertinoIcons.clear_circled_solid,
-              color: context.theme.colorScheme.primary,
+              color: CupertinoColors.destructiveRed,
               size: 60.0,
             ),
           ),

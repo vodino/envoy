@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:flutter_contacts/flutter_contacts.dart' as contacts;
 
 import '_service.dart';
 
@@ -28,7 +28,8 @@ class GetContacts extends ContactEvent {
   Future<void> _execute(ContactService service) async {
     service.value = const PendingContactState();
     try {
-      final data = await FlutterContacts.getContacts(withProperties: true);
+      var result = await contacts.FlutterContacts.getContacts(withProperties: true);
+      final data = result.map((e) => Contact(name: e.displayName, phones: e.phones.map((e) => e.number).toList())).toList();
       service.value = ContactItemListState(data: data);
     } catch (error) {
       service.value = FailureContactState(

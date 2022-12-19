@@ -1,42 +1,34 @@
 import 'dart:convert';
 
-import 'package:equatable/equatable.dart';
-
-class CountrySchema extends Equatable {
-  const CountrySchema({
-    required this.name,
-    required this.dialCode,
-    required this.code,
+class Country {
+  Country({
+    this.name,
+    this.dialCode,
+    this.code,
   });
 
   static const dialCodeKey = 'dial_code';
   static const codeKey = 'country_code';
   static const nameKey = 'name';
 
-  final String code;
-  final String dialCode;
-  final String name;
+  String? code;
+  String? dialCode;
+  String? name;
 
-  @override
-  List<Object?> get props => [
-        dialCode,
-        code,
-        name,
-      ];
-
-  CountrySchema copyWith({
+  Country copyWith({
     String? dialCode,
     String? code,
     String? name,
+    int? id,
   }) {
-    return CountrySchema(
+    return Country(
       dialCode: dialCode ?? this.dialCode,
       code: code ?? this.code,
       name: name ?? this.name,
     );
   }
 
-  CountrySchema clone() {
+  Country clone() {
     return copyWith(
       dialCode: dialCode,
       code: code,
@@ -44,8 +36,8 @@ class CountrySchema extends Equatable {
     );
   }
 
-  static CountrySchema fromMap(Map<String, dynamic> data) {
-    return CountrySchema(
+  static Country fromMap(Map<String, dynamic> data) {
+    return Country(
       dialCode: data[dialCodeKey],
       code: data[codeKey],
       name: data[nameKey],
@@ -60,13 +52,11 @@ class CountrySchema extends Equatable {
     };
   }
 
-  static List<CountrySchema> fromListJson(String source) {
-    return List.of(
-      (jsonDecode(source)['data'] as List).map((map) => fromMap(map)),
-    );
+  static List<Country> fromListJson(String source) {
+    return List.of((jsonDecode(source)['data'] as List).map((map) => fromMap(map)));
   }
 
-  static CountrySchema fromJson(String source) {
+  static Country fromJson(String source) {
     return fromMap(jsonDecode(source));
   }
 

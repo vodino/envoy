@@ -4,8 +4,27 @@ import 'package:go_router/go_router.dart';
 
 import '_screen.dart';
 
-class HomeDrawer extends StatelessWidget {
+class HomeDrawer extends StatefulWidget {
   const HomeDrawer({super.key});
+
+  @override
+  State<HomeDrawer> createState() => _HomeDrawerState();
+}
+
+class _HomeDrawerState extends State<HomeDrawer> {
+  void _checkBeforeGoToPage(BuildContext context, String pageName, {bool close = false}) async {
+    if (ClientService.authenticated != null) {
+      context.pushNamed(pageName);
+    } else if (!close) {
+      await Navigator.push(
+        context,
+        CupertinoPageRoute(builder: (context) {
+          return const AuthScreen();
+        }),
+      );
+      if (mounted) _checkBeforeGoToPage(context, pageName, close: true);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,14 +52,14 @@ class HomeDrawer extends StatelessWidget {
               child: CustomListTile(
                 leading: const Icon(CupertinoIcons.person),
                 title: Text(localizations.profile.capitalize()),
-                onTap: () => context.pushNamed(AccountScreen.name),
+                onTap: () => _checkBeforeGoToPage(context, AccountScreen.name),
               ),
             ),
             SliverToBoxAdapter(
               child: CustomListTile(
                 leading: const Icon(CupertinoIcons.cube_box),
                 title: Text(localizations.orders.capitalize()),
-                onTap: () => context.pushNamed(OrderRecordingScreen.name),
+                onTap: () => _checkBeforeGoToPage(context, OrderRecordingScreen.name),
               ),
             ),
             const SliverToBoxAdapter(child: Divider()),
@@ -48,21 +67,21 @@ class HomeDrawer extends StatelessWidget {
               child: CustomListTile(
                 leading: const Icon(CupertinoIcons.tag),
                 title: Text(localizations.discounts.capitalize()),
-                onTap: () => context.pushNamed(DiscountScreen.name),
+                onTap: () => _checkBeforeGoToPage(context, DiscountScreen.name),
               ),
             ),
             SliverToBoxAdapter(
               child: CustomListTile(
                 leading: const Icon(CupertinoIcons.bag),
                 title: Text(localizations.business.capitalize()),
-                onTap: () => context.pushNamed(BusinessScreen.name),
+                onTap: () => _checkBeforeGoToPage(context, BusinessScreen.name),
               ),
             ),
             SliverToBoxAdapter(
               child: CustomListTile(
                 leading: const Icon(CupertinoIcons.info_circle),
                 title: Text(localizations.faq.capitalize()),
-                onTap: () => context.pushNamed(HelpFaqScreen.name),
+                onTap: () => _checkBeforeGoToPage(context, HelpFaqScreen.name),
               ),
             ),
             SliverToBoxAdapter(
@@ -80,7 +99,7 @@ class HomeDrawer extends StatelessWidget {
                   const Divider(),
                   CustomListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    onTap: () => context.pushNamed(SettingsScreen.name),
+                    onTap: () => _checkBeforeGoToPage(context, SettingsScreen.name),
                     title: Text(localizations.settings.capitalize()),
                     leading: const Icon(CupertinoIcons.gear),
                     height: 55.0,

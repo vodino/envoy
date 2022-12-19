@@ -9,6 +9,7 @@ class AuthSignupAppBar extends DefaultAppBar {
     return const CupertinoNavigationBar(
       middle: Text('Informations du compte'),
       border: Border.fromBorderSide(BorderSide.none),
+      transitionBetweenRoutes: false,
     );
   }
 }

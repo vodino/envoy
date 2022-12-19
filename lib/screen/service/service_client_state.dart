@@ -26,7 +26,7 @@ class ClientItemState extends ClientState {
   const ClientItemState({
     required this.data,
   });
-  final ClientSchema data;
+  final Client data;
 }
 
 class NoClientItemState extends ClientState {
@@ -43,5 +43,5 @@ class ClientItemListState extends ClientState {
   const ClientItemListState({
     required this.data,
   });
-  final List<ClientSchema> data;
+  final List<Client> data;
 }

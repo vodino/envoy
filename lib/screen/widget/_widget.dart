@@ -21,7 +21,7 @@ export 'widget_home_ordersearch.dart';
 export 'widget_home_search.dart';
 export 'widget_home_tracking.dart';
 export 'widget_home.dart';
-export 'widget_order_deliveried.dart';
+export 'widget_order_content.dart';
 export 'widget_order_feedback.dart';
 export 'widget_order_recording.dart';
 export 'widget_settings_language.dart';

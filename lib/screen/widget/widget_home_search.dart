@@ -17,6 +17,7 @@ class HomeSearchFields extends StatelessWidget {
     this.onPickupChanged,
     this.onPickupMapPressed,
     this.pickupFocusNode,
+    this.onSwitch,
     this.onTap,
   });
 
@@ -32,14 +33,21 @@ class HomeSearchFields extends StatelessWidget {
   final FocusNode? deliveryFocusNode;
   final bool deliveryAutoFocus;
 
+  final VoidCallback? onSwitch;
   final VoidCallback? onTap;
 
-  void _onSwichPressed() {
+  void _onSwitchPressed() {
     if (pickupTextController != null && deliveryTextController != null) {
       final deliveryText = deliveryTextController!.text;
       final pickupText = pickupTextController!.text;
       deliveryTextController!.text = pickupText;
       pickupTextController!.text = deliveryText;
+      if (deliveryFocusNode!.hasFocus) {
+        pickupFocusNode!.requestFocus();
+      } else {
+        deliveryFocusNode!.requestFocus();
+      }
+      onSwitch?.call();
     }
   }
 
@@ -158,7 +166,7 @@ class HomeSearchFields extends StatelessWidget {
                 bottom: 0.0,
                 child: Center(
                   child: CustomButton(
-                    onPressed: _onSwichPressed,
+                    onPressed: _onSwitchPressed,
                     child: const Icon(
                       CupertinoIcons.arrow_up_arrow_down_circle_fill,
                       color: CupertinoColors.systemGrey,
