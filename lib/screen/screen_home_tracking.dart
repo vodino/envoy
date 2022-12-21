@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:maplibre_gl/mapbox_gl.dart';
 
 import '_screen.dart';
 
@@ -47,6 +48,22 @@ class _HomeTrackingScreenState extends State<HomeTrackingScreen> {
     _orderService.handle(SubscribeToOrder(id: widget.order.id!));
   }
 
+  /// RouteService
+  late final RouteService _routeService;
+
+  void _getRoute() {
+    _routeService.handle(GetRoute(
+      destination: LatLng(
+        widget.order.deliveryPlace!.latitude!,
+        widget.order.deliveryPlace!.longitude!,
+      ),
+      source: LatLng(
+        widget.order.pickupPlace!.latitude!,
+        widget.order.pickupPlace!.longitude!,
+      ),
+    ));
+  }
+
   @override
   void initState() {
     super.initState();
@@ -55,6 +72,10 @@ class _HomeTrackingScreenState extends State<HomeTrackingScreen> {
     _orderService = OrderService();
     _orderItem = widget.order;
     _subscribeToOrder();
+
+    /// RouteService
+    _routeService = RouteService.instance();
+    _getRoute();
   }
 
   @override

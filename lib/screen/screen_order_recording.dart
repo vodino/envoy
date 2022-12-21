@@ -35,7 +35,7 @@ class _OrderRecordingScreenState extends State<OrderRecordingScreen> {
     _indexController = ValueNotifier(0);
 
     /// OrderService
-    _orderService = OrderService();
+    _orderService = OrderService.instance();
     if (_orderService.value is! OrderItemListState) WidgetsBinding.instance.addPostFrameCallback((timeStamp) => _getOrderList(true));
   }
 
@@ -92,11 +92,16 @@ class _OrderRecordingScreenState extends State<OrderRecordingScreen> {
                       ),
                       SliverVisibility(
                         visible: index == 0 && inProgressItems.isEmpty && scheduledItems.isEmpty,
-                        sliver: const SliverFillRemaining(
-                          hasScrollBody: false,
-                          child: Center(
-                            child: Text("Vous n'avez pas de commandes actives"),
-                          ),
+                        sliver: MultiSliver(
+                          children: const [
+                            SliverPinnedHeader(child: Divider()),
+                            SliverFillRemaining(
+                              hasScrollBody: false,
+                              child: Center(
+                                child: Text("Vous n'avez pas de commandes actives"),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       SliverVisibility(
@@ -160,7 +165,12 @@ class _OrderRecordingScreenState extends State<OrderRecordingScreen> {
                                 ),
                               ),
                             ),
-                            const SliverPinnedHeader(child: Divider()),
+                            SliverPinnedHeader.builder((context, overlap) {
+                              return Visibility(
+                                visible: overlap,
+                                child: const Divider(),
+                              );
+                            }),
                             SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) {

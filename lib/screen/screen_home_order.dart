@@ -175,18 +175,18 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
     super.initState();
 
     /// Customer
-    _amountPayByCourierController = ValueNotifier(null);
-    _scheduledDateController = ValueNotifier(null);
-    _pickupAdditionalInfoTextController = TextEditingController();
-    _deliveryAdditionalInfoTextController = TextEditingController();
-    _titleTextController = TextEditingController();
+    _amountPayByCourierController = ValueNotifier(widget.order.amountPaidedByRider?.toString());
+    _scheduledDateController = ValueNotifier(widget.order.scheduledDate);
+    _pickupAdditionalInfoTextController = TextEditingController(text: widget.order.pickupAdditionalInfo);
+    _deliveryAdditionalInfoTextController = TextEditingController(text: widget.order.deliveryAdditionalInfo);
+    _titleTextController = TextEditingController(text: widget.order.name);
     _orderController = ValueNotifier(widget.order);
 
     _riderTypeController = ValueNotifier(RiderType.motorbike);
 
     /// ContactService
-    _pickupContactController = ValueNotifier(null);
-    _deliveryContactController = ValueNotifier(null);
+    _pickupContactController = ValueNotifier(widget.order.pickupPhoneNumber);
+    _deliveryContactController = ValueNotifier(widget.order.deliveryPhoneNumber);
 
     /// RiderService
     _riderService = RiderService();
@@ -206,8 +206,8 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
           children: [
             Expanded(
               child: CustomScrollView(
-                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 controller: ModalScrollController.of(context),
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 slivers: [
                   SliverToBoxAdapter(
                     child: HomeOrderPlaceListTile(

@@ -59,7 +59,6 @@ class _HomeFinderScreenState extends State<HomeFinderScreen> {
 
   void _pushMessage([int index = 0]) async {
     final riders = widget.order.onlineRiders!;
-    print(riders);
     if (riders.isNotEmpty && index < riders.length) {
       final rider = riders.elementAt(index);
       await _messagingService.handle(PushMessage(

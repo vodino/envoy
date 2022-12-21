@@ -21,6 +21,18 @@ class _OrderContentScreenState extends State<OrderContentScreen> {
   /// Customer
   late double _height;
 
+  void _openOrderCreateSheet(Order order) async {
+    Navigator.pushAndRemoveUntil(
+      context,
+      CupertinoPageRoute(builder: (context) {
+        return HomeScreen(
+          order: order,
+        );
+      }),
+      (route) => true,
+    );
+  }
+
   /// MapLibre
   MaplibreMapController? _mapController;
 
@@ -213,8 +225,8 @@ class _OrderContentScreenState extends State<OrderContentScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: CupertinoButton.filled(
-                  onPressed: () {},
                   padding: EdgeInsets.zero,
+                  onPressed: () => _openOrderCreateSheet(widget.order),
                   child: const Text('Commander à nouveau'),
                 ),
               ),

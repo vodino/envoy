@@ -75,7 +75,10 @@ class _HomeDeliveryScreenState extends State<HomeDeliveryScreen> {
                                 child: const Icon(Icons.motorcycle),
                               ),
                               subtitle: Text('De ${item.pickupPlace?.title} à ${item.deliveryPlace?.title}'),
-                              trailing: Text('${item.price} F'),
+                              trailing: Text(
+                                '${item.price} F',
+                                style: context.cupertinoTheme.textTheme.navTitleTextStyle,
+                              ),
                               title: Text(item.name ?? ''),
                               onTap: () {
                                 widget.popController.value = item;

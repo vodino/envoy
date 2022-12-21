@@ -65,13 +65,23 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
     }
   }
 
-  void _openOrdersSheet(BuildContext context) async {
-    Navigator.push(
-      context,
-      CupertinoPageRoute(builder: (context) {
-        return const HomeOrderSearchScreen();
-      }),
-    );
+  void _openOrdersSheet(BuildContext context, {bool close = false}) async {
+    if (ClientService.authenticated != null) {
+      Navigator.push(
+        context,
+        CupertinoPageRoute(builder: (context) {
+          return const HomeOrderSearchScreen();
+        }),
+      );
+    } else if (!close) {
+      await Navigator.push(
+        context,
+        CupertinoPageRoute(builder: (context) {
+          return const AuthScreen();
+        }),
+      );
+      if (mounted) _openOrdersSheet(context, close: true);
+    }
   }
 
   /// Input

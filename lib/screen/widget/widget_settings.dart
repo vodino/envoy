@@ -34,7 +34,7 @@ class SettingsLogoutModal extends StatelessWidget {
       actions: [
         CupertinoDialogAction(
           onPressed: onDeleted,
-          child: const Text('Supprimer mon compte'),
+          child: const Text('Supprimer definitivement mon compte'),
         ),
         CupertinoDialogAction(
           onPressed: onLogout,
@@ -70,12 +70,12 @@ class SettingsDeleteModal extends StatelessWidget {
       ),
       actions: [
         CupertinoDialogAction(
-          onPressed: onDeleted,
+          onPressed: onCancelled,
           isDefaultAction: true,
           child: const Text('Annuler'),
         ),
         CupertinoDialogAction(
-          onPressed: onCancelled,
+          onPressed: onDeleted,
           isDefaultAction: true,
           isDestructiveAction: true,
           child: const Text('Supprimer'),

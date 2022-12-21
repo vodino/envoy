@@ -11,10 +11,15 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import '_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({
+    super.key,
+    this.order,
+  });
 
   static const String path = '/';
   static const String name = 'home';
+
+  final Order? order;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -32,7 +37,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _afterLayout(BuildContext context) {
     _context = context;
-    _openHomeSearch();
+    if (widget.order != null) {
+      _openOrderCreateSheet(widget.order!);
+    } else {
+      _openHomeSearch();
+    }
+  }
+
+  void _openOrderCreateSheet(Order order) async {
+    final result = await showCupertinoModalBottomSheet<Order>(
+      context: context,
+      builder: (context) {
+        return HomeOrderCreateScreen(order: order);
+      },
+    );
+    if (result != null && mounted) {
+      _openHomeFinder(result);
+    } else {
+      _openHomeSearch();
+    }
   }
 
   void _openOrderFeedback(Order order) {
@@ -45,7 +68,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _openHomeOrderList() async {
-    _clearMap();
+    await _clearMap();
+
     final popController = ValueNotifier<Order?>(null);
     final controller = showBottomSheet(
       context: _context,
@@ -108,7 +132,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _openHomeSearch() async {
-    _clearMap();
+    await _clearMap();
+
     final popController = ValueNotifier<Order?>(null);
     final controller = showBottomSheet(
       context: _context,
@@ -177,8 +202,10 @@ class _HomeScreenState extends State<HomeScreen> {
       _drawIcon(path: Assets.images.mappinBlue.path, position: route.coordinates!.last);
       _drawIcon(path: Assets.images.mappinOrange.path, position: route.coordinates!.first);
       _mapController!.addLine(options.copyWith(LineOptions(geometry: route.coordinates)));
-      final bottom = _height * 0.55;
-      _mapController!.animateCamera(CameraUpdate.newLatLngBounds(route.bounds!, bottom: bottom));
+      // final bottom = _height * 0.55;
+      _mapController!.animateCamera(CameraUpdate.newLatLngBounds(route.bounds!)
+          // ,bottom: bottom
+          );
     }
   }
 
@@ -227,30 +254,28 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// OrderService
   late final OrderService _orderService;
-  late final OrderService _orderFeedbackService;
-
-  void _getOrderFeedbackList() {
-    _orderFeedbackService.handle(const GetOrderList(
-      equalStatus: OrderStatus.delivered,
-      fireImmediately: false,
-      isNullStatus: false,
-      subscription: true,
-    ));
-  }
 
   void _getOrderList() {
-    _orderService.handle(const GetOrderList(
+    _orderService.handle(const QueryOrderList(
       notEqualStatus: OrderStatus.delivered,
       isNullStatus: false,
       subscription: true,
     ));
   }
 
-  void _listenOrderState(BuildContext context, OrderState state) {}
-
-  void _listenOrderFeedbackState(BuildContext context, OrderState state) {
+  void _listenOrderState(BuildContext context, OrderState state) {
     if (state is OrderItemListState) {
-      _openOrderFeedback(state.data.first);
+      // final data = state.data;
+      // if (data.isNotEmpty) _openOrderFeedback(data.first);
+    }
+  }
+
+  /// ClientService
+  late final ClientService _clientService;
+
+  void _listenClientState(BuildContext context, ClientState state) {
+    if (state is ClientItemState) {
+      _getOrderList();
     }
   }
 
@@ -268,11 +293,12 @@ class _HomeScreenState extends State<HomeScreen> {
     /// RouteService
     _routeService = RouteService.instance();
 
+    /// ClientService
+    _clientService = ClientService.instance();
+
     /// OrderService
     _orderService = OrderService();
-    _orderFeedbackService = OrderService();
     _getOrderList();
-    _getOrderFeedbackList();
   }
 
   @override
@@ -290,73 +316,77 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableListener(
-      listener: _listenOrderFeedbackState,
-      valueListenable: _orderFeedbackService,
-      child: ValueListenableListener<RouteState>(
-        listener: _listenRouteState,
-        valueListenable: _routeService,
-        child: Scaffold(
-          extendBody: true,
-          appBar: const HomeAppBar(),
-          drawer: const HomeDrawer(),
-          extendBodyBehindAppBar: true,
-          resizeToAvoidBottomInset: false,
-          floatingActionButton: Padding(
-            padding: const EdgeInsets.only(left: 32.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ValueListenableConsumer<OrderState>(
-                  listener: _listenOrderState,
-                  valueListenable: _orderService,
-                  builder: (context, state, child) {
-                    List<Order>? items;
-                    if (state is OrderItemListState) items = state.data;
-                    return Visibility(
-                      visible: items != null && items.isNotEmpty,
-                      child: HomeFloatingActionButton(
-                        onPressed: _openHomeOrderList,
-                        child: Builder(builder: (context) {
-                          return Badge(
-                            badgeContent: Text(
-                              items!.length.toString(),
-                              style: const TextStyle(color: CupertinoColors.white),
-                            ),
-                            child: const Icon(CupertinoIcons.cube_box_fill),
-                          );
-                        }),
-                      ),
-                    );
-                  },
-                ),
-                HomeFloatingActionButton(
-                  onPressed: _trailingFloatingActionPressed,
-                  child: ValueListenableBuilder<bool>(
-                    valueListenable: _myPositionFocus,
-                    builder: (context, visible, child) {
+    return ValueListenableListener<ClientState>(
+      listener: _listenClientState,
+      valueListenable: _clientService,
+      child: ValueListenableListener(
+        listener: _listenOrderState,
+        valueListenable: _orderService,
+        child: ValueListenableListener<RouteState>(
+          listener: _listenRouteState,
+          valueListenable: _routeService,
+          child: Scaffold(
+            extendBody: true,
+            appBar: const HomeAppBar(),
+            drawer: const HomeDrawer(),
+            extendBodyBehindAppBar: true,
+            resizeToAvoidBottomInset: false,
+            floatingActionButton: Padding(
+              padding: const EdgeInsets.only(left: 32.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ValueListenableConsumer<OrderState>(
+                    listener: _listenOrderState,
+                    valueListenable: _orderService,
+                    builder: (context, state, child) {
+                      List<Order>? items;
+                      if (state is OrderItemListState) items = state.data.where((item) => item.status != null && item.status != OrderStatus.delivered).toList();
                       return Visibility(
-                        visible: visible,
-                        replacement: const Icon(CupertinoIcons.location),
-                        child: const Icon(CupertinoIcons.location_fill),
+                        visible: items != null && items.isNotEmpty,
+                        child: HomeFloatingActionButton(
+                          onPressed: _openHomeOrderList,
+                          child: Builder(builder: (context) {
+                            return Badge(
+                              badgeContent: Text(
+                                items!.length.toString(),
+                                style: const TextStyle(color: CupertinoColors.white),
+                              ),
+                              child: const Icon(CupertinoIcons.cube_box_fill),
+                            );
+                          }),
+                        ),
                       );
                     },
                   ),
-                ),
-              ],
+                  HomeFloatingActionButton(
+                    onPressed: _trailingFloatingActionPressed,
+                    child: ValueListenableBuilder<bool>(
+                      valueListenable: _myPositionFocus,
+                      builder: (context, visible, child) {
+                        return Visibility(
+                          visible: visible,
+                          replacement: const Icon(CupertinoIcons.location),
+                          child: const Icon(CupertinoIcons.location_fill),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          body: ValueListenableListener(
-            initiated: true,
-            listener: _listenLocationState,
-            valueListenable: _locationService,
-            child: AfterLayout(
-              listener: _afterLayout,
-              child: Listener(
-                onPointerMove: _onCameraIdle,
-                child: HomeMap(
-                  onMapCreated: _onMapCreated,
-                  onUserLocationUpdated: _onUserLocationUpdated,
+            body: ValueListenableListener(
+              initiated: true,
+              listener: _listenLocationState,
+              valueListenable: _locationService,
+              child: AfterLayout(
+                listener: _afterLayout,
+                child: Listener(
+                  onPointerMove: _onCameraIdle,
+                  child: HomeMap(
+                    onMapCreated: _onMapCreated,
+                    onUserLocationUpdated: _onUserLocationUpdated,
+                  ),
                 ),
               ),
             ),

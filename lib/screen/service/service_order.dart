@@ -27,87 +27,6 @@ abstract class OrderEvent {
   Future<void> _execute(OrderService service);
 }
 
-class QueryOrderList extends OrderEvent {
-  const QueryOrderList();
-
-  String get _url => '${RepositoryService.httpURL}/v1/api/client/deliveries';
-
-  @override
-  Future<void> _execute(OrderService service) async {
-    final client = ClientService.authenticated!;
-    final token = client.accessToken;
-    try {
-      final response = await Dio().getUri<String>(
-        Uri.parse(_url),
-        options: Options(headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        }),
-      );
-      switch (response.statusCode) {
-        case 200:
-          final data = await compute(Order.fromFirebaseListJson, response.data!);
-          await OrderService().handle(PutOrderList(data: data));
-          service.value = OrderItemListState(data: data);
-          break;
-        default:
-          service.value = FailureOrderState(
-            message: 'internal error',
-            event: this,
-          );
-      }
-    } catch (error) {
-      service.value = FailureOrderState(
-        message: error.toString(),
-        event: this,
-      );
-    }
-  }
-}
-
-class QueryOrder extends OrderEvent {
-  const QueryOrder({required this.id});
-
-  final int id;
-
-  String get _url => '${RepositoryService.httpURL}/v1/api/client/deliveries/$id';
-
-  @override
-  Future<void> _execute(OrderService service) async {
-    final client = ClientService.authenticated!;
-    final token = client.accessToken;
-    service.value = const PendingOrderState();
-    try {
-      final response = await Dio().getUri<String>(
-        Uri.parse(_url),
-        options: Options(headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        }),
-      );
-      switch (response.statusCode) {
-        case 200:
-          final data = await compute(Order.fromOtherServerJson, response.data!);
-          await OrderService().handle(PutOrderList(data: [data]));
-          service.value = OrderItemState(data: data);
-          break;
-        default:
-          service.value = FailureOrderState(
-            message: 'internal error',
-            event: this,
-          );
-      }
-    } catch (error) {
-      service.value = FailureOrderState(
-        message: error.toString(),
-        event: this,
-      );
-    }
-  }
-}
-
 class CreateOrder extends OrderEvent {
   const CreateOrder({
     required this.order,
@@ -174,8 +93,6 @@ class CreateOrder extends OrderEvent {
           );
       }
     } catch (error) {
-      if (error is DioError) print(error.response?.data);
-      print(error);
       service.value = FailureOrderState(
         message: error.toString(),
         event: this,
@@ -221,6 +138,48 @@ class SubscribeToOrder extends OrderEvent {
   }
 }
 
+class QueryOrder extends OrderEvent {
+  const QueryOrder({required this.id});
+
+  final int id;
+
+  String get _url => '${RepositoryService.httpURL}/v1/api/client/deliveries/$id';
+
+  @override
+  Future<void> _execute(OrderService service) async {
+    service.value = const PendingOrderState();
+    try {
+    final client = ClientService.authenticated!;
+    final token = client.accessToken;
+      final response = await Dio().getUri<String>(
+        Uri.parse(_url),
+        options: Options(headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        }),
+      );
+      switch (response.statusCode) {
+        case 200:
+          final data = await compute(Order.fromOtherServerJson, response.data!);
+          await OrderService().handle(PutOrderList(data: [data]));
+          service.value = OrderItemState(data: data);
+          break;
+        default:
+          service.value = FailureOrderState(
+            message: 'internal error',
+            event: this,
+          );
+      }
+    } catch (error) {
+      service.value = FailureOrderState(
+        message: error.toString(),
+        event: this,
+      );
+    }
+  }
+}
+
 class GetOrder extends OrderEvent {
   const GetOrder({
     required this.id,
@@ -251,47 +210,133 @@ class GetOrder extends OrderEvent {
   }
 }
 
-class GetOrderList extends OrderEvent {
-  const GetOrderList({
-    this.subscription = false,
+class QueryOrderList extends OrderEvent {
+  const QueryOrderList({
+    this.search,
     this.limit = 30,
     this.offset = 0,
-    this.isNullStatus = false,
+    this.isNullStatus,
     this.equalStatus,
     this.notEqualStatus,
-    this.sort = Sort.desc,
+    this.subscription = false,
     this.fireImmediately = true,
   });
 
-  final Sort sort;
   final int limit;
   final int offset;
-  final bool isNullStatus;
+  final String? search;
+  final bool? isNullStatus;
   final bool fireImmediately;
   final OrderStatus? equalStatus;
   final OrderStatus? notEqualStatus;
+  final bool subscription;
 
+  String get _url => '${RepositoryService.httpURL}/v1/api/client/deliveries';
+
+  @override
+  Future<void> _execute(OrderService service) async {
+    try {
+      final client = ClientService.authenticated!;
+      final token = client.accessToken;
+      final response = await Dio().getUri<String>(
+        Uri.parse(_url),
+        options: Options(headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        }),
+      );
+      switch (response.statusCode) {
+        case 200:
+          final data = await compute(Order.fromFirebaseListJson, response.data!);
+          await OrderService().handle(PutOrderList(data: data));
+          service.handle(GetOrderList(
+            limit: limit,
+            offset: offset,
+            search: search,
+            equalStatus: equalStatus,
+            isNullStatus: isNullStatus,
+            subscription: subscription,
+            notEqualStatus: notEqualStatus,
+            fireImmediately: fireImmediately,
+          ));
+          break;
+        default:
+          service.value = FailureOrderState(
+            message: 'internal error',
+            event: this,
+          );
+      }
+    } catch (error) {
+      service.value = FailureOrderState(
+        message: error.toString(),
+        event: this,
+      );
+    }
+  }
+}
+
+class GetOrderList extends OrderEvent {
+  const GetOrderList({
+    this.search,
+    this.limit = 30,
+    this.offset = 0,
+    this.isNullStatus,
+    this.equalStatus,
+    this.notEqualStatus,
+    this.subscription = false,
+    this.fireImmediately = true,
+  });
+
+  final int limit;
+  final int offset;
+  final String? search;
+  final bool? isNullStatus;
+  final bool fireImmediately;
+  final OrderStatus? equalStatus;
+  final OrderStatus? notEqualStatus;
   final bool subscription;
 
   @override
   Future<void> _execute(OrderService service) async {
     service.value = const PendingOrderState();
     try {
-      var query = IsarService.isar.orders.where(sort: sort).filter().idIsNotNull();
-      if (isNullStatus) {
-        query = query.statusIsNull();
-      } else {
-        query = query.statusIsNotNull();
+      var query = IsarService.isar.orders.filter().idIsNotNull();
+      if (isNullStatus != null) {
+        if (isNullStatus!) {
+          query = query.statusIsNull();
+        } else {
+          query = query.statusIsNotNull();
+        }
       }
       if (equalStatus != null) query = query.statusEqualTo(equalStatus);
       if (notEqualStatus != null) query = query.not().statusEqualTo(notEqualStatus);
 
+      if (search != null) {
+        query = query
+            .priceEqualTo(double.tryParse(search!))
+            .or()
+            .nameContains(search!, caseSensitive: false)
+            .or()
+            .pickupAdditionalInfoContains(search!, caseSensitive: false)
+            .or()
+            .deliveryAdditionalInfoContains(search!, caseSensitive: false)
+            .or()
+            .pickupPlace((q) => q.titleContains(search!, caseSensitive: false))
+            .or()
+            .deliveryPlace((q) => q.titleContains(search!, caseSensitive: false))
+            .or()
+            .pickupPhoneNumber((q) => q.nameContains(search!, caseSensitive: false).or().phonesElementContains(search!))
+            .or()
+            .deliveryPhoneNumber((q) => q.nameContains(search!, caseSensitive: false).or().phonesElementContains(search!));
+      }
+
       if (subscription) {
-        query.offset(offset).limit(limit).watch(fireImmediately: fireImmediately).listen((data) {
+        query.sortByUpdatedAt().offset(offset).limit(limit).watch(fireImmediately: fireImmediately).listen((data) {
           service.value = OrderItemListState(data: data);
         });
       } else {
-        final data = await query.offset(offset).limit(limit).findAll();
+        final data = await query.sortByUpdatedAt().offset(offset).limit(limit).findAll();
         service.value = OrderItemListState(data: data);
       }
     } catch (error) {

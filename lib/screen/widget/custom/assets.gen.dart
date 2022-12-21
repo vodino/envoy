@@ -27,13 +27,13 @@ class $AssetsImagesGen {
   /// File path: assets/images/car.zip
   String get car => 'assets/images/car.zip';
 
-  /// File path: assets/images/envoy_blue_icon.svg
-  SvgGenImage get envoyBlueIcon =>
-      const SvgGenImage('assets/images/envoy_blue_icon.svg');
+  /// File path: assets/images/envoy_icon.png
+  AssetGenImage get envoyIcon =>
+      const AssetGenImage('assets/images/envoy_icon.png');
 
-  /// File path: assets/images/envoy_icon.svg
-  SvgGenImage get envoyIcon =>
-      const SvgGenImage('assets/images/envoy_icon.svg');
+  /// File path: assets/images/envoy_logo.png
+  AssetGenImage get envoyLogo =>
+      const AssetGenImage('assets/images/envoy_logo.png');
 
   /// File path: assets/images/mappin_blue.png
   AssetGenImage get mappinBlue =>
@@ -56,8 +56,8 @@ class $AssetsImagesGen {
   /// List of all assets
   List<dynamic> get values => [
         car,
-        envoyBlueIcon,
         envoyIcon,
+        envoyLogo,
         mappinBlue,
         mappinOrange,
         moneyStack,

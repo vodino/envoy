@@ -26,7 +26,6 @@ class GetContacts extends ContactEvent {
 
   @override
   Future<void> _execute(ContactService service) async {
-    service.value = const PendingContactState();
     try {
       var result = await contacts.FlutterContacts.getContacts(withProperties: true);
       final data = result.map((e) => Contact(name: e.displayName, phones: e.phones.map((e) => e.number).toList())).toList();

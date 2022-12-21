@@ -75,7 +75,13 @@ class Order {
 
   Id? id;
   String? name;
+
+  @Index(type: IndexType.value, caseSensitive: false)
+  List<String> get nameWords => Isar.splitWords(name!);
+
+  @Index()
   double? price;
+
   @Enumerated(EnumType.name)
   OrderStatus? status;
   DateTime? scheduledDate;
@@ -83,19 +89,28 @@ class Order {
   double? amountPaidedByRider;
 
   String? pickupAdditionalInfo;
+  @Index(type: IndexType.value, caseSensitive: false)
+  List<String> get pickupAdditionalInfoWords => Isar.splitWords(pickupAdditionalInfo!);
+
   String? deliveryAdditionalInfo;
+  @Index(type: IndexType.value, caseSensitive: false)
+  List<String> get deliveryAdditionalInfoWords => Isar.splitWords(deliveryAdditionalInfo!);
 
   Place? pickupPlace;
   Place? deliveryPlace;
+
   Contact? pickupPhoneNumber;
   Contact? deliveryPhoneNumber;
 
   @ignore
   List<Client>? onlineRiders;
+
   Client? rider;
   Client? client;
 
+  @Index()
   DateTime? createdAt;
+  @Index()
   DateTime? updatedAt;
 
   Order copyWith({

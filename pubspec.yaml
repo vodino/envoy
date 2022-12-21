@@ -55,6 +55,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons:
+  flutter_native_splash:
   flutter_gen_runner:
   isar_generator: *isar_version
   flutter_lints:
@@ -62,9 +64,17 @@ dev_dependencies:
 
 flutter_gen:
   output: lib/screen/widget/custom/
-
   integrations:
     flutter_svg: true
+
+flutter_icons:
+  ios: true
+  android: true
+  image_path: "assets/images/envoy_logo.png"
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: "assets/images/envoy_icon.png"
 
 flutter:
   uses-material-design: true

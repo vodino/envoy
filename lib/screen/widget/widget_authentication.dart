@@ -21,7 +21,7 @@ class AuthEnvoyIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: 4.5,
-      child: Center(child: Assets.images.envoyIcon.svg()),
+      child: Center(child: Assets.images.envoyIcon.image()),
     );
   }
 }

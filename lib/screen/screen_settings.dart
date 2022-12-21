@@ -47,7 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _openDeleteModal() async {
-    final result = await showDialog<int>(
+    final result = await showDialog<bool>(
       context: context,
       builder: (context) {
         return SettingsDeleteModal(
@@ -68,7 +68,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _listenClientState(BuildContext context, ClientState state) {
     if (state is InitClientState) {
       _instanceClientService.value = state;
-      context.goNamed(HomeScreen.name);
+      context.replaceNamed(HomeScreen.name);
     }
   }
 

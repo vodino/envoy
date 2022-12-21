@@ -1,8 +1,8 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '_screen.dart';
@@ -29,8 +29,19 @@ class _ContactsScreenState extends State<ContactsScreen> {
     }
   }
 
+  void _onSubmitted() {
+    final data = _contactController.value ?? Contact(phones: [_searchTextController.text]);
+    Navigator.pop(context, data);
+  }
+
   /// Input
   late final TextEditingController _searchTextController;
+
+  void _listenSearchTextValue(BuildContext context, TextEditingValue value) {
+    if (value.text.isNotEmpty) {
+      _contactController.value = null;
+    }
+  }
 
   bool _onSearchChanged(String value, Contact contact) {
     if (value.isNotEmpty) {
@@ -43,12 +54,19 @@ class _ContactsScreenState extends State<ContactsScreen> {
   /// ContactService
   late final ValueNotifier<Contact?> _contactController;
   late final ContactService _contactService;
+  late List<Contact> _contactItems;
+  late final Contact _myContact;
 
-  void _getcontacts() {
+  void _getcontacts([bool pending = false]) {
+    if (pending) _contactService.value = const PendingContactState();
     _contactService.handle(const GetContacts());
   }
 
-  void _listenContactState(BuildContext context, ContactState state) {}
+  void _listenContactState(BuildContext context, ContactState state) {
+    if (state is ContactItemListState) {
+      _contactItems = state.data;
+    }
+  }
 
   @override
   void initState() {
@@ -58,13 +76,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
     _searchTextController = TextEditingController();
 
     /// ContactService
-    _contactController = ValueNotifier(widget.contact);
+    _contactItems = List.empty();
     _contactService = ContactService.instance();
-    if (_contactService.value is! ContactItemListState) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (timeStamp) => _getcontacts(),
-      );
-    }
+    _contactController = ValueNotifier(widget.contact);
+    _myContact = Contact(name: 'Moi', phones: [ClientService.authenticated!.phoneNumber!]);
+    if (_contactService.value is! ContactItemListState) WidgetsBinding.instance.addPostFrameCallback((timeStamp) => _getcontacts(true));
   }
 
   @override
@@ -88,11 +104,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
                     ),
                   ),
                   const SliverPinnedHeader(child: Material(child: Divider(thickness: 8.0, height: 12.0))),
-                  ValueListenableBuilder<TextEditingValue>(
+                  ValueListenableConsumer<TextEditingValue>(
+                    listener: _listenSearchTextValue,
                     valueListenable: _searchTextController,
                     builder: (context, textValue, child) {
-                      final item = Contact(name: 'Moi', phones: [ClientService.authenticated!.phoneNumber!]);
-                      final contains = _onSearchChanged(textValue.text, item);
+                      final contains = _onSearchChanged(textValue.text, _myContact);
                       return ValueListenableBuilder<Contact?>(
                         valueListenable: _contactController,
                         builder: (context, contactValue, child) {
@@ -103,10 +119,10 @@ class _ContactsScreenState extends State<ContactsScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   CustomCheckListTile(
-                                    subtitle: Text(item.phones!.join(', ')),
-                                    onChanged: (value) => _onContactChanged(value, item),
-                                    value: listEquals(contactValue?.phones, item.phones),
-                                    title: Text(item.name!),
+                                    subtitle: Text(_myContact.phones!.join(', ')),
+                                    onChanged: (value) => _onContactChanged(value, _myContact),
+                                    value: listEquals(contactValue?.phones, _myContact.phones),
+                                    title: Text(_myContact.name!),
                                   ),
                                   const Divider(thickness: 8.0, height: 12.0)
                                 ],
@@ -121,11 +137,14 @@ class _ContactsScreenState extends State<ContactsScreen> {
                     valueListenable: _searchTextController,
                     builder: (context, textValue, child) {
                       return ValueListenableConsumer<ContactState>(
+                        initiated: true,
                         listener: _listenContactState,
                         valueListenable: _contactService,
                         builder: (context, state, child) {
-                          if (state is ContactItemListState) {
-                            List<Contact> items = state.data.where((element) => _onSearchChanged(textValue.text, element)).toList();
+                          if (state is PendingContactState) {
+                            return const SliverFillRemaining(child: ContactsShimmer());
+                          } else if (state is ContactItemListState) {
+                            List<Contact> items = _contactItems.where((element) => _onSearchChanged(textValue.text, element)).toList();
                             return ValueListenableBuilder<Contact?>(
                               valueListenable: _contactController,
                               builder: (context, contactValue, child) {
@@ -136,10 +155,10 @@ class _ContactsScreenState extends State<ContactsScreen> {
                                         index ~/= 2;
                                         final item = items[index];
                                         return CustomCheckListTile(
-                                          title: Text(item.name!),
                                           value: listEquals(contactValue?.phones, item.phones),
                                           onChanged: (value) => _onContactChanged(value, item),
                                           subtitle: Text(item.phones!.join(', ')),
+                                          title: Text(item.name!),
                                         );
                                       }
                                       return const Divider();
@@ -150,7 +169,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
                               },
                             );
                           }
-                          return const SliverToBoxAdapter();
+                          return SliverFillRemaining(hasScrollBody: false, child: CustomErrorPage(onTap: () => _getcontacts(true)));
                         },
                       );
                     },
@@ -161,11 +180,28 @@ class _ContactsScreenState extends State<ContactsScreen> {
             const Divider(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: CupertinoButton.filled(
-                child: const Text('Valider'),
-                onPressed: () {
-                  final data = _contactController.value;
-                  Navigator.pop(context, data);
+              child: ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _searchTextController,
+                builder: (context, textValue, child) {
+                  bool active = false;
+                  if (textValue.text.isNotEmpty) {
+                    final phone = textValue.text.contains(RegExp(r'^[0-9]{6,14}'));
+                    List<Contact> items = List.from(_contactItems)..add(_myContact);
+                    items = items.where((element) => _onSearchChanged(textValue.text, element)).toList();
+                    active = items.isEmpty && phone;
+                  }
+                  return ValueListenableBuilder<Contact?>(
+                    valueListenable: _contactController,
+                    builder: (context, value, child) {
+                      VoidCallback? onPressed = _onSubmitted;
+                      if (value == null && !active) onPressed = null;
+                      final style = TextStyle(color: onPressed == null ? CupertinoColors.systemGrey2 : null);
+                      return CupertinoButton.filled(
+                        onPressed: onPressed,
+                        child: Text('Valider', style: style),
+                      );
+                    },
+                  );
                 },
               ),
             ),

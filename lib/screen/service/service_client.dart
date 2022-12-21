@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
 import '_service.dart';
@@ -77,8 +78,6 @@ class LoginClient extends ClientEvent {
           token: token,
         );
       } else {
-        if (error is DioError) print(error.response?.data);
-        print(error);
         service.value = FailureClientState(
           message: error.toString(),
           event: this,
@@ -95,10 +94,13 @@ class LogoutClient extends ClientEvent {
   Future<void> _execute(ClientService service) async {
     service.value = const PendingClientState();
     try {
-      await Future.wait([
-        IsarService.isar.clear(),
-        HiveService.settingsBox.clear(),
-      ]);
+      await IsarService.isar.writeTxn(() {
+        return Future.wait([
+          IsarService.isar.clear(),
+          HiveService.settingsBox.clear(),
+          FirebaseAuth.instance.signOut(),
+        ]);
+      });
       service.value = const InitClientState();
     } catch (error) {
       service.value = FailureClientState(
@@ -158,7 +160,7 @@ class RegisterClient extends ClientEvent {
   final String fullName;
   final String token;
 
-  String get url => '${RepositoryService.httpURL}/v1/api/client/register';
+  String get _url => '${RepositoryService.httpURL}/v1/api/client/register';
 
   @override
   Future<void> _execute(ClientService service) async {
@@ -166,20 +168,17 @@ class RegisterClient extends ClientEvent {
     try {
       final body = {'phone_number': phoneNumber, 'firebase_token': token, 'full_name': fullName};
       final response = await Dio().postUri<String>(
-        Uri.parse(url),
+        Uri.parse(_url),
         data: jsonEncode(body),
         options: Options(headers: {
-          'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
         }),
       );
       switch (response.statusCode) {
         case 200:
-          print(response.data!);
           final data = await compute(Client.fromServerJson, response.data!);
-          print(data);
           await service.handle(PutClient(client: data));
-          print(service.value);
           break;
         default:
           service.value = FailureClientState(
@@ -188,8 +187,56 @@ class RegisterClient extends ClientEvent {
           );
       }
     } catch (error) {
-      if (error is DioError) print(error.response?.data);
-      print(error);
+      service.value = FailureClientState(
+        message: error.toString(),
+        event: this,
+      );
+    }
+  }
+}
+
+class UpdateClient extends ClientEvent {
+  const UpdateClient({
+    this.phoneNumber,
+    this.fullName,
+  });
+
+  final String? phoneNumber;
+  final String? fullName;
+
+  String get _url => '${RepositoryService.httpURL}/v1/api/client/update';
+
+  @override
+  Future<void> _execute(ClientService service) async {
+    service.value = const PendingClientState();
+    try {
+      final client = ClientService.authenticated!;
+      final token = client.accessToken;
+      final body = {
+        'full_name': fullName,
+        'phone_number': phoneNumber,
+      }..removeWhere((key, value) => value == null);
+      final response = await Dio().postUri<String>(
+        Uri.parse(_url),
+        data: jsonEncode(body),
+        options: Options(headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        }),
+      );
+      switch (response.statusCode) {
+        case 200:
+          final data = await compute(Client.fromServerJson, response.data!);
+          await service.handle(PutClient(client: data.copyWith(accessToken: token)));
+          break;
+        default:
+          service.value = FailureClientState(
+            message: response.data!,
+            event: this,
+          );
+      }
+    } catch (error) {
       service.value = FailureClientState(
         message: error.toString(),
         event: this,

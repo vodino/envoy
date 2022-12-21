@@ -9,7 +9,7 @@ class SettingsLanguageAppBar extends DefaultAppBar {
   Widget build(BuildContext context) {
     final localizations = context.localizations;
     return CupertinoNavigationBar(
-      middle: Text(localizations.selectlanguage),
+      middle: Text(localizations.selectlanguage.capitalize()),
       transitionBetweenRoutes: false,
     );
   }

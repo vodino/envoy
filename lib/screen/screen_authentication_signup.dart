@@ -46,8 +46,11 @@ class _AuthSignupScreenState extends State<AuthSignupScreen> {
   }
 
   void _listenClientService(BuildContext context, ClientState state) {
-    print(state);
-    if (state is FailureClientState) {
+    if (state is ClientItemState) {
+      Navigator.popUntil(context, (route) {
+        return route is! CupertinoPageRoute;
+      });
+    } else if (state is FailureClientState) {
       _errorController.value = state.message;
     }
   }

@@ -8,6 +8,8 @@ export 'internal_repository.dart';
 
 export 'service_auth_state.dart';
 export 'service_auth.dart';
+export 'service_business_state.dart';
+export 'service_business.dart';
 export 'service_client_state.dart';
 export 'service_client.dart';
 export 'service_contact_state.dart';
@@ -28,3 +30,5 @@ export 'service_rider_state.dart';
 export 'service_rider.dart';
 export 'service_route_state.dart';
 export 'service_route.dart';
+export 'service_rubric_state.dart';
+export 'service_rubric.dart';

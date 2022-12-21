@@ -42,12 +42,14 @@ class CustomTextField extends StatelessWidget {
     this.enabled,
     this.label,
     this.onTap,
+    this.onFieldSubmitted,
     this.keyboardType,
     this.expands = false,
     this.readOnly = false,
     this.alignLabelWithHint,
     this.autofocus = false,
     this.textAlign = TextAlign.start,
+    this.margin = const EdgeInsets.symmetric(horizontal: 12.0),
   });
 
   final String? initalValue;
@@ -65,16 +67,19 @@ class CustomTextField extends StatelessWidget {
   final bool? alignLabelWithHint;
 
   final VoidCallback? onTap;
+  final ValueChanged<String>? onFieldSubmitted;
 
   final TextEditingController? controller;
   final FocusNode? focusNode;
   final TextAlign textAlign;
   final TextInputType? keyboardType;
 
+  final EdgeInsetsGeometry margin;
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12.0),
+      margin: margin,
       decoration: ShapeDecoration(
         color: CupertinoColors.systemGrey5,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
@@ -92,6 +97,7 @@ class CustomTextField extends StatelessWidget {
         focusNode: focusNode,
         controller: controller,
         initialValue: initalValue,
+        onFieldSubmitted: onFieldSubmitted,
         decoration: InputDecoration(
           label: label,
           isDense: true,
@@ -311,19 +317,28 @@ class CustomCheckListTile extends StatelessWidget {
 }
 
 class CustomErrorPage extends StatelessWidget {
-  const CustomErrorPage({super.key, required this.onTap,});
+  const CustomErrorPage({
+    super.key,
+    required this.onTap,
+  });
 
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
       child: Column(
-        children: const [
-          Text("Une erreur s'est produite"),
-          SizedBox(height: 12.0),
-          Text("Cliquer ici pour réessayer"),
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(CupertinoIcons.clear_circled, size: 60.0, color: CupertinoColors.destructiveRed),
+          const SizedBox(height: 16.0),
+          Text(
+            "Une erreur s'est produite",
+            style: context.cupertinoTheme.textTheme.navTitleTextStyle,
+          ),
+          const SizedBox(height: 8.0),
+          const Text("Cliquer ici pour réessayer"),
         ],
       ),
     );
