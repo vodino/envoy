@@ -2,15 +2,16 @@ import 'package:flutter/cupertino.dart';
 
 import '_widget.dart';
 
-class HomeDeliveryAppBar extends DefaultAppBar {
-  const HomeDeliveryAppBar({super.key});
+class HomeOrderProgressAppBar extends DefaultAppBar {
+  const HomeOrderProgressAppBar({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return CupertinoNavigationBar(
+      middle:  Text("${localizations.pendingorder.capitalize()}..."),
       border: const Border.fromBorderSide(BorderSide.none),
       backgroundColor: context.theme.colorScheme.surface,
-      middle: const Text("Commandes en cours..."),
       automaticallyImplyLeading: false,
       transitionBetweenRoutes: false,
     );

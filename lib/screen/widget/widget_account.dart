@@ -7,9 +7,10 @@ class AccountAppBar extends DefaultAppBar {
 
   @override
   Widget build(BuildContext context) {
-    return const CupertinoNavigationBar(
-      middle: Text('Profil'),
+    final localizations = context.localizations;
+    return CupertinoNavigationBar(
       transitionBetweenRoutes: false,
+      middle: Text(localizations.profile.capitalize()),
     );
   }
 }

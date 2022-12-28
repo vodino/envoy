@@ -10,8 +10,9 @@ class HomeOrderAppBar extends DefaultAppBar {
 
   @override
   Widget build(BuildContext context) {
-    return const CupertinoNavigationBar(
-      middle: Text('Effectuer une commande'),
+    final localizations = context.localizations;
+    return CupertinoNavigationBar(
+      middle: Text(localizations.placeorder.capitalize()),
       transitionBetweenRoutes: false,
     );
   }
@@ -56,11 +57,13 @@ class HomeOrderPlaceListTile extends StatelessWidget {
   const HomeOrderPlaceListTile({
     super.key,
     required this.title,
+    required this.subtitle,
     required this.iconColor,
     this.onTap,
   });
 
   final Widget title;
+  final Widget? subtitle;
   final Color iconColor;
   final VoidCallback? onTap;
 
@@ -69,6 +72,7 @@ class HomeOrderPlaceListTile extends StatelessWidget {
     return CustomListTile(
       trailing: const Icon(CupertinoIcons.map, color: CupertinoColors.systemGrey, size: 20.0),
       leading: Icon(CupertinoIcons.circle, color: iconColor, size: 16.0),
+      subtitle: subtitle,
       title: title,
       onTap: onTap,
     );
@@ -227,18 +231,19 @@ class _HomeOrderDateTimeBottomSheetState extends State<HomeOrderDateTimeBottomSh
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return Column(
       children: [
         CupertinoNavigationBar(
           border: const Border.fromBorderSide(BorderSide.none),
           leading: CustomButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Annuler',
-              style: TextStyle(color: CupertinoColors.destructiveRed),
+            child: Text(
+              localizations.cancel.capitalize(),
+              style: const TextStyle(color: CupertinoColors.destructiveRed),
             ),
           ),
-          middle: const Text('Selectionner une date'),
+          middle: Text(localizations.selectdate.capitalize()),
           trailing: CustomButton(
             onPressed: () {
               if (_dateTime != null) {
@@ -247,9 +252,9 @@ class _HomeOrderDateTimeBottomSheetState extends State<HomeOrderDateTimeBottomSh
                 Navigator.pop(context);
               }
             },
-            child: const Text(
-              'Terminer',
-              style: TextStyle(color: CupertinoColors.activeBlue),
+            child: Text(
+              localizations.finished.capitalize(),
+              style: const TextStyle(color: CupertinoColors.activeBlue),
             ),
           ),
         ),
@@ -295,14 +300,15 @@ class HomeOrderErrorModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return CupertinoAlertDialog(
       content: Column(
         children: [
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 8.0),
             child: Icon(
-              CupertinoIcons.clear_circled_solid,
-              color: CupertinoColors.destructiveRed,
+              CupertinoIcons.lock_shield,
+              color: CupertinoColors.systemGrey,
               size: 60.0,
             ),
           ),
@@ -315,7 +321,7 @@ class HomeOrderErrorModal extends StatelessWidget {
       actions: [
         CupertinoDialogAction(
           isDefaultAction: true,
-          child: const Text('Ok'),
+          child: Text(localizations.ok.capitalize()),
           onPressed: () {
             Navigator.pop(context);
           },

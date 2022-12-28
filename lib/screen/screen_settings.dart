@@ -68,7 +68,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _listenClientState(BuildContext context, ClientState state) {
     if (state is InitClientState) {
       _instanceClientService.value = state;
-      context.replaceNamed(HomeScreen.name);
+      Navigator.pushAndRemoveUntil(
+        context,
+        CupertinoPageRoute(
+          builder: (context) {
+            return const HomeScreen();
+          },
+        ),
+        (route) => true,
+      );
     }
   }
 

@@ -55,7 +55,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
   late final ValueNotifier<Contact?> _contactController;
   late final ContactService _contactService;
   late List<Contact> _contactItems;
-  late final Contact _myContact;
+  late Contact _myContact;
 
   void _getcontacts([bool pending = false]) {
     if (pending) _contactService.value = const PendingContactState();
@@ -79,12 +79,19 @@ class _ContactsScreenState extends State<ContactsScreen> {
     _contactItems = List.empty();
     _contactService = ContactService.instance();
     _contactController = ValueNotifier(widget.contact);
-    _myContact = Contact(name: 'Moi', phones: [ClientService.authenticated!.phoneNumber!]);
     if (_contactService.value is! ContactItemListState) WidgetsBinding.instance.addPostFrameCallback((timeStamp) => _getcontacts(true));
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final localizations = context.localizations;
+    _myContact = Contact(name: localizations.me.capitalize(), phones: [ClientService.authenticated!.phoneNumber!]);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return Scaffold(
       appBar: ContactsAppBar(title: widget.title),
       body: BottomAppBar(
@@ -198,7 +205,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
                       final style = TextStyle(color: onPressed == null ? CupertinoColors.systemGrey2 : null);
                       return CupertinoButton.filled(
                         onPressed: onPressed,
-                        child: Text('Valider', style: style),
+                        padding: EdgeInsets.zero,
+                        child: Text(localizations.finished.capitalize(), style: style),
                       );
                     },
                   );

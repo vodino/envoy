@@ -1,8 +1,9 @@
 {
+    "ok": "ok",
     "wheretodelivery": "où livrer ?",
     "profile": "profil",
-    "orders": "commandes",
-    "discounts": "réductions",
+    "order": "commande",
+    "discount": "réduction",
     "business": "business",
     "faq": "foire aux questions",
     "support": "support",
@@ -16,5 +17,141 @@
     "logout": "deconnexion",
     "hospital": "hopital",
     "airport": "aeroport",
-    "neighbourhood": "quartier"
+    "neighbourhood": "quartier",
+    "fullname": "nom complet",
+    "modifyfullname": "modifier le nom complet",
+    "phonenumber": "numéro de téléphone",
+    "modifyphonenumber": "modifier le numéro de téléphone",
+    "selectcountry": "selectionner un pays",
+    "cancel": "annuler",
+    "finished": "terminé",
+    "fieldcannotbeempty": "ce champ ne peut être vide",
+    "errorhasoccurred": "une erreur s'est produite",
+    "clicktry": "cliquer ici pour réessayer",
+    "accountinfo": "informations du compte",
+    "enteraccountinfo": "saisissez les informations du compte",
+    "authenticatephonenumberbysms": "authentifiez votre numéro de téléphone par sms",
+    "codecheck": "verification de code",
+    "entercodereceivedphonenumber": "entrez le code reçu au numéro de téléphone",
+    "resendcode": "renvoyer le code",
+    "inside": "dans",
+    "dialcode": "indicatif",
+    "acceptthe": "accepter les",
+    "termsofuse": "conditions d'utilisation",
+    "theuseofpersonalinformation": "et l'usage de vos informations personnelles conformes aux",
+    "privacypolicies": "politiques de confidentialité",
+    "phonenumberrequired": "numéro de téléphone est requis",
+    "dialcoderequired": "indicatif est requis",
+    "readandacceptterms": "veuillez lire et accepter les termes du contrat",
+    "receivedrequest": "nous avons bien reçu votre demande et vous répondrons sous peu",
+    "emailorphonenumber": "email ou numéro de téléphone",
+    "request": "requête",
+    "contact": "contact",
+    "message": "message",
+    "send": "envoyer",
+    "selectbusiness": "selectionner un business",
+    "tap": "ecrire",
+    "nameorphonenumber": "nom or phone number",
+    "me": "moi",
+    "discountcoupons": "coupons de réduction",
+    "code": "code",
+    "enterdiscount": "entrer un code de réduction",
+    "deliveries": "livraisons",
+    "expiresdays": "expire dans {count} jours",
+    "@expiresdays": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "percentdiscount": "{percent} de réduction", 
+    "@percentdiscount": {
+        "placeholders": {
+            "percent": {
+                "type": "int",
+                "example": "1.1"
+            }
+        }
+    },
+    "expiresin": "expire le",
+    "discountsuccessfully": "réduction appliquée avec succès",
+    "nodiscountcoupons": "pas de coupons de réduction disponibles",
+    "clickbutton": "cliquez le bouton",
+    "toadd": "pour en ajouter",
+    "waitingcouriers": "en attente de coursiers",
+    "nocouriers": "pas de coursiers disponibles",
+    "tryagain": "réessayer",
+    "amount": "montant",
+    "enteramount": "entrer un montant",
+    "placeorder": "effectuer une commande",
+    "selectdate": "selectionner une date",
+    
+    "ordername": "nom de la commande",
+    "infopickup": "plus info sur la collecte",
+    "contactpickup": "contact pour la collecte",
+    "infodelivery": "plus info sur la livraison",
+    "contactdelivery": "contact pour la livraison",
+    "contactpickuprequired": "contact pour la collecte est requis",
+    "contactdeliveryrequired": "contact pour la livraison est requis",
+
+    "program": "programmer",
+    "purchasecourier": "achat par le coursier",
+    "oopsnocourier": "oops, pas de coursiers disponibles",
+    "toorder": "commander",
+    "onmotorbike": "à moto",
+
+    "createdate": "créée le {date} à {time}", 
+    "@createdate": {
+        "placeholders": {
+            "date": {
+                "type": "String",
+                "example": "2020/02/02"
+            },
+            "time": {
+                "type": "String",
+                "example": "02:20"
+            }
+        }
+    },
+    "moreinfo": "plus d'infos",
+    "deliveryprice": "prix de la livraison",
+    "orderstatus": "niveau de la commande",
+    "acceptedcourier": "acceptée par un coursier",
+    "beingcollected": "en cours de collecte",
+    "beingdelivered": "en cours de livraison",
+    "deliveredcompleted": "livrée et terminée",
+    "courier": "coursier",
+    "orderdetails": "détails de la commande",
+
+    "fromto": "de {from} à {to}", 
+    "@fromto": {
+        "placeholders": {
+            "from": {
+                "type": "String",
+                "example": "2020/02/02"
+            },
+            "to": {
+                "type": "String",
+                "example": "02:20"
+            }
+        }
+    },
+    "close": "fermer",
+    "pendingorder": "commande en cours",
+    "nameplacephonenumber": "nom, lieu ou numéro de téléphone",
+    "pickuppoint": "point de collecte",
+    "deliverypoint": "point de livraison",
+    "currentposition": "position actuelle",
+    "searchprevorders": "rechercher les précedentes commandes",
+    "details": "détails",
+    "trackingorder": "suivi de commande",
+    "activeorder": "commande active",
+    "scheduledorder": "commande programmée",
+    "currentorder": "commande en cours",
+    "completedorder": "commande terminée",
+    "noactiveorder": "vous n'avez pas de commandes actives",
+    "nocompletedorder": "vous n'avez pas de commandes terminées",
+    "systemlanguage": "langage système"
 }

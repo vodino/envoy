@@ -8,9 +8,10 @@ class DiscountAppBar extends DefaultAppBar {
 
   @override
   Widget build(BuildContext context) {
-    return const CupertinoNavigationBar(
+    final localizations = context.localizations;
+    return CupertinoNavigationBar(
       transitionBetweenRoutes: false,
-      middle: Text('Coupons de réduction'),
+      middle: Text(localizations.discountcoupons.capitalize()),
     );
   }
 }
@@ -19,12 +20,12 @@ class DiscountListTile extends StatelessWidget {
   const DiscountListTile({
     super.key,
     this.onTap,
-    required this.title,
+    required this.percent,
     required this.dateTime,
     required this.deliveries,
   });
 
-  final String title;
+  final int percent;
   final int deliveries;
   final DateTime dateTime;
 
@@ -32,6 +33,7 @@ class DiscountListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
       child: CustomListTile(
@@ -46,7 +48,7 @@ class DiscountListTile extends StatelessWidget {
           child: Icon(CupertinoIcons.tag),
         ),
         title: Text(
-          title,
+          localizations.percentdiscount(percent),
           style: context.cupertinoTheme.textTheme.navTitleTextStyle.copyWith(
             color: context.theme.colorScheme.onPrimary,
           ),
@@ -56,8 +58,8 @@ class DiscountListTile extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('${deliveries.toString().padLeft(2, "0")} livraison(s)'),
-              Text('Expire ${dateTime.day} jour(s)'),
+              Text('${deliveries.toString().padLeft(2, "0")} ${localizations.deliveries}'),
+              Text(localizations.expiresdays(dateTime.day)),
             ],
           ),
         ),
@@ -72,53 +74,54 @@ class DiscountCreateModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoAlertDialog(
-      title: const Text('Entrer un code de réduction'),
-      content: Padding(
-        padding: const EdgeInsets.only(top: 20.0),
-        child: Material(
-          color: CupertinoColors.systemFill,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-          child: const TextField(
-            autofocus: true,
-            decoration: InputDecoration(
-              hintText: 'Code',
-              contentPadding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
-            ),
-          ),
-        ),
-      ),
-      actions: [
-        CupertinoDialogAction(
-          isDestructiveAction: true,
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-        CupertinoDialogAction(
-          isDefaultAction: true,
-          child: const Text('Terminer'),
-          onPressed: () {
-            Navigator.pop(context);
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              builder: (context) {
-                return const DiscountBottomSheet();
-              },
-            );
-          },
-        ),
-      ],
+    final localizations = context.localizations;
+    return CustomTextFieldModal(
+      title: localizations.enterdiscount.capitalize(),
+      hint: localizations.code.capitalize(),
     );
   }
 }
 
 class DiscountBottomSheet extends StatelessWidget {
-  const DiscountBottomSheet({super.key});
+  const DiscountBottomSheet({
+    super.key,
+    required this.percent,
+    required this.dateTime,
+    required this.deliveries,
+  });
+
+  final int percent;
+  final int deliveries;
+  final DateTime dateTime;
+
+  Widget _itemWidget({
+    required BuildContext context,
+    required String label,
+    required String value,
+  }) {
+    final theme = context.theme;
+    return Row(
+      textBaseline: TextBaseline.alphabetic,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(width: 100.0, child: Text('$label ')),
+        SizedBox(
+          width: 100.0,
+          child: Text(
+            value,
+            style: theme.textTheme.headline6!.copyWith(
+              color: theme.colorScheme.onPrimary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = context.theme;
+    final localizations = context.localizations;
     return Container(
       color: context.theme.colorScheme.primary,
       padding: EdgeInsets.only(bottom: context.mediaQuery.padding.bottom),
@@ -134,51 +137,60 @@ class DiscountBottomSheet extends StatelessWidget {
                 padding: EdgeInsets.symmetric(vertical: 12.0),
                 child: Icon(CupertinoIcons.check_mark_circled_solid, size: 60.0),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
                 child: Text(
-                  'Code de réduction appliqué avec succès',
-                  style: TextStyle(color: CupertinoColors.systemGrey2),
+                  localizations.discountsuccessfully.capitalize(),
+                  style: const TextStyle(color: CupertinoColors.systemGrey2),
                 ),
               ),
               const SizedBox(height: 16.0),
-              Row(
-                textBaseline: TextBaseline.alphabetic,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(width: 100.0, child: Text('Reduction: ')),
-                  SizedBox(
-                    width: 100.0,
-                    child: Text(
-                      '50%',
-                      style: theme.textTheme.headline6!.copyWith(
-                        color: context.theme.colorScheme.onPrimary,
-                      ),
-                    ),
-                  ),
-                ],
+              _itemWidget(
+                context: context,
+                value: '$percent%',
+                label: localizations.discount.capitalize(),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    const SizedBox(width: 100.0, child: Text('Expire le: ')),
-                    SizedBox(
-                      width: 100.0,
-                      child: Text(
-                        '01/30/22',
-                        style: theme.textTheme.headline6!.copyWith(
-                          color: context.theme.colorScheme.onPrimary,
-                        ),
-                      ),
-                    ),
-                  ],
+                child: _itemWidget(
+                  context: context,
+                  label: localizations.expiresin.capitalize(),
+                  value: '${MaterialLocalizations.of(context).formatCompactDate(dateTime)} à ${TimeOfDay.fromDateTime(dateTime).format(context)}',
                 ),
               ),
+              _itemWidget(
+                context: context,
+                value: '$deliveries',
+                label: localizations.deliveries.capitalize(),
+              ),
+              const SizedBox(height: 12.0),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class DiscountEmptyMessage extends StatelessWidget {
+  const DiscountEmptyMessage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = context.localizations;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Text.rich(
+          TextSpan(
+            text: '${localizations.nodiscountcoupons.capitalize()} .',
+            children: [
+              TextSpan(text: '${localizations.clickbutton} '),
+              const WidgetSpan(child: Icon(CupertinoIcons.add_circled, size: 18.0)),
+              TextSpan(text: ' ${localizations.toadd}.'),
+            ],
+          ),
+          textAlign: TextAlign.center,
         ),
       ),
     );

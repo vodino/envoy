@@ -43,79 +43,64 @@ const OrderSchema = CollectionSchema(
       name: r'deliveryAdditionalInfo',
       type: IsarType.string,
     ),
-    r'deliveryAdditionalInfoWords': PropertySchema(
-      id: 5,
-      name: r'deliveryAdditionalInfoWords',
-      type: IsarType.stringList,
-    ),
     r'deliveryPhoneNumber': PropertySchema(
-      id: 6,
+      id: 5,
       name: r'deliveryPhoneNumber',
       type: IsarType.object,
       target: r'Contact',
     ),
     r'deliveryPlace': PropertySchema(
-      id: 7,
+      id: 6,
       name: r'deliveryPlace',
       type: IsarType.object,
       target: r'Place',
     ),
     r'name': PropertySchema(
-      id: 8,
+      id: 7,
       name: r'name',
       type: IsarType.string,
     ),
-    r'nameWords': PropertySchema(
-      id: 9,
-      name: r'nameWords',
-      type: IsarType.stringList,
-    ),
     r'pickupAdditionalInfo': PropertySchema(
-      id: 10,
+      id: 8,
       name: r'pickupAdditionalInfo',
       type: IsarType.string,
     ),
-    r'pickupAdditionalInfoWords': PropertySchema(
-      id: 11,
-      name: r'pickupAdditionalInfoWords',
-      type: IsarType.stringList,
-    ),
     r'pickupPhoneNumber': PropertySchema(
-      id: 12,
+      id: 9,
       name: r'pickupPhoneNumber',
       type: IsarType.object,
       target: r'Contact',
     ),
     r'pickupPlace': PropertySchema(
-      id: 13,
+      id: 10,
       name: r'pickupPlace',
       type: IsarType.object,
       target: r'Place',
     ),
     r'price': PropertySchema(
-      id: 14,
+      id: 11,
       name: r'price',
       type: IsarType.double,
     ),
     r'rider': PropertySchema(
-      id: 15,
+      id: 12,
       name: r'rider',
       type: IsarType.object,
       target: r'Client',
     ),
     r'scheduledDate': PropertySchema(
-      id: 16,
+      id: 13,
       name: r'scheduledDate',
       type: IsarType.dateTime,
     ),
     r'status': PropertySchema(
-      id: 17,
+      id: 14,
       name: r'status',
       type: IsarType.string,
       enumMap: _OrderstatusEnumValueMap,
     ),
     r'updatedAt': PropertySchema(
-      id: 18,
+      id: 15,
       name: r'updatedAt',
       type: IsarType.dateTime,
     )
@@ -164,45 +149,6 @@ const OrderSchema = CollectionSchema(
           caseSensitive: false,
         )
       ],
-    ),
-    r'nameWords': IndexSchema(
-      id: 8960882405442787957,
-      name: r'nameWords',
-      unique: false,
-      replace: false,
-      properties: [
-        IndexPropertySchema(
-          name: r'nameWords',
-          type: IndexType.value,
-          caseSensitive: false,
-        )
-      ],
-    ),
-    r'pickupAdditionalInfoWords': IndexSchema(
-      id: -1623606668744037043,
-      name: r'pickupAdditionalInfoWords',
-      unique: false,
-      replace: false,
-      properties: [
-        IndexPropertySchema(
-          name: r'pickupAdditionalInfoWords',
-          type: IndexType.value,
-          caseSensitive: false,
-        )
-      ],
-    ),
-    r'deliveryAdditionalInfoWords': IndexSchema(
-      id: 2006085505639452403,
-      name: r'deliveryAdditionalInfoWords',
-      unique: false,
-      replace: false,
-      properties: [
-        IndexPropertySchema(
-          name: r'deliveryAdditionalInfoWords',
-          type: IndexType.value,
-          caseSensitive: false,
-        )
-      ],
     )
   },
   links: {},
@@ -242,13 +188,6 @@ int _orderEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
-  bytesCount += 3 + object.deliveryAdditionalInfoWords.length * 3;
-  {
-    for (var i = 0; i < object.deliveryAdditionalInfoWords.length; i++) {
-      final value = object.deliveryAdditionalInfoWords[i];
-      bytesCount += value.length * 3;
-    }
-  }
   {
     final value = object.deliveryPhoneNumber;
     if (value != null) {
@@ -269,24 +208,10 @@ int _orderEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
-  bytesCount += 3 + object.nameWords.length * 3;
-  {
-    for (var i = 0; i < object.nameWords.length; i++) {
-      final value = object.nameWords[i];
-      bytesCount += value.length * 3;
-    }
-  }
   {
     final value = object.pickupAdditionalInfo;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
-    }
-  }
-  bytesCount += 3 + object.pickupAdditionalInfoWords.length * 3;
-  {
-    for (var i = 0; i < object.pickupAdditionalInfoWords.length; i++) {
-      final value = object.pickupAdditionalInfoWords[i];
-      bytesCount += value.length * 3;
     }
   }
   {
@@ -335,45 +260,42 @@ void _orderSerialize(
   );
   writer.writeDateTime(offsets[3], object.createdAt);
   writer.writeString(offsets[4], object.deliveryAdditionalInfo);
-  writer.writeStringList(offsets[5], object.deliveryAdditionalInfoWords);
   writer.writeObject<Contact>(
-    offsets[6],
+    offsets[5],
     allOffsets,
     ContactSchema.serialize,
     object.deliveryPhoneNumber,
   );
   writer.writeObject<Place>(
-    offsets[7],
+    offsets[6],
     allOffsets,
     PlaceSchema.serialize,
     object.deliveryPlace,
   );
-  writer.writeString(offsets[8], object.name);
-  writer.writeStringList(offsets[9], object.nameWords);
-  writer.writeString(offsets[10], object.pickupAdditionalInfo);
-  writer.writeStringList(offsets[11], object.pickupAdditionalInfoWords);
+  writer.writeString(offsets[7], object.name);
+  writer.writeString(offsets[8], object.pickupAdditionalInfo);
   writer.writeObject<Contact>(
-    offsets[12],
+    offsets[9],
     allOffsets,
     ContactSchema.serialize,
     object.pickupPhoneNumber,
   );
   writer.writeObject<Place>(
-    offsets[13],
+    offsets[10],
     allOffsets,
     PlaceSchema.serialize,
     object.pickupPlace,
   );
-  writer.writeDouble(offsets[14], object.price);
+  writer.writeDouble(offsets[11], object.price);
   writer.writeObject<Client>(
-    offsets[15],
+    offsets[12],
     allOffsets,
     ClientSchema.serialize,
     object.rider,
   );
-  writer.writeDateTime(offsets[16], object.scheduledDate);
-  writer.writeString(offsets[17], object.status?.name);
-  writer.writeDateTime(offsets[18], object.updatedAt);
+  writer.writeDateTime(offsets[13], object.scheduledDate);
+  writer.writeString(offsets[14], object.status?.name);
+  writer.writeDateTime(offsets[15], object.updatedAt);
 }
 
 Order _orderDeserialize(
@@ -393,37 +315,37 @@ Order _orderDeserialize(
     createdAt: reader.readDateTimeOrNull(offsets[3]),
     deliveryAdditionalInfo: reader.readStringOrNull(offsets[4]),
     deliveryPhoneNumber: reader.readObjectOrNull<Contact>(
-      offsets[6],
+      offsets[5],
       ContactSchema.deserialize,
       allOffsets,
     ),
     deliveryPlace: reader.readObjectOrNull<Place>(
-      offsets[7],
+      offsets[6],
       PlaceSchema.deserialize,
       allOffsets,
     ),
     id: id,
-    name: reader.readStringOrNull(offsets[8]),
-    pickupAdditionalInfo: reader.readStringOrNull(offsets[10]),
+    name: reader.readStringOrNull(offsets[7]),
+    pickupAdditionalInfo: reader.readStringOrNull(offsets[8]),
     pickupPhoneNumber: reader.readObjectOrNull<Contact>(
-      offsets[12],
+      offsets[9],
       ContactSchema.deserialize,
       allOffsets,
     ),
     pickupPlace: reader.readObjectOrNull<Place>(
-      offsets[13],
+      offsets[10],
       PlaceSchema.deserialize,
       allOffsets,
     ),
-    price: reader.readDoubleOrNull(offsets[14]),
+    price: reader.readDoubleOrNull(offsets[11]),
     rider: reader.readObjectOrNull<Client>(
-      offsets[15],
+      offsets[12],
       ClientSchema.deserialize,
       allOffsets,
     ),
-    scheduledDate: reader.readDateTimeOrNull(offsets[16]),
-    status: _OrderstatusValueEnumMap[reader.readStringOrNull(offsets[17])],
-    updatedAt: reader.readDateTimeOrNull(offsets[18]),
+    scheduledDate: reader.readDateTimeOrNull(offsets[13]),
+    status: _OrderstatusValueEnumMap[reader.readStringOrNull(offsets[14])],
+    updatedAt: reader.readDateTimeOrNull(offsets[15]),
   );
   return object;
 }
@@ -450,52 +372,46 @@ P _orderDeserializeProp<P>(
     case 4:
       return (reader.readStringOrNull(offset)) as P;
     case 5:
-      return (reader.readStringList(offset) ?? []) as P;
-    case 6:
       return (reader.readObjectOrNull<Contact>(
         offset,
         ContactSchema.deserialize,
+        allOffsets,
+      )) as P;
+    case 6:
+      return (reader.readObjectOrNull<Place>(
+        offset,
+        PlaceSchema.deserialize,
         allOffsets,
       )) as P;
     case 7:
-      return (reader.readObjectOrNull<Place>(
-        offset,
-        PlaceSchema.deserialize,
-        allOffsets,
-      )) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 8:
       return (reader.readStringOrNull(offset)) as P;
     case 9:
-      return (reader.readStringList(offset) ?? []) as P;
-    case 10:
-      return (reader.readStringOrNull(offset)) as P;
-    case 11:
-      return (reader.readStringList(offset) ?? []) as P;
-    case 12:
       return (reader.readObjectOrNull<Contact>(
         offset,
         ContactSchema.deserialize,
         allOffsets,
       )) as P;
-    case 13:
+    case 10:
       return (reader.readObjectOrNull<Place>(
         offset,
         PlaceSchema.deserialize,
         allOffsets,
       )) as P;
-    case 14:
+    case 11:
       return (reader.readDoubleOrNull(offset)) as P;
-    case 15:
+    case 12:
       return (reader.readObjectOrNull<Client>(
         offset,
         ClientSchema.deserialize,
         allOffsets,
       )) as P;
-    case 16:
+    case 13:
       return (reader.readDateTimeOrNull(offset)) as P;
-    case 17:
+    case 14:
       return (_OrderstatusValueEnumMap[reader.readStringOrNull(offset)]) as P;
-    case 18:
+    case 15:
       return (reader.readDateTimeOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -554,32 +470,6 @@ extension OrderQueryWhereSort on QueryBuilder<Order, Order, QWhere> {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         const IndexWhereClause.any(indexName: r'updatedAt'),
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhere> anyNameWordsElement() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        const IndexWhereClause.any(indexName: r'nameWords'),
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhere>
-      anyPickupAdditionalInfoWordsElement() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        const IndexWhereClause.any(indexName: r'pickupAdditionalInfoWords'),
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhere>
-      anyDeliveryAdditionalInfoWordsElement() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        const IndexWhereClause.any(indexName: r'deliveryAdditionalInfoWords'),
       );
     });
   }
@@ -976,430 +866,6 @@ extension OrderQueryWhere on QueryBuilder<Order, Order, QWhereClause> {
         upper: [upperUpdatedAt],
         includeUpper: includeUpper,
       ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause> nameWordsElementEqualTo(
-      String nameWordsElement) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'nameWords',
-        value: [nameWordsElement],
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause> nameWordsElementNotEqualTo(
-      String nameWordsElement) {
-    return QueryBuilder.apply(this, (query) {
-      if (query.whereSort == Sort.asc) {
-        return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'nameWords',
-              lower: [],
-              upper: [nameWordsElement],
-              includeUpper: false,
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'nameWords',
-              lower: [nameWordsElement],
-              includeLower: false,
-              upper: [],
-            ));
-      } else {
-        return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'nameWords',
-              lower: [nameWordsElement],
-              includeLower: false,
-              upper: [],
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'nameWords',
-              lower: [],
-              upper: [nameWordsElement],
-              includeUpper: false,
-            ));
-      }
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause> nameWordsElementGreaterThan(
-    String nameWordsElement, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'nameWords',
-        lower: [nameWordsElement],
-        includeLower: include,
-        upper: [],
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause> nameWordsElementLessThan(
-    String nameWordsElement, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'nameWords',
-        lower: [],
-        upper: [nameWordsElement],
-        includeUpper: include,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause> nameWordsElementBetween(
-    String lowerNameWordsElement,
-    String upperNameWordsElement, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'nameWords',
-        lower: [lowerNameWordsElement],
-        includeLower: includeLower,
-        upper: [upperNameWordsElement],
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause> nameWordsElementStartsWith(
-      String NameWordsElementPrefix) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'nameWords',
-        lower: [NameWordsElementPrefix],
-        upper: ['$NameWordsElementPrefix\u{FFFFF}'],
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause> nameWordsElementIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'nameWords',
-        value: [''],
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause> nameWordsElementIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      if (query.whereSort == Sort.asc) {
-        return query
-            .addWhereClause(IndexWhereClause.lessThan(
-              indexName: r'nameWords',
-              upper: [''],
-            ))
-            .addWhereClause(IndexWhereClause.greaterThan(
-              indexName: r'nameWords',
-              lower: [''],
-            ));
-      } else {
-        return query
-            .addWhereClause(IndexWhereClause.greaterThan(
-              indexName: r'nameWords',
-              lower: [''],
-            ))
-            .addWhereClause(IndexWhereClause.lessThan(
-              indexName: r'nameWords',
-              upper: [''],
-            ));
-      }
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause>
-      pickupAdditionalInfoWordsElementEqualTo(
-          String pickupAdditionalInfoWordsElement) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'pickupAdditionalInfoWords',
-        value: [pickupAdditionalInfoWordsElement],
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause>
-      pickupAdditionalInfoWordsElementNotEqualTo(
-          String pickupAdditionalInfoWordsElement) {
-    return QueryBuilder.apply(this, (query) {
-      if (query.whereSort == Sort.asc) {
-        return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'pickupAdditionalInfoWords',
-              lower: [],
-              upper: [pickupAdditionalInfoWordsElement],
-              includeUpper: false,
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'pickupAdditionalInfoWords',
-              lower: [pickupAdditionalInfoWordsElement],
-              includeLower: false,
-              upper: [],
-            ));
-      } else {
-        return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'pickupAdditionalInfoWords',
-              lower: [pickupAdditionalInfoWordsElement],
-              includeLower: false,
-              upper: [],
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'pickupAdditionalInfoWords',
-              lower: [],
-              upper: [pickupAdditionalInfoWordsElement],
-              includeUpper: false,
-            ));
-      }
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause>
-      pickupAdditionalInfoWordsElementGreaterThan(
-    String pickupAdditionalInfoWordsElement, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'pickupAdditionalInfoWords',
-        lower: [pickupAdditionalInfoWordsElement],
-        includeLower: include,
-        upper: [],
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause>
-      pickupAdditionalInfoWordsElementLessThan(
-    String pickupAdditionalInfoWordsElement, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'pickupAdditionalInfoWords',
-        lower: [],
-        upper: [pickupAdditionalInfoWordsElement],
-        includeUpper: include,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause>
-      pickupAdditionalInfoWordsElementBetween(
-    String lowerPickupAdditionalInfoWordsElement,
-    String upperPickupAdditionalInfoWordsElement, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'pickupAdditionalInfoWords',
-        lower: [lowerPickupAdditionalInfoWordsElement],
-        includeLower: includeLower,
-        upper: [upperPickupAdditionalInfoWordsElement],
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause>
-      pickupAdditionalInfoWordsElementStartsWith(
-          String PickupAdditionalInfoWordsElementPrefix) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'pickupAdditionalInfoWords',
-        lower: [PickupAdditionalInfoWordsElementPrefix],
-        upper: ['$PickupAdditionalInfoWordsElementPrefix\u{FFFFF}'],
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause>
-      pickupAdditionalInfoWordsElementIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'pickupAdditionalInfoWords',
-        value: [''],
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause>
-      pickupAdditionalInfoWordsElementIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      if (query.whereSort == Sort.asc) {
-        return query
-            .addWhereClause(IndexWhereClause.lessThan(
-              indexName: r'pickupAdditionalInfoWords',
-              upper: [''],
-            ))
-            .addWhereClause(IndexWhereClause.greaterThan(
-              indexName: r'pickupAdditionalInfoWords',
-              lower: [''],
-            ));
-      } else {
-        return query
-            .addWhereClause(IndexWhereClause.greaterThan(
-              indexName: r'pickupAdditionalInfoWords',
-              lower: [''],
-            ))
-            .addWhereClause(IndexWhereClause.lessThan(
-              indexName: r'pickupAdditionalInfoWords',
-              upper: [''],
-            ));
-      }
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause>
-      deliveryAdditionalInfoWordsElementEqualTo(
-          String deliveryAdditionalInfoWordsElement) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'deliveryAdditionalInfoWords',
-        value: [deliveryAdditionalInfoWordsElement],
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause>
-      deliveryAdditionalInfoWordsElementNotEqualTo(
-          String deliveryAdditionalInfoWordsElement) {
-    return QueryBuilder.apply(this, (query) {
-      if (query.whereSort == Sort.asc) {
-        return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'deliveryAdditionalInfoWords',
-              lower: [],
-              upper: [deliveryAdditionalInfoWordsElement],
-              includeUpper: false,
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'deliveryAdditionalInfoWords',
-              lower: [deliveryAdditionalInfoWordsElement],
-              includeLower: false,
-              upper: [],
-            ));
-      } else {
-        return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'deliveryAdditionalInfoWords',
-              lower: [deliveryAdditionalInfoWordsElement],
-              includeLower: false,
-              upper: [],
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'deliveryAdditionalInfoWords',
-              lower: [],
-              upper: [deliveryAdditionalInfoWordsElement],
-              includeUpper: false,
-            ));
-      }
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause>
-      deliveryAdditionalInfoWordsElementGreaterThan(
-    String deliveryAdditionalInfoWordsElement, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'deliveryAdditionalInfoWords',
-        lower: [deliveryAdditionalInfoWordsElement],
-        includeLower: include,
-        upper: [],
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause>
-      deliveryAdditionalInfoWordsElementLessThan(
-    String deliveryAdditionalInfoWordsElement, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'deliveryAdditionalInfoWords',
-        lower: [],
-        upper: [deliveryAdditionalInfoWordsElement],
-        includeUpper: include,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause>
-      deliveryAdditionalInfoWordsElementBetween(
-    String lowerDeliveryAdditionalInfoWordsElement,
-    String upperDeliveryAdditionalInfoWordsElement, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'deliveryAdditionalInfoWords',
-        lower: [lowerDeliveryAdditionalInfoWordsElement],
-        includeLower: includeLower,
-        upper: [upperDeliveryAdditionalInfoWordsElement],
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause>
-      deliveryAdditionalInfoWordsElementStartsWith(
-          String DeliveryAdditionalInfoWordsElementPrefix) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'deliveryAdditionalInfoWords',
-        lower: [DeliveryAdditionalInfoWordsElementPrefix],
-        upper: ['$DeliveryAdditionalInfoWordsElementPrefix\u{FFFFF}'],
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause>
-      deliveryAdditionalInfoWordsElementIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'deliveryAdditionalInfoWords',
-        value: [''],
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterWhereClause>
-      deliveryAdditionalInfoWordsElementIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      if (query.whereSort == Sort.asc) {
-        return query
-            .addWhereClause(IndexWhereClause.lessThan(
-              indexName: r'deliveryAdditionalInfoWords',
-              upper: [''],
-            ))
-            .addWhereClause(IndexWhereClause.greaterThan(
-              indexName: r'deliveryAdditionalInfoWords',
-              lower: [''],
-            ));
-      } else {
-        return query
-            .addWhereClause(IndexWhereClause.greaterThan(
-              indexName: r'deliveryAdditionalInfoWords',
-              lower: [''],
-            ))
-            .addWhereClause(IndexWhereClause.lessThan(
-              indexName: r'deliveryAdditionalInfoWords',
-              upper: [''],
-            ));
-      }
     });
   }
 }
@@ -1874,233 +1340,6 @@ extension OrderQueryFilter on QueryBuilder<Order, Order, QFilterCondition> {
   }
 
   QueryBuilder<Order, Order, QAfterFilterCondition>
-      deliveryAdditionalInfoWordsElementEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'deliveryAdditionalInfoWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      deliveryAdditionalInfoWordsElementGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'deliveryAdditionalInfoWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      deliveryAdditionalInfoWordsElementLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'deliveryAdditionalInfoWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      deliveryAdditionalInfoWordsElementBetween(
-    String lower,
-    String upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'deliveryAdditionalInfoWords',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      deliveryAdditionalInfoWordsElementStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'deliveryAdditionalInfoWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      deliveryAdditionalInfoWordsElementEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'deliveryAdditionalInfoWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      deliveryAdditionalInfoWordsElementContains(String value,
-          {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'deliveryAdditionalInfoWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      deliveryAdditionalInfoWordsElementMatches(String pattern,
-          {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'deliveryAdditionalInfoWords',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      deliveryAdditionalInfoWordsElementIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'deliveryAdditionalInfoWords',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      deliveryAdditionalInfoWordsElementIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'deliveryAdditionalInfoWords',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      deliveryAdditionalInfoWordsLengthEqualTo(int length) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'deliveryAdditionalInfoWords',
-        length,
-        true,
-        length,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      deliveryAdditionalInfoWordsIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'deliveryAdditionalInfoWords',
-        0,
-        true,
-        0,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      deliveryAdditionalInfoWordsIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'deliveryAdditionalInfoWords',
-        0,
-        false,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      deliveryAdditionalInfoWordsLengthLessThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'deliveryAdditionalInfoWords',
-        0,
-        true,
-        length,
-        include,
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      deliveryAdditionalInfoWordsLengthGreaterThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'deliveryAdditionalInfoWords',
-        length,
-        include,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      deliveryAdditionalInfoWordsLengthBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'deliveryAdditionalInfoWords',
-        lower,
-        includeLower,
-        upper,
-        includeUpper,
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
       deliveryPhoneNumberIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -2346,221 +1585,6 @@ extension OrderQueryFilter on QueryBuilder<Order, Order, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Order, Order, QAfterFilterCondition> nameWordsElementEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'nameWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition> nameWordsElementGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'nameWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition> nameWordsElementLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'nameWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition> nameWordsElementBetween(
-    String lower,
-    String upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'nameWords',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition> nameWordsElementStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'nameWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition> nameWordsElementEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'nameWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition> nameWordsElementContains(
-      String value,
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'nameWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition> nameWordsElementMatches(
-      String pattern,
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'nameWords',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition> nameWordsElementIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'nameWords',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      nameWordsElementIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'nameWords',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition> nameWordsLengthEqualTo(
-      int length) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'nameWords',
-        length,
-        true,
-        length,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition> nameWordsIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'nameWords',
-        0,
-        true,
-        0,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition> nameWordsIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'nameWords',
-        0,
-        false,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition> nameWordsLengthLessThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'nameWords',
-        0,
-        true,
-        length,
-        include,
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition> nameWordsLengthGreaterThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'nameWords',
-        length,
-        include,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition> nameWordsLengthBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'nameWords',
-        lower,
-        includeLower,
-        upper,
-        includeUpper,
-      );
-    });
-  }
-
   QueryBuilder<Order, Order, QAfterFilterCondition>
       pickupAdditionalInfoIsNull() {
     return QueryBuilder.apply(this, (query) {
@@ -2711,233 +1735,6 @@ extension OrderQueryFilter on QueryBuilder<Order, Order, QFilterCondition> {
         property: r'pickupAdditionalInfo',
         value: '',
       ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      pickupAdditionalInfoWordsElementEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'pickupAdditionalInfoWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      pickupAdditionalInfoWordsElementGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'pickupAdditionalInfoWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      pickupAdditionalInfoWordsElementLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'pickupAdditionalInfoWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      pickupAdditionalInfoWordsElementBetween(
-    String lower,
-    String upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'pickupAdditionalInfoWords',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      pickupAdditionalInfoWordsElementStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'pickupAdditionalInfoWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      pickupAdditionalInfoWordsElementEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'pickupAdditionalInfoWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      pickupAdditionalInfoWordsElementContains(String value,
-          {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'pickupAdditionalInfoWords',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      pickupAdditionalInfoWordsElementMatches(String pattern,
-          {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'pickupAdditionalInfoWords',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      pickupAdditionalInfoWordsElementIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'pickupAdditionalInfoWords',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      pickupAdditionalInfoWordsElementIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'pickupAdditionalInfoWords',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      pickupAdditionalInfoWordsLengthEqualTo(int length) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'pickupAdditionalInfoWords',
-        length,
-        true,
-        length,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      pickupAdditionalInfoWordsIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'pickupAdditionalInfoWords',
-        0,
-        true,
-        0,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      pickupAdditionalInfoWordsIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'pickupAdditionalInfoWords',
-        0,
-        false,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      pickupAdditionalInfoWordsLengthLessThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'pickupAdditionalInfoWords',
-        0,
-        true,
-        length,
-        include,
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      pickupAdditionalInfoWordsLengthGreaterThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'pickupAdditionalInfoWords',
-        length,
-        include,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Order, Order, QAfterFilterCondition>
-      pickupAdditionalInfoWordsLengthBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'pickupAdditionalInfoWords',
-        lower,
-        includeLower,
-        upper,
-        includeUpper,
-      );
     });
   }
 
@@ -3682,23 +2479,10 @@ extension OrderQueryWhereDistinct on QueryBuilder<Order, Order, QDistinct> {
     });
   }
 
-  QueryBuilder<Order, Order, QDistinct>
-      distinctByDeliveryAdditionalInfoWords() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'deliveryAdditionalInfoWords');
-    });
-  }
-
   QueryBuilder<Order, Order, QDistinct> distinctByName(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'name', caseSensitive: caseSensitive);
-    });
-  }
-
-  QueryBuilder<Order, Order, QDistinct> distinctByNameWords() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'nameWords');
     });
   }
 
@@ -3707,12 +2491,6 @@ extension OrderQueryWhereDistinct on QueryBuilder<Order, Order, QDistinct> {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'pickupAdditionalInfo',
           caseSensitive: caseSensitive);
-    });
-  }
-
-  QueryBuilder<Order, Order, QDistinct> distinctByPickupAdditionalInfoWords() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'pickupAdditionalInfoWords');
     });
   }
 
@@ -3780,13 +2558,6 @@ extension OrderQueryProperty on QueryBuilder<Order, Order, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Order, List<String>, QQueryOperations>
-      deliveryAdditionalInfoWordsProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'deliveryAdditionalInfoWords');
-    });
-  }
-
   QueryBuilder<Order, Contact?, QQueryOperations>
       deliveryPhoneNumberProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -3806,23 +2577,10 @@ extension OrderQueryProperty on QueryBuilder<Order, Order, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Order, List<String>, QQueryOperations> nameWordsProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'nameWords');
-    });
-  }
-
   QueryBuilder<Order, String?, QQueryOperations>
       pickupAdditionalInfoProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'pickupAdditionalInfo');
-    });
-  }
-
-  QueryBuilder<Order, List<String>, QQueryOperations>
-      pickupAdditionalInfoWordsProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'pickupAdditionalInfoWords');
     });
   }
 

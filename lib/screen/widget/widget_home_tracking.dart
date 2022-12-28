@@ -8,9 +8,10 @@ class HomeTrackingAppBar extends DefaultAppBar {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return CupertinoNavigationBar(
+      middle: Text("${localizations.trackingorder.capitalize()}..."),
       border: const Border.fromBorderSide(BorderSide.none),
-      middle: const Text("Suivi de Commande Pizza..."),
       backgroundColor: context.theme.colorScheme.surface,
       automaticallyImplyLeading: false,
       transitionBetweenRoutes: false,
@@ -22,12 +23,17 @@ class TrackingListTile extends StatelessWidget {
   const TrackingListTile({
     super.key,
     this.onTap,
+    this.onLeadingTap,
     required this.title,
+    this.foregroundImage,
+    this.subtitle,
   });
 
   final String title;
-
+  final String? subtitle;
   final VoidCallback? onTap;
+  final VoidCallback? onLeadingTap;
+  final ImageProvider<Object>? foregroundImage;
 
   @override
   Widget build(BuildContext context) {
@@ -35,15 +41,20 @@ class TrackingListTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: CustomListTile(
+        height: 60.0,
         tileColor: context.theme.primaryColorDark,
         textColor: context.theme.colorScheme.onPrimary,
         iconColor: context.theme.colorScheme.onPrimary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        leading: CustomCircleAvatar(
-          foregroundColor: theme.colorScheme.onPrimary,
-          backgroundColor: CupertinoColors.systemGrey,
-          child: const Icon(CupertinoIcons.person_crop_circle, size: 22.0),
+        leading: CustomButton(
+          onPressed: onLeadingTap,
+          child: CustomCircleAvatar(
+            foregroundImage: foregroundImage,
+            foregroundColor: theme.colorScheme.onPrimary,
+            backgroundColor: CupertinoColors.systemGrey,
+            child: const Icon(CupertinoIcons.person_crop_circle, size: 33.0),
+          ),
         ),
         title: Text(
           title,
@@ -51,6 +62,7 @@ class TrackingListTile extends StatelessWidget {
             color: context.theme.colorScheme.onPrimary,
           ),
         ),
+        subtitle: subtitle != null ? Text(subtitle!) : null,
         trailing: const RotatedBox(
           quarterTurns: -45,
           child: Icon(CupertinoIcons.phone_fill),

@@ -18,18 +18,23 @@ const ClientSchema = Schema(
       name: r'accessToken',
       type: IsarType.string,
     ),
-    r'fullName': PropertySchema(
+    r'avatar': PropertySchema(
       id: 1,
+      name: r'avatar',
+      type: IsarType.string,
+    ),
+    r'fullName': PropertySchema(
+      id: 2,
       name: r'fullName',
       type: IsarType.string,
     ),
     r'id': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'id',
       type: IsarType.long,
     ),
     r'phoneNumber': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'phoneNumber',
       type: IsarType.string,
     )
@@ -48,6 +53,12 @@ int _clientEstimateSize(
   var bytesCount = offsets.last;
   {
     final value = object.accessToken;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.avatar;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -74,9 +85,10 @@ void _clientSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.accessToken);
-  writer.writeString(offsets[1], object.fullName);
-  writer.writeLong(offsets[2], object.id);
-  writer.writeString(offsets[3], object.phoneNumber);
+  writer.writeString(offsets[1], object.avatar);
+  writer.writeString(offsets[2], object.fullName);
+  writer.writeLong(offsets[3], object.id);
+  writer.writeString(offsets[4], object.phoneNumber);
 }
 
 Client _clientDeserialize(
@@ -87,9 +99,10 @@ Client _clientDeserialize(
 ) {
   final object = Client(
     accessToken: reader.readStringOrNull(offsets[0]),
-    fullName: reader.readStringOrNull(offsets[1]),
-    id: reader.readLongOrNull(offsets[2]),
-    phoneNumber: reader.readStringOrNull(offsets[3]),
+    avatar: reader.readStringOrNull(offsets[1]),
+    fullName: reader.readStringOrNull(offsets[2]),
+    id: reader.readLongOrNull(offsets[3]),
+    phoneNumber: reader.readStringOrNull(offsets[4]),
   );
   return object;
 }
@@ -106,8 +119,10 @@ P _clientDeserializeProp<P>(
     case 1:
       return (reader.readStringOrNull(offset)) as P;
     case 2:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 3:
+      return (reader.readLongOrNull(offset)) as P;
+    case 4:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -256,6 +271,152 @@ extension ClientQueryFilter on QueryBuilder<Client, Client, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'accessToken',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Client, Client, QAfterFilterCondition> avatarIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'avatar',
+      ));
+    });
+  }
+
+  QueryBuilder<Client, Client, QAfterFilterCondition> avatarIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'avatar',
+      ));
+    });
+  }
+
+  QueryBuilder<Client, Client, QAfterFilterCondition> avatarEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'avatar',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Client, Client, QAfterFilterCondition> avatarGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'avatar',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Client, Client, QAfterFilterCondition> avatarLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'avatar',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Client, Client, QAfterFilterCondition> avatarBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'avatar',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Client, Client, QAfterFilterCondition> avatarStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'avatar',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Client, Client, QAfterFilterCondition> avatarEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'avatar',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Client, Client, QAfterFilterCondition> avatarContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'avatar',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Client, Client, QAfterFilterCondition> avatarMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'avatar',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Client, Client, QAfterFilterCondition> avatarIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'avatar',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Client, Client, QAfterFilterCondition> avatarIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'avatar',
         value: '',
       ));
     });

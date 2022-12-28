@@ -6,26 +6,38 @@ class RiderResultSchema extends Equatable {
   const RiderResultSchema({
     required this.available,
     required this.prices,
+    required this.distance,
+    required this.duration,
   });
 
   static const pricesKey = 'price';
   static const availableKey = 'available';
+  static const distanceKey = 'distance';
+  static const durationKey = 'duration';
 
   final List<PriceSchema> prices;
   final bool available;
+  final int distance;
+  final int duration;
 
   @override
   List<Object?> get props => [
         prices,
         available,
+        distance,
+        duration,
       ];
 
   RiderResultSchema copyWith({
     List<PriceSchema>? prices,
     bool? available,
+    int? distance,
+    int? duration,
   }) {
     return RiderResultSchema(
       prices: prices ?? this.prices,
+      duration: duration ?? this.duration,
+      distance: distance ?? this.distance,
       available: available ?? this.available,
     );
   }
@@ -33,6 +45,8 @@ class RiderResultSchema extends Equatable {
   RiderResultSchema clone() {
     return copyWith(
       prices: prices,
+      duration: duration,
+      distance: distance,
       available: available,
     );
   }
@@ -40,6 +54,8 @@ class RiderResultSchema extends Equatable {
   static RiderResultSchema fromMap(Map<String, dynamic> data) {
     return RiderResultSchema(
       prices: PriceSchema.fromListMap((data[pricesKey] as List).cast<Map<String, dynamic>>()),
+      distance: (data[distanceKey] as num).toInt(),
+      duration: (data[durationKey] as num).toInt(),
       available: data[availableKey],
     );
   }
@@ -47,6 +63,8 @@ class RiderResultSchema extends Equatable {
   Map<String, dynamic> toMap() {
     return {
       pricesKey: prices,
+      distanceKey: distance,
+      durationKey: duration,
       availableKey: available,
     };
   }

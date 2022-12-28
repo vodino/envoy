@@ -47,8 +47,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
         }),
       );
     } else {
-      await Navigator.push(
-        context,
+      await Navigator.of(context, rootNavigator: true).push(
         CupertinoPageRoute(
           builder: (context) {
             return const AuthScreen();
@@ -74,8 +73,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
         }),
       );
     } else if (!close) {
-      await Navigator.push(
-        context,
+      await Navigator.of(context, rootNavigator: true).push(
         CupertinoPageRoute(builder: (context) {
           return const AuthScreen();
         }),
@@ -84,18 +82,69 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
     }
   }
 
+  Future<Place?> _openLocationMap({
+    LatLng? position,
+    required PlaceCategory category,
+  }) {
+    return Navigator.push<Place>(
+      context,
+      CupertinoPageRoute(builder: (context) {
+        return LocationMapScreen(
+          category: category,
+          postion: position ?? LatLng(_myPosition!.latitude!, _myPosition!.longitude!),
+        );
+      }),
+    );
+  }
+
   /// Input
   late FocusNode _pickupFocusNode;
   late FocusNode _deliveryFocusNode;
   late TextEditingController _pickupTextController;
   late TextEditingController _deliveryTextController;
 
-  void _onSwitch() {
-    final pickupPlaceItem = _pickupPlaceItem.value;
-    final deliveryPlaceItem = _deliveryPlaceItem.value;
+  void _listenPickupFocusNode(BuildContext context, FocusNode focusNode) {
+    if (focusNode.hasFocus) {
+      if (_pickupPlaceItem.value != null) _pickupTextController.text = _pickupPlaceItem.value!.title!;
+    } else {
+      if (_pickupPlaceItem.value != null) _pickupTextController.text = _pickupPlaceItem.value!.fakeTitle!;
+    }
+  }
 
-    _pickupPlaceItem.value = deliveryPlaceItem;
-    _deliveryPlaceItem.value = pickupPlaceItem;
+  void _listenDeliveryFocusNode(BuildContext context, FocusNode focusNode) {
+    if (focusNode.hasFocus) {
+      if (_deliveryPlaceItem.value != null) _deliveryTextController.text = _deliveryPlaceItem.value!.title!;
+    } else {
+      if (_deliveryPlaceItem.value != null) _deliveryTextController.text = _deliveryPlaceItem.value!.fakeTitle!;
+    }
+  }
+
+  void _listenPickupTextValue(BuildContext context, TextEditingValue value) {
+    if (value.text.isEmpty) _pickupPlaceItem.value = null;
+  }
+
+  void _listenDeliveryTextValue(BuildContext context, TextEditingValue value) {
+    if (value.text.isEmpty) _deliveryPlaceItem.value = null;
+  }
+
+  void _onPickupMapPressed(BuildContext context) async {
+    final data = await _openLocationMap(
+      category: PlaceCategory.source,
+      position: _pickupPlaceItem.value != null ? LatLng(_pickupPlaceItem.value!.latitude!, _pickupPlaceItem.value!.longitude!) : null,
+    );
+    if (data != null && mounted) {
+      _onPlaceItemPressed(context, data, PlaceCategory.source);
+    }
+  }
+
+  void _onDeliveryMapPressed(BuildContext context) async {
+    final data = await _openLocationMap(
+      category: PlaceCategory.destination,
+      position: _deliveryPlaceItem.value != null ? LatLng(_deliveryPlaceItem.value!.latitude!, _deliveryPlaceItem.value!.longitude!) : null,
+    );
+    if (data != null && mounted) {
+      _onPlaceItemPressed(context, data, PlaceCategory.destination);
+    }
   }
 
   void _onPickupTextChanged(String query) {
@@ -116,19 +165,21 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
     if (category == PlaceCategory.source) {
       if (_deliveryPlaceItem.value == null) {
         _pickupPlaceItem.value = item;
-        _pickupTextController.text = item.title!;
+        final title = _itemTitlePrefix(item.osmTag) + (item.title ?? item.subtitle ?? '');
+        _pickupTextController.text = title;
         _deliveryFocusNode.requestFocus();
       } else {
         _openOrderCreateSheet(
-          customContext: context,
           pickupPlace: item,
+          customContext: context,
           deliveryPlace: _deliveryPlaceItem.value!,
         );
       }
     } else {
       if (_pickupPlaceItem.value == null) {
         _deliveryPlaceItem.value = item;
-        _deliveryTextController.text = item.title!;
+        final title = _itemTitlePrefix(item.osmTag) + (item.title ?? item.subtitle ?? '');
+        _deliveryTextController.text = title;
         _pickupFocusNode.requestFocus();
       } else {
         _openOrderCreateSheet(
@@ -140,11 +191,19 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
     }
   }
 
+  void _onSwitch() {
+    final pickupPlaceItem = _pickupPlaceItem.value;
+    final deliveryPlaceItem = _deliveryPlaceItem.value;
+
+    _pickupPlaceItem.value = deliveryPlaceItem;
+    _deliveryPlaceItem.value = pickupPlaceItem;
+  }
+
   void _showBottomSheet(PlaceCategory category) async {
     /// Input
     _pickupFocusNode = FocusNode();
     _deliveryFocusNode = FocusNode();
-    _pickupTextController = TextEditingController(text: _pickupPlaceItem.value?.title);
+    _pickupTextController = TextEditingController(text: _pickupPlaceItem.value?.fakeTitle);
     _deliveryTextController = TextEditingController();
     _bottomSheetController.value = true;
 
@@ -163,6 +222,8 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
       },
     );
     _bottomSheetController.value = false;
+    if (_deliveryFocusNode.hasFocus) _deliveryFocusNode.unfocus();
+    if (_pickupFocusNode.hasFocus) _pickupFocusNode.unfocus();
     if (value != null && mounted) {
       widget.popController.value = value;
       Navigator.pop(context);
@@ -200,7 +261,13 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
   void _listenPickupPlaceState(BuildContext context, PlaceState state) {
     if (!_bottomSheetController.value && state is PlaceItemListState) {
       final items = state.data;
-      if (items.isNotEmpty) _pickupPlaceItem.value = items.first;
+      if (items.isNotEmpty) {
+        final localizations = context.localizations;
+        _pickupPlaceItem.value = items.firstWhere((item) => item.title != null, orElse: () => items.first);
+        _pickupPlaceItem.value?.fakeTitle = localizations.currentposition.capitalize();
+        _pickupPlaceItem.value?.longitude = _myPosition?.longitude;
+        _pickupPlaceItem.value?.latitude = _myPosition?.latitude;
+      }
     }
   }
 
@@ -260,7 +327,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
                             return HomeSearchFieldButtons(
                               onPickupPressed: () => _showBottomSheet(PlaceCategory.source),
                               onDeliveryPressed: () => _showBottomSheet(PlaceCategory.destination),
-                              pickupWidget: pickupPlaceItem != null ? Text(pickupPlaceItem.title!) : null,
+                              pickupWidget: pickupPlaceItem != null ? Text(pickupPlaceItem.fakeTitle!) : null,
                             );
                           },
                         );
@@ -276,7 +343,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
     );
   }
 
-  String _itemSubtitlePrefix(PlaceOsmTag tag) {
+  String _itemSubtitlePrefix(PlaceOsmTag? tag) {
     final localizarions = context.localizations;
     String? prefix;
     switch (tag) {
@@ -291,7 +358,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
     return prefix != null ? '$prefix • ' : '';
   }
 
-  String _itemTitlePrefix(PlaceOsmTag tag) {
+  String _itemTitlePrefix(PlaceOsmTag? tag) {
     final localizarions = context.localizations;
     String? prefix;
     switch (tag) {
@@ -304,6 +371,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
   }
 
   Widget _listBuilder({
+    required ValueWidgetListener<TextEditingValue> listenerTextValue,
     required TextEditingController textEditingController,
     required PlaceCategory placeCategory,
     required PlaceService placeService,
@@ -316,7 +384,8 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
     return ChangeNotifierListener<FocusNode>(
       notifier: textFocusNode,
       listener: listenerFocusNode,
-      child: ValueListenableBuilder<TextEditingValue>(
+      child: ValueListenableConsumer<TextEditingValue>(
+        listener: listenerTextValue,
         valueListenable: textEditingController,
         builder: (context, textEditingValue, child) {
           return ValueListenableBuilder<PlaceCategory?>(
@@ -337,6 +406,8 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
                             if (index.isEven) {
                               index ~/= 2;
                               final item = items[index];
+                              final title = _itemTitlePrefix(item.osmTag) + (item.title ?? item.subtitle ?? '');
+                              final subtitle = _itemSubtitlePrefix(item.osmTag) + (item.subtitle ?? '');
                               return CustomListTile(
                                 trailing: ValueListenableBuilder<LocationState>(
                                   valueListenable: _locationService,
@@ -354,10 +425,10 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
                                     );
                                   },
                                 ),
+                                onTap: () => _onPlaceItemPressed(context, item.copyWith(title: title, subtitle: subtitle), placeCategory),
                                 leading: const Icon(CupertinoIcons.location_solid, size: 18.0, color: CupertinoColors.systemGrey2),
-                                subtitle: Text(_itemSubtitlePrefix(item.osmTag!) + item.subtitle!),
-                                onTap: () => _onPlaceItemPressed(context, item, placeCategory),
-                                title: Text(_itemTitlePrefix(item.osmTag!) + item.title!),
+                                subtitle: Text(subtitle),
+                                title: Text(title),
                               );
                             }
                             return const Divider(indent: 40.0);
@@ -395,35 +466,41 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> with SingleTickerPr
                   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   slivers: [
                     SliverPinnedHeader(
-                      child: HomeSearchFields(
-                        onSwitch: _onSwitch,
-                        pickupFocusNode: _pickupFocusNode,
-                        onPickupChanged: _onPickupTextChanged,
-                        deliveryFocusNode: _deliveryFocusNode,
-                        onDeliveryChanged: _onDeliveryTextChanged,
-                        pickupTextController: _pickupTextController,
-                        deliveryTextController: _deliveryTextController,
-                        pickupAutoFocus: category == PlaceCategory.source,
-                        deliveryAutoFocus: category == PlaceCategory.destination,
-                      ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: CustomListTile(
-                        onTap: () => _openOrdersSheet(context),
-                        title: const Text(
-                          'Rechercher des commandes précédentes',
-                          style: TextStyle(color: Colors.blue),
+                      child: ChangeNotifierListener(
+                        notifier: _deliveryFocusNode,
+                        listener: _listenDeliveryFocusNode,
+                        child: ChangeNotifierListener(
+                          notifier: _pickupFocusNode,
+                          listener: _listenPickupFocusNode,
+                          child: CustomKeepAlive(
+                            child: HomeSearchFields(
+                              onSwitch: _onSwitch,
+                              pickupFocusNode: _pickupFocusNode,
+                              onPickupChanged: _onPickupTextChanged,
+                              deliveryFocusNode: _deliveryFocusNode,
+                              onDeliveryChanged: _onDeliveryTextChanged,
+                              pickupTextController: _pickupTextController,
+                              deliveryTextController: _deliveryTextController,
+                              pickupAutoFocus: category == PlaceCategory.source,
+                              onPickupMapPressed: () => _onPickupMapPressed(context),
+                              deliveryAutoFocus: category == PlaceCategory.destination,
+                              onDeliveryMapPressed: () => _onDeliveryMapPressed(context),
+                            ),
+                          ),
                         ),
                       ),
                     ),
+                    SliverToBoxAdapter(child: HomeOrderSearchPrevTile(onTap: () => _openOrdersSheet(context))),
                     _listBuilder(
                       textEditingController: _deliveryTextController,
+                      listenerTextValue: _listenDeliveryTextValue,
                       placeCategory: PlaceCategory.destination,
                       placeService: _deliveryPlaceService,
                       textFocusNode: _deliveryFocusNode,
                     ),
                     _listBuilder(
                       textEditingController: _pickupTextController,
+                      listenerTextValue: _listenPickupTextValue,
                       placeCategory: PlaceCategory.source,
                       placeService: _pickupPlaceService,
                       textFocusNode: _pickupFocusNode,

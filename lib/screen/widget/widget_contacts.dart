@@ -32,18 +32,18 @@ class ContactsSearchTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return Material(
       child: Padding(
         padding: const EdgeInsets.only(right: 16.0, left: 16.0, bottom: 8.0),
         child: CustomSearchTextField(
-          placeholder: 'nom ou numéro de téléphone',
+          placeholder: localizations.nameorphonenumber.capitalize(),
           controller: controller,
         ),
       ),
     );
   }
 }
-
 
 class ContactsShimmer extends StatelessWidget {
   const ContactsShimmer({super.key});

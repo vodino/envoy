@@ -87,15 +87,12 @@ class _HomeOrderSearchScreenState extends State<HomeOrderSearchScreen> {
                           if (index.isEven) {
                             index ~/= 2;
                             final item = items[index];
-                            return CustomListTile(
-                              leading: const Icon(CupertinoIcons.cube_box_fill, color: CupertinoColors.systemGrey2),
-                              subtitle: Text('De ${item.pickupPlace?.title} à ${item.deliveryPlace?.title}'),
-                              title: Text(item.name ?? 'Commande'),
+                            return OrderRecordingItemTile(
+                              title: item.name?.capitalize() ?? '',
                               onTap: () => _openHomeOrder(item),
-                              trailing: Text(
-                                '${item.price} F',
-                                style: context.cupertinoTheme.textTheme.navTitleTextStyle,
-                              ),
+                              from: item.pickupPlace!.title!,
+                              to: item.deliveryPlace!.title!,
+                              price: item.price!,
                             );
                           }
                           return const Divider(indent: 48.0);

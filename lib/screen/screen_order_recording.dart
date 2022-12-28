@@ -22,7 +22,7 @@ class _OrderRecordingScreenState extends State<OrderRecordingScreen> {
 
   Future<void> _getOrderList([bool pending = false]) {
     if (pending) _orderService.value = const PendingOrderState();
-    return _orderService.handle(const QueryOrderList());
+    return _orderService.handle(const QueryOrderList(subscription: true));
   }
 
   void _listenOrderState(BuildContext context, OrderState state) {}
@@ -41,6 +41,7 @@ class _OrderRecordingScreenState extends State<OrderRecordingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizarions = context.localizations;
     return Scaffold(
       appBar: const OrderRecordingAppBar(),
       body: ValueListenableConsumer<OrderState>(
@@ -71,16 +72,16 @@ class _OrderRecordingScreenState extends State<OrderRecordingScreen> {
                                 Expanded(
                                   child: OrderRecordingTab(
                                     counter: inProgressItems.length + scheduledItems.length,
+                                    label: localizarions.activeorder.capitalize(),
                                     onPressed: () => _indexController.value = 0,
-                                    label: 'Commandes actives',
                                     active: index == 0,
                                   ),
                                 ),
                                 const SizedBox(width: 8.0),
                                 Expanded(
                                   child: OrderRecordingTab(
+                                    label: localizarions.completedorder.capitalize(),
                                     onPressed: () => _indexController.value = 1,
-                                    label: 'Commandes terminées',
                                     counter: prevItems.length,
                                     active: index == 1,
                                   ),
@@ -93,13 +94,11 @@ class _OrderRecordingScreenState extends State<OrderRecordingScreen> {
                       SliverVisibility(
                         visible: index == 0 && inProgressItems.isEmpty && scheduledItems.isEmpty,
                         sliver: MultiSliver(
-                          children: const [
-                            SliverPinnedHeader(child: Divider()),
+                          children: [
+                            const SliverPinnedHeader(child: Divider()),
                             SliverFillRemaining(
                               hasScrollBody: false,
-                              child: Center(
-                                child: Text("Vous n'avez pas de commandes actives"),
-                              ),
+                              child: Center(child: Text(localizarions.noactiveorder.capitalize())),
                             ),
                           ],
                         ),
@@ -113,36 +112,23 @@ class _OrderRecordingScreenState extends State<OrderRecordingScreen> {
                               child: CustomListTile(
                                 height: 45.0,
                                 tileColor: context.theme.colorScheme.surface,
-                                title: const Text(
-                                  'Commandes en cours',
-                                  style: TextStyle(color: CupertinoColors.systemGrey),
+                                title: Text(
+                                  localizarions.currentorder.capitalize(),
+                                  style: const TextStyle(color: CupertinoColors.systemGrey),
                                 ),
                               ),
                             ),
-                            SliverPinnedHeader.builder((context, overlap) {
-                              return Visibility(
-                                visible: overlap,
-                                child: const Divider(),
-                              );
-                            }),
+                            SliverPinnedHeader.builder((context, overlap) => Visibility(visible: overlap, child: const Divider())),
                             SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) {
                                   final item = inProgressItems[index];
-                                  return CustomListTile(
-                                    leading: CustomCircleAvatar(
-                                      radius: 18.0,
-                                      elevation: 0.0,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-                                      child: const Icon(Icons.motorcycle),
-                                    ),
-                                    subtitle: Text('De ${item.pickupPlace?.title} à ${item.deliveryPlace?.title}'),
+                                  return OrderRecordingItemTile(
                                     onTap: () => context.pushNamed(OrderContentScreen.name, extra: item),
-                                    trailing: Text(
-                                      '${item.price} F',
-                                      style: context.cupertinoTheme.textTheme.navTitleTextStyle,
-                                    ),
-                                    title: Text(item.name ?? ''),
+                                    from: item.pickupPlace!.title!,
+                                    to: item.deliveryPlace!.title!,
+                                    price: item.price!,
+                                    title: item.name!,
                                   );
                                 },
                                 childCount: inProgressItems.length,
@@ -159,33 +145,23 @@ class _OrderRecordingScreenState extends State<OrderRecordingScreen> {
                               child: CustomListTile(
                                 height: 55.0,
                                 tileColor: context.theme.colorScheme.surface,
-                                title: const Text(
-                                  'Commandes planifiées',
-                                  style: TextStyle(color: CupertinoColors.systemGrey),
+                                title: Text(
+                                  localizarions.scheduledorder.capitalize(),
+                                  style: const TextStyle(color: CupertinoColors.systemGrey),
                                 ),
                               ),
                             ),
-                            SliverPinnedHeader.builder((context, overlap) {
-                              return Visibility(
-                                visible: overlap,
-                                child: const Divider(),
-                              );
-                            }),
+                            SliverPinnedHeader.builder((context, overlap) => Visibility(visible: overlap, child: const Divider())),
                             SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) {
                                   final item = scheduledItems[index];
-                                  return CustomListTile(
-                                    leading: CustomCircleAvatar(
-                                      radius: 18.0,
-                                      elevation: 0.0,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-                                      child: const Icon(Icons.motorcycle),
-                                    ),
-                                    subtitle: Text('De ${item.pickupPlace?.title} à ${item.deliveryPlace?.title}'),
+                                  return OrderRecordingItemTile(
                                     onTap: () => context.pushNamed(OrderContentScreen.name, extra: item),
-                                    trailing: Text('${item.price} F'),
-                                    title: Text(item.name ?? ''),
+                                    from: item.pickupPlace!.title!,
+                                    to: item.deliveryPlace!.title!,
+                                    price: item.price!,
+                                    title: item.name!,
                                   );
                                 },
                                 childCount: scheduledItems.length,
@@ -201,30 +177,20 @@ class _OrderRecordingScreenState extends State<OrderRecordingScreen> {
                             const SliverPinnedHeader(child: Divider()),
                             SliverVisibility(
                               visible: prevItems.isNotEmpty,
-                              replacementSliver: const SliverFillRemaining(
+                              replacementSliver:  SliverFillRemaining(
                                 hasScrollBody: false,
-                                child: Center(
-                                  child: Text("Vous n'avez pas de commandes terminées"),
-                                ),
+                                child: Center(child: Text(localizarions.nocompletedorder.capitalize())),
                               ),
                               sliver: SliverList(
                                 delegate: SliverChildBuilderDelegate(
                                   (context, index) {
                                     final item = prevItems[index];
-                                    return CustomListTile(
-                                      leading: CustomCircleAvatar(
-                                        radius: 18.0,
-                                        elevation: 0.0,
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-                                        child: const Icon(Icons.motorcycle),
-                                      ),
-                                      subtitle: Text('De ${item.pickupPlace?.title} à ${item.deliveryPlace?.title}'),
+                                    return OrderRecordingItemTile(
                                       onTap: () => context.pushNamed(OrderContentScreen.name, extra: item),
-                                      trailing: Text(
-                                        '${item.price} F',
-                                        style: context.cupertinoTheme.textTheme.navTitleTextStyle,
-                                      ),
-                                      title: Text(item.name ?? ''),
+                                      from: item.pickupPlace!.title!,
+                                      to: item.deliveryPlace!.title!,
+                                      price: item.price!,
+                                      title: item.name,
                                     );
                                   },
                                   childCount: prevItems.length,

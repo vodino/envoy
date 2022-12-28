@@ -9,9 +9,10 @@ class HomeFinderAppBar extends DefaultAppBar {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return CupertinoNavigationBar(
+      middle: Text("${localizations.waitingcouriers.capitalize()}..."),
       border: const Border.fromBorderSide(BorderSide.none),
-      middle: const Text("En attente de coursiers..."),
       backgroundColor: context.theme.colorScheme.surface,
       automaticallyImplyLeading: false,
       transitionBetweenRoutes: false,
@@ -53,6 +54,29 @@ class HomeFinderLoader extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class HomeFinderError extends StatelessWidget {
+  const HomeFinderError({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = context.localizations;
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            CupertinoIcons.clear_circled,
+            color: CupertinoColors.destructiveRed,
+            size: 70.0,
+          ),
+          const SizedBox(height: 8.0),
+          Text(localizations.nocouriers.capitalize())
+        ],
+      ),
     );
   }
 }

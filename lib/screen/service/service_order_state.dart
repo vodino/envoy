@@ -21,6 +21,10 @@ class FailureOrderState extends OrderState {
   final String message;
 }
 
+class SuccessOrderState extends OrderState {
+  const SuccessOrderState();
+}
+
 class OrderItemState extends OrderState {
   const OrderItemState({
     required this.data,

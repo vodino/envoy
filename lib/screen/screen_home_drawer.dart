@@ -58,7 +58,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
             SliverToBoxAdapter(
               child: CustomListTile(
                 leading: const Icon(CupertinoIcons.cube_box),
-                title: Text(localizations.orders.capitalize()),
+                title: Text('${localizations.order.capitalize()}s'),
                 onTap: () => _checkBeforeGoToPage(context, OrderRecordingScreen.name),
               ),
             ),
@@ -66,7 +66,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
             SliverToBoxAdapter(
               child: CustomListTile(
                 leading: const Icon(CupertinoIcons.tag),
-                title: Text(localizations.discounts.capitalize()),
+                title: Text('${localizations.discount.capitalize()}s'),
                 onTap: () => _checkBeforeGoToPage(context, DiscountScreen.name),
               ),
             ),

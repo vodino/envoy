@@ -27,6 +27,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/car.zip
   String get car => 'assets/images/car.zip';
 
+  /// File path: assets/images/envoy_circle_logo.png
+  AssetGenImage get envoyCircleLogo =>
+      const AssetGenImage('assets/images/envoy_circle_logo.png');
+
   /// File path: assets/images/envoy_icon.png
   AssetGenImage get envoyIcon =>
       const AssetGenImage('assets/images/envoy_icon.png');
@@ -53,16 +57,21 @@ class $AssetsImagesGen {
   /// File path: assets/images/motorbike2.zip
   String get motorbike2 => 'assets/images/motorbike2.zip';
 
+  /// File path: assets/images/pin.png
+  AssetGenImage get pin => const AssetGenImage('assets/images/pin.png');
+
   /// List of all assets
   List<dynamic> get values => [
         car,
+        envoyCircleLogo,
         envoyIcon,
         envoyLogo,
         mappinBlue,
         mappinOrange,
         moneyStack,
         motorbike,
-        motorbike2
+        motorbike2,
+        pin
       ];
 }
 

@@ -30,9 +30,13 @@ abstract class OrderEvent {
 class CreateOrder extends OrderEvent {
   const CreateOrder({
     required this.order,
+    required this.distance,
+    required this.duration,
   });
 
   final Order order;
+  final int distance;
+  final int duration;
 
   String get _url => '${RepositoryService.httpURL}/v1/api/deliveries';
 
@@ -43,8 +47,11 @@ class CreateOrder extends OrderEvent {
     service.value = const PendingOrderState();
     try {
       final body = {
-        "pickup_address": order.pickupPlace!.title,
-        "destination_address": order.deliveryPlace!.title,
+        'delay': duration,
+        'distance': distance,
+
+        "pickup_address": '${order.pickupPlace!.title}${order.pickupPlace!.subtitle != null ? ' (${order.pickupPlace!.subtitle})' : ''}',
+        "destination_address": '${order.deliveryPlace!.title} ${order.deliveryPlace!.subtitle != null ? ' (${order.deliveryPlace!.subtitle})' : ''}',
 
         ///
         "pickup_phone_number": order.pickupPhoneNumber?.phones?.join(', '),
@@ -149,8 +156,8 @@ class QueryOrder extends OrderEvent {
   Future<void> _execute(OrderService service) async {
     service.value = const PendingOrderState();
     try {
-    final client = ClientService.authenticated!;
-    final token = client.accessToken;
+      final client = ClientService.authenticated!;
+      final token = client.accessToken;
       final response = await Dio().getUri<String>(
         Uri.parse(_url),
         options: Options(headers: {
@@ -164,6 +171,54 @@ class QueryOrder extends OrderEvent {
           final data = await compute(Order.fromOtherServerJson, response.data!);
           await OrderService().handle(PutOrderList(data: [data]));
           service.value = OrderItemState(data: data);
+          break;
+        default:
+          service.value = FailureOrderState(
+            message: 'internal error',
+            event: this,
+          );
+      }
+    } catch (error) {
+      service.value = FailureOrderState(
+        message: error.toString(),
+        event: this,
+      );
+    }
+  }
+}
+
+class RateOrder extends OrderEvent {
+  const RateOrder({
+    required this.orderId,
+    required this.riderId,
+    required this.feedback,
+  });
+
+  final int orderId;
+  final int riderId;
+  final String feedback;
+
+  String get _url => '${RepositoryService.httpURL}/v1/api/client/ratings';
+
+  @override
+  Future<void> _execute(OrderService service) async {
+    service.value = const PendingOrderState();
+    try {
+      final client = ClientService.authenticated!;
+      final token = client.accessToken;
+      final body = {"rider_id": riderId, "nb_stars": 5, "initiator": "client", "feedback": feedback};
+      final response = await Dio().postUri<String>(
+        Uri.parse(_url),
+        data: jsonEncode(body),
+        options: Options(headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        }),
+      );
+      switch (response.statusCode) {
+        case 200:
+          service.value = const SuccessOrderState();
           break;
         default:
           service.value = FailureOrderState(
@@ -332,7 +387,7 @@ class GetOrderList extends OrderEvent {
       }
 
       if (subscription) {
-        query.sortByUpdatedAt().offset(offset).limit(limit).watch(fireImmediately: fireImmediately).listen((data) {
+        query.sortByUpdatedAtDesc().offset(offset).limit(limit).watch(fireImmediately: fireImmediately).listen((data) {
           service.value = OrderItemListState(data: data);
         });
       } else {

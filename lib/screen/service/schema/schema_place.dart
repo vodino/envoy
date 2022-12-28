@@ -180,6 +180,7 @@ class Place {
     this.title,
     this.extent,
     this.subtitle,
+    this.fakeTitle,
     this.latitude,
     this.longitude,
     this.osmTag,
@@ -195,6 +196,8 @@ class Place {
 
   String? title;
   String? subtitle;
+  @ignore
+  String? fakeTitle;
   double? latitude;
   double? longitude;
   @Enumerated(EnumType.name)
@@ -205,6 +208,7 @@ class Place {
     String? title,
     String? subtitle,
     double? latitude,
+    String? fakeTitle,
     double? longitude,
     PlaceOsmTag? osmTag,
     List<double>? extent,
@@ -212,10 +216,11 @@ class Place {
     return Place(
       title: title ?? this.title,
       extent: extent ?? this.extent,
+      osmTag: osmTag ?? this.osmTag,
       subtitle: subtitle ?? this.subtitle,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
-      osmTag: osmTag ?? this.osmTag,
+      fakeTitle: fakeTitle ?? this.fakeTitle,
     );
   }
 
@@ -223,16 +228,18 @@ class Place {
     return copyWith(
       title: title,
       extent: extent,
+      osmTag: osmTag,
       subtitle: subtitle,
       latitude: latitude,
       longitude: longitude,
-      osmTag: osmTag,
+      fakeTitle: fakeTitle,
     );
   }
 
   static Place fromMap(Map<String, dynamic> data) {
     return Place(
       title: data[titleKey],
+      fakeTitle: data[titleKey],
       subtitle: data[subtitleKey],
       latitude: data[latitudeKey],
       longitude: data[longitudeKey],
@@ -245,10 +252,10 @@ class Place {
     return {
       titleKey: title,
       extentKey: extent,
+      osmTagKey: osmTag,
       subtitleKey: subtitle,
       latitudeKey: latitude,
       longitudeKey: longitude,
-      osmTagKey: osmTag,
     };
   }
 
@@ -280,6 +287,7 @@ class Place {
         return Place(
           title: properties.name,
           extent: properties.extent,
+          fakeTitle: properties.name,
           subtitle: subtitles.join(', '),
           latitude: e.geometry?.coordinates?[1],
           longitude: e.geometry?.coordinates?[0],

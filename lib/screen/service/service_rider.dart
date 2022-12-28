@@ -27,9 +27,11 @@ abstract class RiderEvent {
 class GetAvailableRiders extends RiderEvent {
   const GetAvailableRiders({
     required this.source,
+    required this.destination,
   });
 
   final LatLng source;
+  final LatLng destination;
 
   String get url => '${RepositoryService.httpURL}/v1/api/riders/available';
 
@@ -37,8 +39,20 @@ class GetAvailableRiders extends RiderEvent {
   Future<void> _execute(RiderService service) async {
     service.value = const PendingRiderState();
     try {
-      final body = {'lat': source.latitude, 'long': source.longitude};
-      final response = await Dio().postUri<String>(Uri.parse(url), data: jsonEncode(body));
+      final body = {
+        'lat_from': source.latitude,
+        'long_from': source.longitude,
+        'lat_to': destination.latitude,
+        'long_to': destination.longitude,
+      };
+      final response = await Dio().postUri<String>(
+        Uri.parse(url),
+        data: jsonEncode(body),
+        options: Options(headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        }),
+      );
       final data = await compute(RiderResultSchema.fromJson, response.data!);
       service.value = RiderItemState(data: data);
     } catch (error) {

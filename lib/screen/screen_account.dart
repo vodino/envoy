@@ -23,10 +23,11 @@ class _AccountScreenState extends State<AccountScreen> {
     final value = await showDialog<String>(
       context: context,
       builder: (context) {
+        final localizations = context.localizations;
         return CustomTextFieldModal(
-          hint: 'Nom Complet',
-          title: 'Modifier le nom complet',
           value: _currentClient?.fullName,
+          hint: localizations.fullname.capitalize(),
+          title: localizations.modifyfullname.capitalize(),
         );
       },
     );
@@ -39,10 +40,11 @@ class _AccountScreenState extends State<AccountScreen> {
     final value = await showDialog<String>(
       context: context,
       builder: (context) {
+        final localizations = context.localizations;
         return CustomTextFieldModal(
-          hint: 'Numero de téléphone',
-          title: 'Modifier le numero de téléphone',
           value: _currentClient?.phoneNumber,
+          hint: localizations.phonenumber.capitalize(),
+          title: localizations.modifyphonenumber.capitalize(),
         );
       },
     );
@@ -143,6 +145,7 @@ class _AccountScreenState extends State<AccountScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return ValueListenableListener<ClientState>(
       listener: _listenInstanceClientState,
       valueListenable: _instanceClientService,
@@ -160,8 +163,8 @@ class _AccountScreenState extends State<AccountScreen> {
                     onTap: _openFullNameModal,
                     controller: _fullNameTextController,
                     decoration: InputDecoration(
-                      labelText: 'Nom complet',
                       border: const UnderlineInputBorder(),
+                      labelText: localizations.fullname.capitalize(),
                       suffixIcon: ValueListenableConsumer<ClientState>(
                         listener: _listenClientState,
                         valueListenable: _clientService,
@@ -188,7 +191,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     onTap: _openPhoneNumberModal,
                     controller: _phoneTextController,
                     decoration: InputDecoration(
-                      labelText: 'Numréro de téléphone',
+                      labelText: localizations.phonenumber.capitalize(),
                       border: const UnderlineInputBorder(),
                       suffixIcon: ValueListenableConsumer<AuthState>(
                         listener: _listenAuthState,

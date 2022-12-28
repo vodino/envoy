@@ -25,9 +25,7 @@ class _OrderContentScreenState extends State<OrderContentScreen> {
     Navigator.pushAndRemoveUntil(
       context,
       CupertinoPageRoute(builder: (context) {
-        return HomeScreen(
-          order: order,
-        );
+        return HomeScreen(order: order);
       }),
       (route) => true,
     );
@@ -116,111 +114,27 @@ class _OrderContentScreenState extends State<OrderContentScreen> {
       valueListenable: _routeService,
       child: Scaffold(
         appBar: const OrderContentAppBar(),
-        body: BottomAppBar(
-          elevation: 0.0,
-          color: Colors.transparent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: CustomScrollView(
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: CustomListTile(
-                        height: 55.0,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              widget.order.name?.capitalize() ?? 'Commande',
-                              style: context.theme.textTheme.titleLarge,
-                            ),
-                            Text(
-                              '${widget.order.price} F',
-                              style: context.cupertinoTheme.textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: AspectRatio(
-                        aspectRatio: 2.5,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12.0),
-                            child: HomeMap(
-                              myLocationEnabled: false,
-                              onMapCreated: _onMapCreated,
-                              initialCameraPosition: CameraPosition(
-                                target: LatLng(widget.order.pickupPlace!.latitude!, widget.order.pickupPlace!.longitude!),
-                                zoom: 10.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: OrderContentListTile(
-                        title: Text(widget.order.pickupPlace!.title!),
-                        iconColor: CupertinoColors.activeBlue,
-                      ),
-                    ),
-                    const SliverToBoxAdapter(child: Divider()),
-                    SliverToBoxAdapter(
-                      child: OrderContentListTile(
-                        title: Text(widget.order.deliveryPlace!.title!),
-                        iconColor: CupertinoColors.activeOrange,
-                      ),
-                    ),
-                    const SliverToBoxAdapter(child: Divider(thickness: 8.0, height: 8.0)),
-                    SliverToBoxAdapter(
-                      child: CustomListTile(
-                        title: Text('Contact de la collecte', style: context.theme.textTheme.caption),
-                        subtitle: Text(
-                          widget.order.pickupPhoneNumber!.phones!.join(', '),
-                          style: context.cupertinoTheme.textTheme.textStyle,
-                        ),
-                      ),
-                    ),
-                    const SliverToBoxAdapter(child: Divider()),
-                    SliverToBoxAdapter(
-                      child: CustomListTile(
-                        title: Text('Contact de la livraison', style: context.theme.textTheme.caption),
-                        subtitle: Text(
-                          widget.order.deliveryPhoneNumber!.phones!.join(', '),
-                          style: context.cupertinoTheme.textTheme.textStyle,
-                        ),
-                      ),
-                    ),
-                    SliverVisibility(
-                      visible: widget.order.rider != null,
-                      sliver: Builder(
-                        builder: (context) {
-                          return MultiSliver(
-                            children: [
-                              const SliverToBoxAdapter(child: Divider(thickness: 8.0, height: 8.0)),
-                              SliverToBoxAdapter(
-                                child: CustomListTile(
-                                  leading: const CircleAvatar(backgroundColor: CupertinoColors.systemGrey4),
-                                  title: Text('Coursier de la commande', style: context.theme.textTheme.caption),
-                                  subtitle: Text(
-                                    widget.order.rider!.fullName!,
-                                    style: context.cupertinoTheme.textTheme.navTitleTextStyle,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+        body: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: AspectRatio(
+                aspectRatio: 2.5,
+                child: HomeMap(
+                  myLocationEnabled: false,
+                  onMapCreated: _onMapCreated,
+                  initialCameraPosition: CameraPosition(target: LatLng(widget.order.pickupPlace!.latitude!, widget.order.pickupPlace!.longitude!), zoom: 10.0),
                 ),
               ),
+            ),
+            SliverToBoxAdapter(child: HomeOrderDetailsScreen(order: widget.order)),
+          ],
+        ),
+        bottomNavigationBar: BottomAppBar(
+          elevation: 0.0,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
               const Divider(),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),

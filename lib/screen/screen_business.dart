@@ -80,6 +80,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return Scaffold(
       appBar: const BusinessAppBar(),
       body: BottomAppBar(
@@ -89,36 +90,18 @@ class _BusinessScreenState extends State<BusinessScreen> {
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           slivers: [
             const SliverToBoxAdapter(child: SizedBox(height: 8.0)),
-            const SliverToBoxAdapter(
-              child: CustomListTile(height: 30.0, title: Text('Contact')),
-            ),
+            const SliverToBoxAdapter(child: BusinessContactLabel()),
             SliverToBoxAdapter(
-              child: ClipRect(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Autocomplete<String>(
-                    optionsBuilder: (textValue) {
-                      final phones = [ClientService.authenticated!.phoneNumber!];
-                      return phones.where((item) => textValue.text.isNotEmpty ? item.contains(textValue.text): true);
-                    },
-                    fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
-                      _phoneTextController = textEditingController;
-                      return CustomTextField(
-                        focusNode: focusNode,
-                        margin: EdgeInsets.zero,
-                        controller: textEditingController,
-                        hintText: 'Email ou Numéro de téléphone',
-                        onFieldSubmitted: (_) => onFieldSubmitted(),
-                      );
-                    },
-                  ),
-                ),
+              child: BusinessPhoneTextField(
+                optionsBuilder: (textValue) {
+                  final phones = [ClientService.authenticated!.phoneNumber!];
+                  return phones.where((item) => textValue.text.isNotEmpty ? item.contains(textValue.text) : true);
+                },
+                onControllerCreated: (controller) => _phoneTextController = controller,
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 8.0)),
-            const SliverToBoxAdapter(
-              child: CustomListTile(height: 30.0, title: Text('Requête')),
-            ),
+            const SliverToBoxAdapter(child: BusinessRequestLabel()),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -136,20 +119,10 @@ class _BusinessScreenState extends State<BusinessScreen> {
                     return ValueListenableBuilder<RequestSchema?>(
                       valueListenable: _requestItem,
                       builder: (context, value, child) {
-                        return DropdownButtonFormField<RequestSchema>(
-                          value: value,
-                          isDense: true,
-                          isExpanded: true,
-                          onChanged: onChanged,
-                          hint: const Text("Selectionner un business"),
+                        return BusinessRequestDropdownFormField<RequestSchema>(
                           items: items?.map((e) => DropdownMenuItem<RequestSchema>(value: e, child: Text(e.title!))).toList(),
-                          decoration: InputDecoration(
-                            filled: true,
-                            isCollapsed: true,
-                            fillColor: CupertinoColors.systemGrey5,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: BorderSide.none),
-                          ),
+                          onChanged: onChanged,
+                          value: value,
                         );
                       },
                     );
@@ -158,17 +131,8 @@ class _BusinessScreenState extends State<BusinessScreen> {
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 8.0)),
-            const SliverToBoxAdapter(
-              child: CustomListTile(height: 30.0, title: Text('Message')),
-            ),
-            SliverToBoxAdapter(
-              child: CustomTextField(
-                controller: _messageTextController,
-                hintText: 'Ecrire...',
-                maxLines: 5,
-                minLines: 5,
-              ),
-            ),
+            const SliverToBoxAdapter(child: BusinessMessageLabel()),
+            SliverToBoxAdapter(child: BusinessMessageTextField(controller: _messageTextController)),
             SliverFillRemaining(
               hasScrollBody: false,
               fillOverscroll: true,
@@ -196,7 +160,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
                               child: Visibility(
                                 visible: value == null || onPressed != null,
                                 replacement: const CupertinoActivityIndicator(),
-                                child: Text('Envoyer', style: style),
+                                child: Text(localizations.send.capitalize(), style: style),
                               ),
                             );
                           },

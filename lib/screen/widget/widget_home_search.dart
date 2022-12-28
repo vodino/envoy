@@ -105,6 +105,7 @@ class HomeSearchFields extends StatelessWidget {
                                     backgroundColor: Colors.transparent,
                                     suffixMode: OverlayVisibilityMode.editing,
                                     suffixIcon: const Icon(CupertinoIcons.clear),
+                                    placeholder: localizations.pickuppoint.capitalize(),
                                     prefixIcon: const Icon(CupertinoIcons.search, color: CupertinoColors.activeBlue),
                                   ),
                                 ),
@@ -113,7 +114,7 @@ class HomeSearchFields extends StatelessWidget {
                                   builder: (context, focusNode, child) {
                                     return Visibility(
                                       visible: focusNode.hasFocus,
-                                      child: _mapButton(onPressed: onDeliveryMapPressed),
+                                      child: _mapButton(onPressed: onPickupMapPressed),
                                     );
                                   },
                                 ),
@@ -293,7 +294,7 @@ class HomeSearchFieldButtons extends StatelessWidget {
               child: CustomListTile(
                 height: 60.0,
                 title: pickupWidget,
-                subtitle: pickupWidget == null ? const Text('Point de ramassage') : null,
+                subtitle: pickupWidget == null ? Text(localizations.pickuppoint.capitalize()) : null,
                 leading: const Icon(CupertinoIcons.circle, size: 16.0, color: CupertinoColors.activeBlue),
               ),
             ),
@@ -309,6 +310,24 @@ class HomeSearchFieldButtons extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class HomeOrderSearchPrevTile extends StatelessWidget {
+  const HomeOrderSearchPrevTile({super.key, this.onTap});
+
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = context.localizations;
+    return CustomListTile(
+      onTap: onTap,
+      title: Text(
+        localizations.searchprevorders.capitalize(),
+        style: const TextStyle(color: Colors.blue),
       ),
     );
   }

@@ -62,7 +62,10 @@ class _HelpFaqScreenState extends State<HelpFaqScreen> {
                   ),
                 );
               }
-              return SliverFillRemaining(hasScrollBody: false, child: CustomErrorPage(onTap: () => _queryRubricList(true)));
+              return SliverFillRemaining(
+                hasScrollBody: false,
+                child: CustomErrorPage(onTap: () => _queryRubricList(true)),
+              );
             },
           ),
         ],

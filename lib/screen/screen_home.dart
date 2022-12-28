@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
@@ -75,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context: _context,
       enableDrag: false,
       builder: (context) {
-        return HomeDeliveryScreen(
+        return HomeOrderProgressScreen(
           popController: popController,
         );
       },
@@ -160,7 +161,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onMapCreated(MaplibreMapController controller) async {
     _mapController = controller;
-    await _mapController!.updateContentInsets(EdgeInsets.only(bottom: _height * 0.4, right: 16.0, left: 16.0));
+    final bottom = Platform.isIOS ? _height * 0.4 : _height * 0.5;
+    await _mapController!.updateContentInsets(EdgeInsets.only(bottom: bottom, right: 16.0, left: 16.0));
     _goToMyPosition();
   }
 
@@ -174,9 +176,10 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
     _userLocation = location;
+    _goToMyPosition();
   }
 
-  void _onCameraIdle(PointerMoveEvent event) {
+  void _onPointUp(PointerUpEvent event) {
     _myPositionFocus.value = false;
   }
 
@@ -185,15 +188,16 @@ class _HomeScreenState extends State<HomeScreen> {
       final position = _userLocation!.position;
       _mapController!.animateCamera(
         CameraUpdate.newCameraPosition(CameraPosition(
-          bearing: _userLocation!.bearing!,
           target: position,
           zoom: 16.0,
         )),
+        duration: const Duration(seconds: 1),
       );
     }
   }
 
   Future<void> _drawLines(List<RouteSchema> routes) async {
+    _myPositionFocus.value = false;
     await _clearMap();
 
     /// Draw
@@ -253,11 +257,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// OrderService
+  late final OrderService _progressOrderService;
   late final OrderService _orderService;
 
-  void _getOrderList() {
-    _orderService.handle(const QueryOrderList(
+  void _getProgressOrderList() {
+    _progressOrderService.handle(const QueryOrderList(
       notEqualStatus: OrderStatus.delivered,
+      isNullStatus: false,
+      subscription: true,
+    ));
+  }
+
+  void _getOrderList() {
+    _orderService.handle(const GetOrderList(
+      equalStatus: OrderStatus.delivered,
+      fireImmediately: false,
       isNullStatus: false,
       subscription: true,
     ));
@@ -265,8 +279,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _listenOrderState(BuildContext context, OrderState state) {
     if (state is OrderItemListState) {
-      // final data = state.data;
-      // if (data.isNotEmpty) _openOrderFeedback(data.first);
+      final data = state.data;
+      if (data.isNotEmpty && data.any((element) => element.status == OrderStatus.delivered)) {
+        final item = data.firstWhere((element) => element.status == OrderStatus.delivered);
+        _openOrderFeedback(item);
+      }
     }
   }
 
@@ -275,6 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _listenClientState(BuildContext context, ClientState state) {
     if (state is ClientItemState) {
+      _getProgressOrderList();
       _getOrderList();
     }
   }
@@ -297,7 +315,9 @@ class _HomeScreenState extends State<HomeScreen> {
     _clientService = ClientService.instance();
 
     /// OrderService
+    _progressOrderService = OrderService();
     _orderService = OrderService();
+    _getProgressOrderList();
     _getOrderList();
   }
 
@@ -336,9 +356,8 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ValueListenableConsumer<OrderState>(
-                    listener: _listenOrderState,
-                    valueListenable: _orderService,
+                  ValueListenableBuilder<OrderState>(
+                    valueListenable: _progressOrderService,
                     builder: (context, state, child) {
                       List<Order>? items;
                       if (state is OrderItemListState) items = state.data.where((item) => item.status != null && item.status != OrderStatus.delivered).toList();
@@ -382,7 +401,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: AfterLayout(
                 listener: _afterLayout,
                 child: Listener(
-                  onPointerMove: _onCameraIdle,
+                  onPointerUp: _onPointUp,
                   child: HomeMap(
                     onMapCreated: _onMapCreated,
                     onUserLocationUpdated: _onUserLocationUpdated,

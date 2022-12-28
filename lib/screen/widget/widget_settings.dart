@@ -66,7 +66,7 @@ class SettingsDeleteModal extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoAlertDialog(
       content: const Text(
-        'Voulez-vous vraiment vous supprimer votre compte ?\nLa suppression de votre compte entrainera la suppression de toutes vos données sur Envoy Serveur',
+        'Voulez-vous vraiment supprimer votre compte ?\nLa suppression de votre compte entrainera la suppression de toutes vos données sur Envoy Serveur',
       ),
       actions: [
         CupertinoDialogAction(

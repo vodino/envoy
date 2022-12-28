@@ -76,9 +76,6 @@ class Order {
   Id? id;
   String? name;
 
-  @Index(type: IndexType.value, caseSensitive: false)
-  List<String> get nameWords => Isar.splitWords(name!);
-
   @Index()
   double? price;
 
@@ -89,12 +86,8 @@ class Order {
   double? amountPaidedByRider;
 
   String? pickupAdditionalInfo;
-  @Index(type: IndexType.value, caseSensitive: false)
-  List<String> get pickupAdditionalInfoWords => Isar.splitWords(pickupAdditionalInfo!);
 
   String? deliveryAdditionalInfo;
-  @Index(type: IndexType.value, caseSensitive: false)
-  List<String> get deliveryAdditionalInfoWords => Isar.splitWords(deliveryAdditionalInfo!);
 
   Place? pickupPlace;
   Place? deliveryPlace;

@@ -1,8 +1,9 @@
 {
+    "ok": "ok",
     "wheretodelivery": "where to deliver?",
     "profile": "account",
-    "orders": "orders",
-    "discounts": "discounts",
+    "order": "order",
+    "discount": "discount",
     "business": "business",
     "faq": "frequently asked questions",
     "support": "support",
@@ -12,9 +13,148 @@
     "receivingcalls": "receiving calls",
     "notifications": "notifications",
     "language": "language",
-    "selectlanguage": "Select a language",
+    "selectlanguage": "select a language",
     "logout": "logout",
     "hospital": "hospital",
     "airport": "airport",
-    "neighbourhood": "neighbourhood"
+    "neighbourhood": "neighbourhood",
+
+    "fullname": "fullname",
+    "modifyfullname": "edit the fullname",
+    "phonenumber": "phone number",
+    "modifyphonenumber": "edit the phone number",
+    "selectcountry": "select a country",
+    "cancel": "cancel",
+    "finished": "finished",
+    "fieldcannotbeempty": "this field cannot be empty",
+    "errorhasoccurred": "an error has occurred",
+    "clicktry": "click here to try again",
+    "accountinfo": "account information",
+    "enteraccountinfo": "enter account information",
+
+    "authenticatephonenumberbysms": "authenticate your phone number by sms",
+    "codecheck": "code check",
+    "entercodereceivedphonenumber": "enter the code received at the phone number",
+    "resendcode": "resend the code",
+    "inside": "in",
+    "dialcode": "dialcode",
+    "acceptthe": "accept the",
+    "termsofuse": "terms of use",
+    "theuseofpersonalinformation": "and the use of your personal information in accordance with the",
+    "privacypolicies": "privacy policies",
+    "phonenumberrequired": "phone number is required",
+    "dialcoderequired": "dialcode is required",
+    "readandacceptterms": "please read and accept the terms of the contract",
+    "receivedrequest": "we have received your request and will get back to you shortly",
+
+    "emailorphonenumber": "email or phone number",
+    "request": "request",
+    "contact": "contact",
+    "message": "message",
+    "send": "send",
+    "selectbusiness": "select a business",
+    "tap": "tap",
+    "nameorphonenumber": "name or phone number",
+    "me": "me",
+    "discountcoupons": "discount coupons",
+    "code": "code",
+    "enterdiscount": "enter a discount code",
+    "deliveries": "deliveries",
+    "expiresdays": "expires in {count} days", 
+    "@expiresdays": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "percentdiscount": "{percent} off", 
+    "@percentdiscount": {
+        "placeholders": {
+            "percent": {
+                "type": "int",
+                "example": "1.0"
+            }
+        }
+    },
+    "expiresin": "expires on",
+    "discountsuccessfully": "discount applied successfully",
+    "nodiscountcoupons": "no discount coupons available",
+    "clickbutton": "click the button",
+    "toadd": "to add",
+    "waitingcouriers": "waiting for couriers",
+    "nocouriers": "no couriers available",
+    "tryagain": "try again",
+    "amount": "amount",
+    "enteramount": "enter a amount",
+    "placeorder": "place an order",
+    "selectdate": "select a date",
+
+    "ordername": "order name",
+    "infopickup": "more info on pickup",
+    "contactpickup": "contact for pickup",
+    "infodelivery": "more info on delivery",
+    "contactdelivery": "contact for delivery",
+    "contactpickuprequired": "contact for pickup is required",
+    "contactdeliveryrequired": "contact for delivery is required",
+
+    "program": "program",
+    "purchasecourier": "purchase by courier",
+    "oopsnocourier": "oops, no couriers available",
+    "toorder": "order",
+    "onmotorbike": "on motorbike",
+
+    "createdate": "created the {date} to {time}", 
+    "@createdate": {
+        "placeholders": {
+            "date": {
+                "type": "String",
+                "example": "2020/02/02"
+            },
+            "time": {
+                "type": "String",
+                "example": "02:20"
+            }
+        }
+    },
+    "moreinfo": "more info",
+    "deliveryprice": "delivery price",
+    "orderstatus": "order status",
+    "acceptedcourier": "accepted by courier",
+    "beingcollected": "being collected",
+    "beingdelivered": "being delivered",
+    "deliveredcompleted": "delivered and completed",
+    "courier": "courier",
+    "orderdetails": "order details",
+
+    "fromto": "from {from} to {to}", 
+    "@fromto": {
+        "placeholders": {
+            "from": {
+                "type": "String",
+                "example": "2020/02/02"
+            },
+            "to": {
+                "type": "String",
+                "example": "02:20"
+            }
+        }
+    },
+    "close": "close",
+    "pendingorder": "pending order",
+    "nameplacephonenumber": "name, place or phone number",
+    "pickuppoint": "pickup point",
+    "deliverypoint": "delivery point",
+    "currentposition": "current position",
+    "searchprevorders": "search previous orders",
+    "details": "details",
+    "trackingorder": "tracking order",
+    "activeorder": "active order",
+    "scheduledorder": "scheduled order",
+    "currentorder": "current order",
+    "completedorder": "completed order",
+    "noactiveorder": "no active orders",
+    "nocompletedorder": "no completed orders",
+    "systemlanguage": "system language"
 }

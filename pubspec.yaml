@@ -46,6 +46,7 @@ dependencies:
   firebase_auth:
   firebase_core:
   hive_flutter:
+  url_launcher:
   location:
   jiffy:
   isar: *isar_version
@@ -70,6 +71,7 @@ flutter_gen:
 flutter_icons:
   ios: true
   android: true
+  image_path_android: "assets/images/envoy_circle_logo.png"
   image_path: "assets/images/envoy_logo.png"
 
 flutter_native_splash:

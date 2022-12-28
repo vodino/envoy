@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 	<dict>
+		<key>BGTaskSchedulerPermittedIdentifiers</key>
+		<array>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+		</array>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
 		<true/>
 		<key>CFBundleDevelopmentRegion</key>
@@ -22,10 +26,6 @@
 		<string>$(FLUTTER_BUILD_NAME)</string>
 		<key>CFBundleSignature</key>
 		<string>????</string>
-		<key>CFBundleURLSchemes</key>
-		<array>
-			<string>app-1-994564375959-ios-7d5550914a0a18d8c570d2</string>
-		</array>
 		<key>CFBundleURLTypes</key>
 		<array>
 			<dict>
@@ -41,8 +41,10 @@
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>FirebaseAppDelegateProxyEnabled</key>
 		<false/>
-		<key>GoogleUtilitiesAppDelegateProxyEnabled</key>
-		<false/>
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>tel</string>
+		</array>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
 		<key>NSBonjourServices</key>
@@ -50,12 +52,22 @@
 			<string>_googlecast._tcp</string>
 			<string>_dartobservatory._tcp</string>
 		</array>
-		<key>NSLocalNetworkUsageDescription</key>
-		<string>${PRODUCT_NAME} uses the local network to discover Cast-enabled devices on your WiFi network.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>camera</string>
+		<key>NSContactsUsageDescription</key>
+		<string>contacts</string>
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-		<string>The app needs it</string>
+		<string>Always and when in use!</string>
+		<key>NSLocationAlwaysUsageDescription</key>
+		<string>Can I have location always?</string>
+		<key>NSLocationUsageDescription</key>
+		<string>Older devices need location.</string>
 		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>The app needs it</string>
+		<string>Need location when in use</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>microphone</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>photos</string>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
 		<key>UIBackgroundModes</key>
@@ -64,10 +76,6 @@
 			<string>location</string>
 			<string>processing</string>
 			<string>remote-notification</string>
-		</array>
-		<key>BGTaskSchedulerPermittedIdentifiers</key>
-		<array>
-			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 		</array>
 		<key>UILaunchStoryboardName</key>
 		<string>LaunchScreen</string>
@@ -86,8 +94,6 @@
 		</array>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
-		<key>NSContactsUsageDescription</key>
-		<string>Reason we need access to the contact list</string>
 		<key>UIStatusBarHidden</key>
 		<false/>
 	</dict>

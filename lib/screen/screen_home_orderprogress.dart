@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 
 import '_screen.dart';
 
-class HomeDeliveryScreen extends StatefulWidget {
-  const HomeDeliveryScreen({
+class HomeOrderProgressScreen extends StatefulWidget {
+  const HomeOrderProgressScreen({
     super.key,
     required this.popController,
   });
   final ValueNotifier<Order?> popController;
 
   @override
-  State<HomeDeliveryScreen> createState() => _HomeDeliveryScreenState();
+  State<HomeOrderProgressScreen> createState() => _HomeOrderProgressScreenState();
 }
 
-class _HomeDeliveryScreenState extends State<HomeDeliveryScreen> {
+class _HomeOrderProgressScreenState extends State<HomeOrderProgressScreen> {
   /// OrderService
   late final OrderService _orderService;
 
@@ -38,6 +38,7 @@ class _HomeDeliveryScreenState extends State<HomeDeliveryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return DraggableScrollableSheet(
       expand: false,
       maxChildSize: 0.5,
@@ -45,7 +46,7 @@ class _HomeDeliveryScreenState extends State<HomeDeliveryScreen> {
       initialChildSize: 0.5,
       builder: (context, scrollController) {
         return Scaffold(
-          appBar: const HomeDeliveryAppBar(),
+          appBar: const HomeOrderProgressAppBar(),
           body: BottomAppBar(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -66,20 +67,11 @@ class _HomeDeliveryScreenState extends State<HomeDeliveryScreen> {
                           },
                           itemBuilder: (context, index) {
                             final item = items[index];
-                            return CustomListTile(
-                              height: 60.0,
-                              leading: CustomCircleAvatar(
-                                radius: 18.0,
-                                elevation: 0.0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-                                child: const Icon(Icons.motorcycle),
-                              ),
-                              subtitle: Text('De ${item.pickupPlace?.title} à ${item.deliveryPlace?.title}'),
-                              trailing: Text(
-                                '${item.price} F',
-                                style: context.cupertinoTheme.textTheme.navTitleTextStyle,
-                              ),
-                              title: Text(item.name ?? ''),
+                            return OrderRecordingItemTile(
+                              title: item.name?.capitalize() ?? '',
+                              from: item.pickupPlace!.title!,
+                              to: item.deliveryPlace!.title!,
+                              price: item.price!,
                               onTap: () {
                                 widget.popController.value = item;
                                 Navigator.pop(context);
@@ -97,7 +89,7 @@ class _HomeDeliveryScreenState extends State<HomeDeliveryScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                   child: CustomOutlineButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Fermer'),
+                    child: Text(localizations.close.capitalize()),
                   ),
                 ),
               ],

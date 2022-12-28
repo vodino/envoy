@@ -28,9 +28,19 @@ class _OrderFeedbackScreenState extends State<OrderFeedbackScreen> {
   /// OrderService
   late final OrderService _orderService;
 
-  void _listenOrderState(BuildContext context, OrderState state) {}
+  void _listenOrderState(BuildContext context, OrderState state) {
+    if (state is SuccessOrderState) {
+      Navigator.pop(context);
+    }
+  }
 
-  void _submitMessage() {}
+  void _rateOrder() {
+    _orderService.handle(RateOrder(
+      orderId: widget.order.id!,
+      riderId: widget.order.rider!.id!,
+      feedback: _messageTextController.text,
+    ));
+  }
 
   @override
   void initState() {
@@ -55,12 +65,15 @@ class _OrderFeedbackScreenState extends State<OrderFeedbackScreen> {
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           slivers: [
             const SliverToBoxAdapter(child: SizedBox(height: 16.0)),
-            const SliverPadding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
               sliver: SliverToBoxAdapter(
                 child: AspectRatio(
                   aspectRatio: 4.0,
-                  child: CircleAvatar(backgroundColor: CupertinoColors.systemGrey),
+                  child: CustomCircleAvatar(
+                    backgroundColor: CupertinoColors.systemGrey,
+                    foregroundImage: widget.order.rider!.avatar != null ? NetworkImage('${RepositoryService.httpURL}/storage/${widget.order.rider!.avatar}') : null,
+                  ),
                 ),
               ),
             ),
@@ -120,7 +133,7 @@ class _OrderFeedbackScreenState extends State<OrderFeedbackScreen> {
                       listener: _listenOrderState,
                       valueListenable: _orderService,
                       builder: (context, state, child) {
-                        VoidCallback? onPressed = _submitMessage;
+                        VoidCallback? onPressed = _rateOrder;
                         if (state is PendingOrderState) onPressed = null;
                         return CupertinoButton.filled(
                           padding: EdgeInsets.zero,

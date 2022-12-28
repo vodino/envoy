@@ -7,13 +7,13 @@ class AuthCountryAppBar extends DefaultAppBar {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return CupertinoNavigationBar(
+      middle: Text(localizations.selectcountry.capitalize()),
       border: const Border.fromBorderSide(BorderSide.none),
-      middle: const Text("Selectionner un pays"),
       backgroundColor: context.theme.colorScheme.surface,
       automaticallyImplyLeading: false,
       transitionBetweenRoutes: false,
-
     );
   }
 }

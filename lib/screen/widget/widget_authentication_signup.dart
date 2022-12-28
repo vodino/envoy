@@ -6,9 +6,10 @@ class AuthSignupAppBar extends DefaultAppBar {
   const AuthSignupAppBar({super.key});
   @override
   Widget build(BuildContext context) {
-    return const CupertinoNavigationBar(
-      middle: Text('Informations du compte'),
-      border: Border.fromBorderSide(BorderSide.none),
+    final localizations = context.localizations;
+    return CupertinoNavigationBar(
+      middle: Text(localizations.accountinfo.capitalize()),
+      border: const Border.fromBorderSide(BorderSide.none),
       transitionBetweenRoutes: false,
     );
   }
@@ -19,10 +20,11 @@ class AuthSignupTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return CustomListTile(
       title: Center(
         child: Text(
-          "Entrer votre vrai nom complet pour pouvoir mieux utiliser l'application.",
+          localizations.enteraccountinfo.capitalize(),
           style: context.cupertinoTheme.textTheme.navTitleTextStyle.copyWith(
             color: CupertinoColors.systemGrey,
             fontWeight: FontWeight.w400,
@@ -42,7 +44,8 @@ class AuthSignupFullNameLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const CustomListTile(height: 30.0, title: Text('Nom Complet'));
+    final localizations = context.localizations;
+    return CustomListTile(height: 30.0, title: Text(localizations.fullname.capitalize()));
   }
 }
 
@@ -58,8 +61,9 @@ class AuthSignupFullNameTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return CustomTextField(
-      hintText: 'nom complet',
+      hintText: localizations.fullname.capitalize(),
       controller: controller,
       focusNode: focusNode,
       autofocus: true,

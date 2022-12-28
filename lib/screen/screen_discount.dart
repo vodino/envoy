@@ -3,12 +3,17 @@ import 'package:flutter/material.dart';
 
 import '_screen.dart';
 
-class DiscountScreen extends StatelessWidget {
+class DiscountScreen extends StatefulWidget {
   const DiscountScreen({super.key});
 
   static const String path = 'discount';
   static const String name = 'discount';
 
+  @override
+  State<DiscountScreen> createState() => _DiscountScreenState();
+}
+
+class _DiscountScreenState extends State<DiscountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,36 +38,18 @@ class DiscountScreen extends StatelessWidget {
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   return DiscountListTile(
-                    title: '50% de réduction',
                     dateTime: DateTime.now(),
                     deliveries: 3,
+                    percent: 50,
                   );
                 },
                 childCount: 3,
               ),
             ),
           ),
-          SliverVisibility(
+          const SliverVisibility(
             visible: false,
-            sliver: SliverFillRemaining(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Text.rich(
-                    const TextSpan(
-                      text: "Vous n'avez pas de coupons disponibles. ",
-                      children: [
-                        TextSpan(text: 'Cliquez le button '),
-                        WidgetSpan(child: Icon(CupertinoIcons.add_circled, size: 18.0)),
-                        TextSpan(text: ' pour en ajouter.'),
-                      ],
-                    ),
-                    textAlign: TextAlign.center,
-                    textScaleFactor: context.mediaQuery.textScaleFactor,
-                  ),
-                ),
-              ),
-            ),
+            sliver: SliverFillRemaining(child: DiscountEmptyMessage()),
           ),
         ],
       ),

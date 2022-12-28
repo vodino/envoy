@@ -45,6 +45,7 @@ class HomeAppBar extends DefaultAppBar {
 class HomeMap extends StatelessWidget {
   const HomeMap({
     super.key,
+    this.onMapIdle,
     this.onMapClick,
     this.onCameraIdle,
     this.onMapCreated,
@@ -54,7 +55,9 @@ class HomeMap extends StatelessWidget {
     this.onStyleLoadedCallback,
     this.myLocationEnabled = true,
   });
+
   final bool myLocationEnabled;
+  final VoidCallback? onMapIdle;
   final VoidCallback? onCameraIdle;
   final OnMapClickCallback? onMapClick;
   final MapCreatedCallback? onMapCreated;
@@ -66,6 +69,7 @@ class HomeMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaplibreMap(
+      onMapIdle: onMapIdle,
       compassEnabled: false,
       onMapClick: onMapClick,
       onMapCreated: onMapCreated,

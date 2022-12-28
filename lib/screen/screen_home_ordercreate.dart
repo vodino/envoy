@@ -31,14 +31,57 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
     final value = await showDialog<String>(
       context: context,
       builder: (context) {
+        final localizations = context.localizations;
         return CustomTextFieldModal(
-          hint: 'Montant',
-          title: 'Entrer le montant à payer',
+          hint: localizations.amount.capitalize(),
           value: _amountPayByCourierController.value,
+          title: localizations.enteramount.capitalize(),
         );
       },
     );
     if (value != null) _amountPayByCourierController.value = value;
+  }
+
+  Future<Place?> _openLocationMap({
+    required LatLng position,
+    required PlaceCategory category,
+  }) {
+    return Navigator.of(context, rootNavigator: true).push<Place>(
+      CupertinoPageRoute(builder: (context) {
+        return LocationMapScreen(
+          category: category,
+          postion: position,
+        );
+      }),
+    );
+  }
+
+  void _onPickupMapPressed() async {
+    final data = await _openLocationMap(
+      category: PlaceCategory.source,
+      position: LatLng(
+        _orderController.value.pickupPlace!.latitude!,
+        _orderController.value.pickupPlace!.longitude!,
+      ),
+    );
+    if (data != null) {
+      _orderController.value = _orderController.value.copyWith(pickupPlace: data);
+      _getRiderAvailable();
+    }
+  }
+
+  void _onDeliveryMapPressed() async {
+    final data = await _openLocationMap(
+      category: PlaceCategory.destination,
+      position: LatLng(
+        _orderController.value.deliveryPlace!.latitude!,
+        _orderController.value.deliveryPlace!.longitude!,
+      ),
+    );
+    if (data != null) {
+      _orderController.value = _orderController.value.copyWith(deliveryPlace: data);
+      _getRiderAvailable();
+    }
   }
 
   Future<void> _switchAmountPayByCourier(bool value) async {
@@ -104,11 +147,18 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
   /// RiderService
   late final RiderService _riderService;
   late final ValueNotifier<RiderType> _riderTypeController;
-  List<PriceSchema>? _orderPriceItems;
+  RiderResultSchema? _orderPriceResult;
 
   void _listenRiderState(BuildContext context, RiderState state) {
     if (state is RiderItemState) {
-      _orderPriceItems = state.data.prices;
+      _orderPriceResult = state.data;
+    } else if (state is FailureRiderState) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return HomeOrderErrorModal(text: state.message);
+        },
+      );
     }
   }
 
@@ -117,6 +167,10 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
       source: LatLng(
         _orderController.value.pickupPlace!.latitude!,
         _orderController.value.pickupPlace!.longitude!,
+      ),
+      destination: LatLng(
+        _orderController.value.deliveryPlace!.latitude!,
+        _orderController.value.deliveryPlace!.longitude!,
       ),
     ));
   }
@@ -127,6 +181,13 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
   void _listenOrderState(BuildContext context, OrderState state) {
     if (state is OrderItemState) {
       Navigator.of(context, rootNavigator: true).pop(state.data);
+    } else if (state is FailureOrderState) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return HomeOrderErrorModal(text: state.message);
+        },
+      );
     }
   }
 
@@ -135,8 +196,9 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
       showDialog(
         context: context,
         builder: (context) {
-          return const HomeOrderErrorModal(
-            text: 'Contact pour le ramassage ne peut être vide. Choisissez un contact',
+          final localizations = context.localizations;
+          return HomeOrderErrorModal(
+            text: localizations.contactpickuprequired.capitalize(),
           );
         },
       );
@@ -146,16 +208,18 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
       showDialog(
         context: context,
         builder: (context) {
-          return const HomeOrderErrorModal(
-            text: 'Contact pour la livraison ne peut être vide. Choisissez un contact',
+          final localizations = context.localizations;
+          return HomeOrderErrorModal(
+            text: localizations.contactdeliveryrequired.capitalize(),
           );
         },
       );
       return;
     }
-
     _orderService.handle(
       CreateOrder(
+        duration: _orderPriceResult!.duration,
+        distance: _orderPriceResult!.distance,
         order: _orderController.value.copyWith(
           name: _titleTextController.text,
           scheduledDate: _scheduledDateController.value,
@@ -164,7 +228,7 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
           pickupAdditionalInfo: _pickupAdditionalInfoTextController.text,
           deliveryAdditionalInfo: _deliveryAdditionalInfoTextController.text,
           amountPaidedByRider: double.tryParse(_amountPayByCourierController.value ?? ''),
-          price: _orderPriceItems!.firstWhere((type) => type.type == _riderTypeController.value).price,
+          price: _orderPriceResult!.prices.firstWhere((type) => type.type == _riderTypeController.value).price,
         ),
       ),
     );
@@ -198,6 +262,7 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return Scaffold(
       appBar: const HomeOrderAppBar(),
       body: BottomAppBar(
@@ -209,20 +274,31 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                 controller: ModalScrollController.of(context),
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 slivers: [
-                  SliverToBoxAdapter(
-                    child: HomeOrderPlaceListTile(
-                      title: Text(widget.order.pickupPlace!.title!),
-                      iconColor: CupertinoColors.activeBlue,
-                      onTap: () {},
-                    ),
-                  ),
-                  const SliverToBoxAdapter(child: Divider(indent: 40.0)),
-                  SliverToBoxAdapter(
-                    child: HomeOrderPlaceListTile(
-                      title: Text(widget.order.deliveryPlace!.title!),
-                      iconColor: CupertinoColors.activeOrange,
-                      onTap: () {},
-                    ),
+                  ValueListenableBuilder<Order>(
+                    valueListenable: _orderController,
+                    builder: (context, order, child) {
+                      return MultiSliver(
+                        children: [
+                          SliverToBoxAdapter(
+                            child: HomeOrderPlaceListTile(
+                              subtitle: order.pickupPlace!.subtitle != null ? Text(order.pickupPlace!.subtitle!) : null,
+                              iconColor: CupertinoColors.activeBlue,
+                              title: Text(order.pickupPlace!.title!),
+                              onTap: _onPickupMapPressed,
+                            ),
+                          ),
+                          const SliverToBoxAdapter(child: Divider(indent: 40.0)),
+                          SliverToBoxAdapter(
+                            child: HomeOrderPlaceListTile(
+                              subtitle: order.deliveryPlace!.subtitle != null ? Text(order.deliveryPlace!.subtitle!) : null,
+                              iconColor: CupertinoColors.activeOrange,
+                              title: Text(order.deliveryPlace!.title!),
+                              onTap: _onDeliveryMapPressed,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SliverToBoxAdapter(child: Divider(thickness: 6.0, height: 6.0)),
                   SliverToBoxAdapter(
@@ -238,17 +314,19 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                                 scrollDirection: Axis.horizontal,
                                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                                 children: [
-                                  Builder(
-                                    builder: (context) {
-                                      final result = _orderPriceItems?.where((value) => value.type == RiderType.motorbike);
+                                  ValueListenableBuilder<RiderState>(
+                                    valueListenable: _riderService,
+                                    builder: (context, riderState, child) {
+                                      var result = _orderPriceResult?.prices.where((value) => value.type == RiderType.motorbike);
+                                      if (riderState is PendingRiderState) result = null;
                                       final isNotEmpty = result?.isNotEmpty ?? false;
                                       return HomeOrderPriceWidget(
                                         onChanged: isNotEmpty ? (value) => _riderTypeController.value = RiderType.motorbike : null,
-                                        amount: _orderPriceItems != null ? (isNotEmpty ? '${result!.first.price.toInt()} F' : '-') : null,
+                                        amount: result != null ? (isNotEmpty ? '${result.first.price.toInt()} F' : '-') : null,
                                         padding: const EdgeInsets.only(top: 6.0, left: 8.0),
+                                        title: localizations.onmotorbike.capitalize(),
                                         value: type == RiderType.motorbike,
                                         image: Assets.images.motorbike,
-                                        title: 'À moto',
                                       );
                                     },
                                   ),
@@ -279,11 +357,11 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                       valueListenable: _pickupContactController,
                       builder: (context, contact, child) {
                         return HomeOrderContactListTile(
-                          title: const Text('Contact pour le ramassage'),
+                          title: Text(localizations.contactpickup.capitalize()),
                           subtitle: contact != null ? Text(contact.phones!.join(', ')) : null,
                           onTap: () => _onContactPressed(
+                            title: localizations.contactpickup.capitalize(),
                             controller: _pickupContactController,
-                            title: 'Contact pour le ramassage',
                           ),
                         );
                       },
@@ -293,7 +371,7 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                   SliverToBoxAdapter(
                     child: CustomTextField(
                       controller: _pickupAdditionalInfoTextController,
-                      hintText: "Plus d'infos sur le ramassage",
+                      hintText: localizations.infopickup.capitalize(),
                       maxLines: 6,
                       minLines: 4,
                     ),
@@ -306,11 +384,11 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                       valueListenable: _deliveryContactController,
                       builder: (context, contact, child) {
                         return HomeOrderContactListTile(
-                          title: const Text('Contact pour la livraison'),
+                          title: Text(localizations.contactdelivery.capitalize()),
                           subtitle: contact != null ? Text(contact.phones!.join(', ')) : null,
                           onTap: () => _onContactPressed(
+                            title: localizations.contactdelivery.capitalize(),
                             controller: _deliveryContactController,
-                            title: 'Contact pour la livraison',
                           ),
                         );
                       },
@@ -320,7 +398,7 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                   SliverToBoxAdapter(
                     child: CustomTextField(
                       controller: _deliveryAdditionalInfoTextController,
-                      hintText: "Plus d'infos sur la livraison",
+                      hintText: localizations.infodelivery.capitalize(),
                       maxLines: 6,
                       minLines: 4,
                     ),
@@ -332,7 +410,7 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                     child: CustomTextField(
                       controller: _titleTextController,
                       prefixIcon: const Icon(CupertinoIcons.cube_box_fill, color: CupertinoColors.systemGrey2),
-                      hintText: 'Nom de la commande',
+                      hintText: localizations.ordername.capitalize(),
                     ),
                   ),
                   const SliverToBoxAdapter(child: SizedBox(height: 8.0)),
@@ -340,11 +418,10 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                     child: ValueListenableBuilder<DateTime?>(
                       valueListenable: _scheduledDateController,
                       builder: (context, dateTime, child) {
-                        final localizations = CupertinoLocalizations.of(context);
                         return HomeOrderSwitchListTile(
-                          trailing: dateTime != null ? '${localizations.datePickerMediumDate(dateTime)} à ${TimeOfDay.fromDateTime(dateTime).format(context)}' : null,
+                          trailing: dateTime != null ? '${CupertinoLocalizations.of(context).datePickerMediumDate(dateTime)} à ${TimeOfDay.fromDateTime(dateTime).format(context)}' : null,
+                          title: Text(localizations.program.capitalize()),
                           onTrailingPressed: _openDatetimeOrderModal,
-                          title: const Text('Programmer'),
                           onChanged: _switchDatetimeOrder,
                           value: dateTime != null,
                         );
@@ -357,7 +434,7 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                       builder: (context, amount, child) {
                         return HomeOrderSwitchListTile(
                           trailing: amount != null ? '$amount F' : null,
-                          title: const Text('Paiement par le livreur'),
+                          title: Text(localizations.purchasecourier.capitalize()),
                           onChanged: _switchAmountPayByCourier,
                           onTrailingPressed: _openAmountModal,
                           value: amount != null,
@@ -381,7 +458,7 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                     builder: (context, riderState, child) {
                       bool available = true;
                       VoidCallback? onPressed = _createOrder;
-                      if (riderState is PendingRiderState || orderState is PendingOrderState) {
+                      if (riderState is PendingRiderState || orderState is PendingOrderState || riderState is FailureRiderState) {
                         onPressed = null;
                       } else if (riderState is RiderItemState) {
                         available = riderState.data.available;
@@ -399,8 +476,8 @@ class _HomeOrderCreateScreenState extends State<HomeOrderCreateScreen> {
                             fit: BoxFit.scaleDown,
                             child: Visibility(
                               visible: available,
-                              replacement: Text('Oops, pas de coursiers disponibles', style: style),
-                              child: Text('Commander', style: style),
+                              replacement: Text(localizations.oopsnocourier.capitalize(), style: style),
+                              child: Text(localizations.toorder.capitalize(), style: style),
                             ),
                           ),
                         ),

@@ -12,8 +12,9 @@ class OrderContentAppBar extends DefaultAppBar {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return CupertinoNavigationBar(
-      middle: const Text('Commande'),
+      middle: Text(localizations.order.capitalize()),
       transitionBetweenRoutes: false,
       trailing: CustomButton(
         onPressed: onTrailingPressed,
@@ -23,9 +24,8 @@ class OrderContentAppBar extends DefaultAppBar {
   }
 }
 
-
-class OrderContentListTile extends StatelessWidget {
-  const OrderContentListTile({
+class OrderContentPlaceTile extends StatelessWidget {
+  const OrderContentPlaceTile({
     super.key,
     required this.title,
     required this.iconColor,
@@ -42,6 +42,37 @@ class OrderContentListTile extends StatelessWidget {
       leading: Icon(CupertinoIcons.circle, color: iconColor, size: 16.0),
       title: title,
       onTap: onTap,
+    );
+  }
+}
+
+class OrderContentPriceTile extends StatelessWidget {
+  const OrderContentPriceTile({
+    super.key,
+    required this.price,
+    required this.title,
+  });
+  final String title;
+  final double price;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomListTile(
+      title: Text('$title :'),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "$price F",
+            style: context.cupertinoTheme.textTheme.navTitleTextStyle.copyWith(
+              fontWeight: FontWeight.bold,
+              letterSpacing: -1.0,
+            ),
+          ),
+          const SizedBox(width: 8.0),
+          Assets.images.moneyStack.svg(height: 24.0),
+        ],
+      ),
     );
   }
 }

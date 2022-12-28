@@ -8,10 +8,11 @@ class HomeOrderSearchAppBar extends DefaultAppBar {
   const HomeOrderSearchAppBar({super.key});
   @override
   Widget build(BuildContext context) {
-    return const CupertinoNavigationBar(
-      border: Border.fromBorderSide(BorderSide.none),
+    final localizations = context.localizations;
+    return CupertinoNavigationBar(
+      border: const Border.fromBorderSide(BorderSide.none),
+      middle: Text('${localizations.order}s'.capitalize()),
       transitionBetweenRoutes: false,
-      middle: Text('Mes commandes'),
     );
   }
 }
@@ -24,12 +25,15 @@ class HomeOrderSearchTextField extends StatelessWidget {
   final TextEditingController? controller;
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 16.0, left: 16.0, bottom: 8.0),
-      child: CustomSearchTextField(
-        placeholder: 'nom, lieu ou numéro de téléphone',
-        controller: controller,
-        autofocus: true,
+    final localizations = context.localizations;
+    return Material(
+      child: Padding(
+        padding: const EdgeInsets.only(right: 16.0, left: 16.0, bottom: 8.0),
+        child: CustomSearchTextField(
+          placeholder: localizations.nameplacephonenumber,
+          controller: controller,
+          autofocus: true,
+        ),
       ),
     );
   }
